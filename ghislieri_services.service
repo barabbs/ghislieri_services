@@ -1,0 +1,14 @@
+[Unit]
+Description=Ghislieri Services service
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/ghislieri_services
+ExecStart=/usr/bin/python3 main.py ghislieri_bot student_databaser eduroam_reporting
+User = ghislieri-services
+Group = ghislieri-services
+Restart = on-failure
+RestartSec = 5
+
+[Install]
+WantedBy=multi-user.target
