@@ -25,7 +25,7 @@ class BaseService(Process):
         self.stop_event = stop_event
         self.pipe = self.services_pipes[self.SERVICE_NAME]
 
-    def _send_request(self, request):
+    def send_request(self, request):
         return self.services_pipes[request.service_name].send_request(request=request)
 
     def run(self):

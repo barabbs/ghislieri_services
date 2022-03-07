@@ -1,10 +1,13 @@
 from modules.service_pipe import ServicePipe, Request
-from student_databaser.student_databaser import StudentDatabaser
+from services.student_databaser.student_databaser import StudentDatabaser
+from services.ghislieri_bot.ghislieri_bot import GhislieriBot
 from multiprocessing import Event
 import logging
 
 log = logging.getLogger(__name__)
 
+SERVICES_CLASSES = {'student_databaser': StudentDatabaser,
+                    'ghislieri_bot': GhislieriBot}
 
 class GhislieriServices(object):
     def __init__(self, services):
@@ -16,12 +19,17 @@ class GhislieriServices(object):
         log.info("GhislieriServices initializing...")
         self.services_pipes = dict(tuple((s, ServicePipe()) for s in ('ghislieri_services',) + services))
         self.stop_event = Event()
-        self.services = {'student_databaser': StudentDatabaser(self.services_pipes, self.stop_event)}
+        self.services = dict()
+        self._init_services(services)
+
+    def _init_services(self, services):
+        for s in services:
+            self.services[s] = SERVICES_CLASSES[s](self.services_pipes, self.stop_event)
 
     def run(self):
-        log.info("GhislieriServices started")
-        for service in self.services.values():
-            service.start()
+        for s in self.services:
+            self.services[s].start()
+        log.info("All Services started")
         while True:
             k = input(" >  ")
             if k == 'q':
