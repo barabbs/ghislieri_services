@@ -1,0 +1,38 @@
+{
+    "code": "home",
+    "components": {
+        "TEXT": {
+            "text": "🟥🟨🟥🟨    <b>Collegio Ghislieri</b>    🟨🟥🟨🟥",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "‼️    Segnalazioni Eduroam",
+                        "callback": "eduroam_reporting",
+                        "actions": [
+                            [
+                                "NEW",
+                                "eduroam_reporting.main"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔧    Impostazioni",
+                        "callback": "settings",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.main"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

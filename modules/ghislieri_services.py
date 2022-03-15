@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 SERVICES_CLASSES = {'student_databaser': StudentDatabaser,
                     'ghislieri_bot': GhislieriBot}
 
+
 class GhislieriServices(object):
     def __init__(self, services):
         """
@@ -30,12 +31,15 @@ class GhislieriServices(object):
         for s in self.services:
             self.services[s].start()
         log.info("All Services started")
-        while True:
-            k = input(" >  ")
-            if k == 'q':
-                break
-            elif k == 's':
-                print(self._send_request(Request('student_databaser', 'get_students')))
+        try:
+            while True:
+                k = input(" >  ")
+                if k == 'q':
+                    break
+                elif k == 's':
+                    print(self._send_request(Request('student_databaser', 'get_students')))
+        except KeyboardInterrupt:
+            pass
 
         self._exit()
         log.info("GhislieriServices terminated")

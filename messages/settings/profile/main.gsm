@@ -1,0 +1,91 @@
+{
+    "code": "settings.profile.main",
+    "components": {
+        "TEXT": {
+            "text": "Modifica le tue informazioni",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "Nome: <u>{infos[name]}</u>",
+                        "callback": "name",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_infos_key",
+                                "name"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_infos_dialog",
+                                "il nuovo <b>Nome</b>"
+                            ],
+                            [
+                                "NEW",
+                                "settings.profile.edit"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Cognome: <u>{infos[surname]}</u>",
+                        "callback": "surname",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_infos_key",
+                                "surname"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_infos_dialog",
+                                "il nuovo <b>Cognome</b>"
+                            ],
+                            [
+                                "NEW",
+                                "settings.profile.edit"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Email: <u>{infos[email]}</u>",
+                        "callback": "email",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_infos_key",
+                                "email"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_infos_dialog",
+                                "la nuova <b>Email</b>"
+                            ],
+                            [
+                                "NEW",
+                                "settings.profile.edit"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

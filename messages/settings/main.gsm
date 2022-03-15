@@ -1,0 +1,61 @@
+{
+    "code": "settings.main",
+    "components": {
+        "TEXT": {
+            "text": "🔧    <b>Impostazioni</b>",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "👤    Profilo",
+                        "callback": "profile",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.profile.main"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "💬    Segnalazioni e Suggerimenti",
+                        "callback": "feedback",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.feedback.main"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "ℹ️    Informazioni",
+                        "callback": "about",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.about"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

@@ -10,3 +10,27 @@ def log_error(error, severity="error", **kwargs):
     error_str = ''.join(traceback.format_exception(None, error, error.__traceback__))
     with open(os.path.join(var.ERRORS_DIR, f"{severity}_{time}.gser"), 'w', encoding='utf-8') as f:
         f.write(f"{header}\n--------------------------------\n{error_str}")
+
+
+class dotdict(dict):
+    """dot.notation access to dictionary attributes"""
+
+    def __getitem__(self, item):
+        try:
+            i, r = item.split(".", 1)
+            return super(dotdict, self).__getitem__(i)[r]
+        except ValueError:
+            return super(dotdict, self).__getitem__(item)
+
+    def __setitem__(self, key, value):
+        if isinstance(value, dict):
+            value = dotdict(value)
+        try:
+            i, r = key.split(".", 1)
+            super(dotdict, self).__getitem__(i).__setitem__(r, value)
+        except ValueError:
+            super(dotdict, self).__setitem__(key, value)
+        except KeyError:
+            d = dotdict()
+            super(dotdict, self).__setitem__(i, d)
+            d.__setitem__(r, value)

@@ -1,11 +1,13 @@
 from modules.service_pipe import Request
 from modules import utility as utl
+from modules.utility import dotdict
 from .chat import Chat
+from .message import Message
 from . import var
 import telegram as tlg
 import telegram.ext, telegram.utils.request
 from time import sleep, time
-import logging
+import logging, os, requests, json
 
 log = logging.getLogger(__name__)
 
@@ -14,9 +16,21 @@ EDIT_MSG_NOT_FOUND = "Message to edit not found"
 EDIT_MSG_IDENTICAL = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
 DELETE_MSG_NOT_FOUND = "Message to delete not found"
 
+
 def get_bot_token():
     with open(var.FILEPATH_BOT_TOKEN, 'r') as token_file:
         return token_file.readline()
+
+
+def wait_for_internet():
+    log.info(f"Internet Connection - waiting...")
+    while True:
+        try:
+            requests.get('https://api.telegram.org')
+            break
+        except requests.exceptions.ConnectionError:
+            sleep(var.CONNECTION_RETRY_TIME)
+    log.info("Internet Connection - connected")
 
 
 class ChatSyncUpdate(tlg.Update):
@@ -32,33 +46,83 @@ class Bot(tlg.Bot):
         :param GhislieriBot service:
         """
         log.info(f"Bot initializing...")
+        wait_for_internet()
         self.service = service
         super(Bot, self).__init__(token=get_bot_token(), request=tlg.utils.request.Request(con_pool_size=var.REQUEST_CONNECTION_POOL_SIZE))
         self.updater = tlg.ext.Updater(bot=self)
-        self._handlers_setup()
+        self._load_handlers()
+        self.messages = self._load_messages(var.MESSAGES_DIR)
         self.chats = self._load_chats()
-        while True:
-            try:
-                self.update_queue = self.updater.start_polling()
-            except tlg.error.NetworkError:
-                log.error(f"Couldn't connect to server, retrying in {var.INITIAL_CONNECTION_RETRY_TIME} seconds")
-                sleep(var.INITIAL_CONNECTION_RETRY_TIME)
-            else:
-                break
+        self.update_queue = self.updater.start_polling()
         log.info(f"Bot created")
 
-    def _handlers_setup(self):
+    # Handlers
+
+    def _load_handlers(self):
         dispatcher = self.updater.dispatcher
         dispatcher.add_handler(tlg.ext.TypeHandler(ChatSyncUpdate, self._chat_sync_handler))
         dispatcher.add_handler(tlg.ext.CommandHandler('start', self._command_handler))
-        dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._query_handler))
-        dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._text_handler))
+        dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._buttons_handler))
+        dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._answer_handler))
         dispatcher.add_error_handler(self._error_handler)  # TODO: BUG FIX - Raises tlg.error.NetworkError if not connected to internet (move near self.updater.start_polling() - line 28)
         # TODO: Add Files Handler
         # TODO: Add StringCommandHandler to handle commands sent on the telegram chat
 
+    def _error_handler(self, update, context):
+        err = context.error
+        if isinstance(err, tlg.error.NetworkError):
+            log.warning("Connection lost!")
+            wait_for_internet()  # TODO: Review taking different Threads into account!
+        else:
+            log.error(f"Exception while handling an update: {context.error}")
+            try:
+                chat = self._get_chat(update.effective_user.id)
+            except Exception:  # TODO: See if there's a better way to do this
+                chat = None
+            utl.log_error(err, chat=chat)
+            # raise context.error  # TODO: !!! REMOVE ON DEPLOYMENT !!!
+
+    def _chat_sync_handler(self, update, context):
+        for chat in self.chats:
+            update_edit = chat.sync(update.update_id)
+            if update_edit is not None:
+                self._send_message(chat, edit=update_edit)
+
+    def _command_handler(self, update, context):
+        chat = self._get_chat(update)
+        chat.reset_session()
+        self._send_message(chat, del_user_msg=update.message.message_id)
+
+    def _buttons_handler(self, update, context):
+        chat = self._get_chat(update)
+        chat.reply('BUTTONS', callback=update.callback_query.data)
+        self._send_message(chat, edit=True)
+
+    def _answer_handler(self, update, context):
+        chat = self._get_chat(update)
+        chat.reply('ANSWER', answer=update.message.text)
+        self._send_message(chat, del_user_msg=update.message.message_id)
+
+    # Messages
+
+    def _load_messages(self, path):
+        messages = dotdict()
+        for filename in os.listdir(path):
+            filepath = os.path.join(path, filename)
+            if os.path.isdir(os.path.join(path, filename)):
+                messages[filename] = self._load_messages(filepath)
+            else:
+                with open(filepath, encoding='UTF-8') as file:
+                    messages[filename.split('.')[0]] = Message(json.load(file))
+        return messages
+
+    def get_message(self, code):
+        return self.messages[code]
+
+    # Chats
+
     def _load_chats(self):
-        return set(Chat(**s) for s in self.service.send_request(Request('student_databaser', 'get_students')))
+        return set(Chat(self, **s) for s in self.service.send_request(Request('student_databaser', 'get_students')))
 
     def _get_chat(self, update):
         try:
@@ -75,38 +139,7 @@ class Bot(tlg.Bot):
         # student.add_reset_message(welcome_msg)
         # return student
 
-    # Handlers
-
-    def _error_handler(self, update, context):
-        log.error(f"Exception while handling an update: {context.error}")
-        try:
-            chat = self._get_chat(update.effective_user.id)
-        except Exception:  # TODO: See if there's a better way to do this
-            chat = None
-        utl.log_error(context.error, chat=chat)
-
-    def _chat_sync_handler(self, update, context):
-        for chat in self.chats:
-            update_edit = chat.sync(update.update_id)
-            if update_edit is not None:
-                self._send_message(chat, edit=update_edit)
-
-    def _command_handler(self, update, context):
-        chat = self._get_chat(update)
-        chat.reset_session()
-        self._send_message(chat, del_user_msg=update.message.message_id)
-
-    def _query_handler(self, update, context):
-        chat = self._get_chat(update)
-        chat.respond('query', update.callback_query.data)
-        self._send_message(chat, edit=True)
-
-    def _text_handler(self, update, context):
-        chat = self._get_chat(update)
-        chat.respond('text', update.message.text)
-        self._send_message(chat, del_user_msg=update.message.message_id)
-
-    # Message sending
+    # Sending & Editing
 
     def _send_message(self, chat, edit=False, del_user_msg=None):
         message_content = chat.get_message_content()
@@ -141,21 +174,15 @@ class Bot(tlg.Bot):
                 utl.log_error(e)
         message_content.pop('message_id')
         new_message = self.send_message(**message_content)
-        self.service.send_request(chat.set_last_message_id(new_message.message_id))
+        new_id = new_message.message_id
+        self.service.send_request(Request('student_databaser', 'set_student_last_message_id', chat.user_id, new_id))
+        chat.set_last_message_id(new_id)
 
     # Runtime
 
-    def run(self):
-        log.info("Bot started")
-        try:
-            while True:
-                self.update_queue.put(ChatSyncUpdate())
-                sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
-        except KeyboardInterrupt:
-            log.info("Bot received exit signal")
-        finally:
-            self.exit()
-        log.info("Bot finished")
+    def update(self):
+        self.update_queue.put(ChatSyncUpdate())
+        sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
 
     def exit(self):
         log.info("Bot exiting...")
