@@ -1,5 +1,5 @@
 {
-    "code": "settings.main",
+    "code": "settings.menu",
     "components": {
         "TEXT": {
             "text": "🔧    <b>Impostazioni</b>",
@@ -14,7 +14,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "settings.profile.main"
+                                "settings.profile.menu"
                             ]
                         ]
                     }
@@ -26,7 +26,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "settings.feedback.main"
+                                "settings.feedback.menu"
                             ]
                         ]
                     }

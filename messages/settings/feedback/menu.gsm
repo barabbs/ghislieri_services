@@ -1,5 +1,5 @@
 {
-    "code": "settings.feedback.main",
+    "code": "settings.feedback.menu",
     "components": {
         "TEXT": {
             "text": "Scrivi il <b>problema</b> riscontrato o il <b>suggerimento</b> per il bot",

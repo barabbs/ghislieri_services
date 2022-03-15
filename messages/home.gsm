@@ -14,7 +14,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "eduroam_reporting.main"
+                                "eduroam_reporting.menu"
                             ]
                         ]
                     }
@@ -26,7 +26,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "settings.main"
+                                "settings.menu"
                             ]
                         ]
                     }

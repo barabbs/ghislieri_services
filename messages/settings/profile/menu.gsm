@@ -1,5 +1,5 @@
 {
-    "code": "settings.profile.main",
+    "code": "settings.profile.menu",
     "components": {
         "TEXT": {
             "text": "Modifica le tue informazioni",
@@ -9,7 +9,7 @@
             "buttons": [
                 [
                     {
-                        "text": "Nome: <u>{infos[name]}</u>",
+                        "text": "Nome:    {infos[name]}",
                         "callback": "name",
                         "actions": [
                             [
@@ -31,7 +31,7 @@
                 ],
                 [
                     {
-                        "text": "Cognome: <u>{infos[surname]}</u>",
+                        "text": "Cognome:    {infos[surname]}",
                         "callback": "surname",
                         "actions": [
                             [
@@ -53,7 +53,7 @@
                 ],
                 [
                     {
-                        "text": "Email: <u>{infos[email]}</u>",
+                        "text": "Email:    {infos[email]}",
                         "callback": "email",
                         "actions": [
                             [
