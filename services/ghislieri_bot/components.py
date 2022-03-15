@@ -57,7 +57,8 @@ def get_action_req(service_name, r_type, sent_data_keys, recv_data_key=None):
     return action
 
 
-ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'SAVE': get_action_save, 'COPY': get_action_copy, 'REQ': get_action_req, }
+# ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'SAVE': get_action_save, 'COPY': get_action_copy, 'REQ': get_action_req, }
+ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'SAVE': get_action_save, 'REQ': get_action_req, }
 
 
 # Components
