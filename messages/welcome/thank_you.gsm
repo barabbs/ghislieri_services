@@ -1,0 +1,25 @@
+{
+    "code": "settings.feedback.thank_you",
+    "components": {
+        "TEXT": {
+            "text": "Grazie! 😄",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "Inizia!",
+                        "callback": "start",
+                        "actions": [
+                            [
+                                "HOME"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

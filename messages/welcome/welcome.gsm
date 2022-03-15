@@ -1,0 +1,26 @@
+{
+    "code": "welcome.welcome",
+    "components": {
+        "TEXT": {
+            "text": "Benvenuto su <b>Ghislieri Bot</b>, il bot per i <i>servizi del Collegio</i>! 😄",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "➡️",
+                        "callback": "next",
+                        "actions": [
+                            [
+                                "NEW",
+                                "welcome.insert_name"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}
