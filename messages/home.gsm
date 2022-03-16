@@ -10,11 +10,11 @@
                 [
                     {
                         "text": "‼️    Segnalazioni Eduroam",
-                        "callback": "eduroam_reporting",
+                        "callback": "eduroam_reporter",
                         "actions": [
                             [
                                 "NEW",
-                                "eduroam_reporting.menu"
+                                "eduroam_reporter.menu"
                             ]
                         ]
                     }

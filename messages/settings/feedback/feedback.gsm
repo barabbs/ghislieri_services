@@ -1,5 +1,5 @@
 {
-    "code": "settings.feedback.menu",
+    "code": "settings.feedback.feedback",
     "components": {
         "TEXT": {
             "text": "Scrivi il <b>problema</b> riscontrato o il <b>suggerimento</b> per il bot",
@@ -28,11 +28,11 @@
                     "REQ",
                     "ghislieri_bot",
                     "save_feedback",
-                    [
-                        "user_id",
-                        "infos",
-                        "feedback_ans"
-                    ]
+                    {
+                    "user_id": "user_id",
+                    "student_infos": "infos",
+                    "text": "feedback_ans"
+                    }
                 ],
                 [
                     "NEW",

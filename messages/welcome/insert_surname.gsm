@@ -25,19 +25,16 @@
             "ans_data_key": "infos.surname",
             "actions": [
                 [
-                    "SAVE",
-                    "info_key",
-                    "surname"
-                ],
-                [
                     "REQ",
                     "student_databaser",
                     "edit_student_info",
-                    [
-                        "user_id",
-                        "info_key",
-                        "infos.surname"
-                    ]
+                    {
+                        "user_id": "user_id",
+                        "value": "infos.surname"
+                    },
+                    {
+                        "info": "surname"
+                    }
                 ],
                 [
                     "NEW",
