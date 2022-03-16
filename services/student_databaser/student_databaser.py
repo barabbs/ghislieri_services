@@ -20,19 +20,28 @@ class StudentDatabaser(BaseService):
         self.cursor = self.connection.cursor()
 
     def _edit_database(self, user_id, attribute, value):
-        self.cursor.execute(f"UPDATE {var.DATABASE_STUDENTS_TABLE} SET {attribute} = ? WHERE user_id = ?", (value, user_id))
+        self.cursor.execute(f"UPDATE {var.DATABASE_STUDENTS_TABLE} SET {attribute} = ? WHERE user_id = ?", (value, user_id))  # plz, don't do SQL injection on me :(
         self.connection.commit()
 
     # Requests
-    def _request_get_students(self):
-        self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
-        return tuple({'user_id': s[0], 'last_message_id': s[1], 'student_infos': dict(zip(var.STUDENT_INFOS, s[2:]))} for s in self.cursor.fetchall())
+    def _get_chat_dict(self, chat):
+        return {'user_id': chat[0], 'last_message_id': chat[1], 'student_infos': dict(zip(var.STUDENT_INFOS, chat[2:]))}
 
-    def _request_set_student_last_message_id(self, user_id, last_message_id):
+    def _request_get_chats(self):
+        self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
+        return tuple(self._get_chat_dict(chat) for chat in self.cursor.fetchall())
+
+    def _request_set_chat_last_message_id(self, user_id, last_message_id):
         self._edit_database(user_id, 'last_message_id', last_message_id)
 
     def _request_edit_student_info(self, user_id, info, value):
         self._edit_database(user_id, info, value)
+
+    def _request_new_chat(self, user_id, last_message_id):
+        self.cursor.execute(f"INSERT INTO {var.DATABASE_STUDENTS_TABLE} (user_id, last_message_id) VALUES (?, ?)", (user_id, last_message_id))
+        self.connection.commit()
+        self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
+        return self._get_chat_dict(self.cursor.fetchone())
 
     # -------------------------------- OLD CODE --------------------------------
 

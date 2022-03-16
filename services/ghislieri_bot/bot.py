@@ -122,22 +122,22 @@ class Bot(tlg.Bot):
     # Chats
 
     def _load_chats(self):
-        return set(Chat(self, **s) for s in self.service.send_request(Request('student_databaser', 'get_students')))
+        return set(Chat(self, **s) for s in self.service.send_request(Request('student_databaser', 'get_chats')))
 
     def _get_chat(self, update):
         try:
             return next(filter(lambda c: c.user_id == update.effective_user.id, self.chats))
         except StopIteration:
-            self._new_student_signup(update)
+            return self._new_student_signup(update)
 
     def _new_student_signup(self, update):
-        log.info(f"Found new student with user_id {update.effective_user.id}")
-        # TODO : Write new student signup
-        # welcome_msg = WelcomeMessage()
-        # new_msg_id = self.send_message(chat_id=update.message.chat.id, **welcome_msg.get_content())  # TODO: Visual bug - message gets sent and then deleted inside _command_handler
-        # student = self.databaser.new_student(update.effective_user.id, update.message.chat.id, new_msg_id.message_id)
-        # student.add_reset_message(welcome_msg)
-        # return student
+        user_id = update.effective_user.id
+        log.info(f"Found new student with user_id {user_id}")
+        new_msg_id = self.send_message(chat_id=user_id, text="Starting...")
+        chat = Chat(self, **self.service.send_request(Request('student_databaser', 'new_chat', user_id, new_msg_id.message_id)))
+        self.chats.add(chat)
+        chat.add_reset_message(self.get_message(var.WELCOME_MESSAGE_CODE))
+        return chat
 
     # Sending & Editing
 
@@ -175,7 +175,7 @@ class Bot(tlg.Bot):
         message_content.pop('message_id')
         new_message = self.send_message(**message_content)
         new_id = new_message.message_id
-        self.service.send_request(Request('student_databaser', 'set_student_last_message_id', chat.user_id, new_id))
+        self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
         chat.set_last_message_id(new_id)
 
     # Runtime
