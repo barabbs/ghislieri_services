@@ -1,0 +1,57 @@
+{
+    "code": "eduroam_reporter.new_report.recap",
+    "components": {
+        "TEXT": {
+            "text": "<b>Segnalazione:</b>    {eduroam_report[text]}\n<b>Luogo:</b>    {eduroam_report[place]}\n<b>Note:</b>    {eduroam_report[note]}\n\n✉️  Inviare la segnalazione?",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "✔️",
+                        "callback": "yes",
+                        "actions": [
+                            [
+                                "REQ",
+                                "eduroam_reporter",
+                                "new_report",
+                                {
+                                    "text": "eduroam_report.text",
+                                    "place": "eduroam_report.place",
+                                    "note": "eduroam_report.note"
+                                }
+                            ],
+                            [
+                                "NEW",
+                                "eduroam_reporter.new_report.thank_you"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "❌",
+                        "callback": "no",
+                        "actions": [
+                            [
+                                "BACK",
+                                4
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

@@ -1,0 +1,51 @@
+{
+    "code": "eduroam_reporter.new_report.notes",
+    "components": {
+        "TEXT": {
+            "text": "Note eventuali",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "Nessuna nota",
+                        "callback": "no_note",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "eduroam_report.note",
+                                ""
+                            ],
+                            [
+                                "NEW",
+                                "eduroam_reporter.new_report.recap"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        },
+        "ANSWER": {
+            "ans_data_key": "eduroam_report.note",
+            "actions": [
+                [
+                    "NEW",
+                    "eduroam_reporter.new_report.recap"
+                ]
+            ]
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "code": "eduroam_reporter.new_report.place",
+    "components": {
+        "TEXT": {
+            "text": "In che stanza o zona del Collegio?",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        },
+        "ANSWER": {
+            "ans_data_key": "eduroam_report.place",
+            "actions": [
+                [
+                    "NEW",
+                    "eduroam_reporter.new_report.notes"
+                ]
+            ]
+        }
+    }
+}

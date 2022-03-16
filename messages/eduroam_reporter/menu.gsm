@@ -1,0 +1,37 @@
+{
+    "code": "eduroam_reporter.menu",
+    "components": {
+        "TEXT": {
+            "text": "‼️    <b>Segnalazioni Eduroam</b>",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "📩    Nuova Segnalazione",
+                        "callback": "new_report",
+                        "actions": [
+                            [
+                                "NEW",
+                                "eduroam_reporter.new_report.text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

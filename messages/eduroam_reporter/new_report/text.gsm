@@ -1,0 +1,51 @@
+{
+    "code": "eduroam_reporter.new_report.text",
+    "components": {
+        "TEXT": {
+            "text": "Seleziona una <b>segnalazione</b> o inviane una nuova",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "Il wi-fi non si connette",
+                        "callback": "option_1",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "eduroam_report.text",
+                                "Il wi-fi non si connette"
+                            ],
+                            [
+                                "NEW",
+                                "eduroam_reporter.new_report.place"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        },
+        "ANSWER": {
+            "ans_data_key": "eduroam_report.text",
+            "actions": [
+                [
+                    "NEW",
+                    "eduroam_reporter.new_report.place"
+                ]
+            ]
+        }
+    }
+}
