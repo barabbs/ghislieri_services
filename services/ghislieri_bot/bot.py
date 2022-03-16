@@ -64,7 +64,7 @@ class Bot(tlg.Bot):
         dispatcher.add_handler(tlg.ext.CommandHandler('start', self._command_handler))
         dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._buttons_handler))
         dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._answer_handler))
-        dispatcher.add_error_handler(self._error_handler)  # TODO: BUG FIX - Raises tlg.error.NetworkError if not connected to internet (move near self.updater.start_polling() - line 28)
+        dispatcher.add_error_handler(self._error_handler)
         # TODO: Add Files Handler
         # TODO: Add StringCommandHandler to handle commands sent on the telegram chat
 

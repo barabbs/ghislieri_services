@@ -11,7 +11,6 @@ MESSAGES_DIR = os.path.join(os.getcwd(), 'messages')
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILEPATH_BOT_TOKEN = os.path.join(DATA_DIR, 'ghislieri_bot_token.gbtk')
-MESSAGE_FILE_EXT = '.gsm'
 
 # Bot
 REQUEST_CONNECTION_POOL_SIZE = 8
