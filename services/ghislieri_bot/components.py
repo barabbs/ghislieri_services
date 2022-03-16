@@ -46,11 +46,12 @@ def get_action_save(data_key, value):
 #     return action
 
 
-def get_action_req(service_name, r_type, sent_data_keys, recv_data_key=None):
+def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_key=None):
     def action(data, service, **kwargs):
-        recv = service.send_request(Request(service_name, r_type,
-                                            *tuple(data[k.format(**data)].format(**data) if isinstance(data[k.format(**data)], str) else data[k.format(**data)] for k in sent_data_keys)))
-        # recv = service.send_request(Request(service_name, r_type, **data[sent_data_key].copy()))  # Used in case passing kwargs to the request is needed
+        req_data = {k: data[v].format(**data) if isinstance(data[v], str) else data[v] for k,v in ((r.format(**data), t.format(**data)) for r,t in data_keys.items())}
+        if other_data is not None:
+            req_data.update(other_data)
+        recv = service.send_request(Request(service_name, r_type, **req_data))
         if recv_data_key is not None:
             data[recv_data_key] = recv
 
