@@ -17,7 +17,9 @@
                                 "eduroam_reporter",
                                 "new_report",
                                 {
-                                    "text": "eduroam_report.report",
+                                    "user_id": "user_id",
+                                    "student_infos": "infos",
+                                    "report": "eduroam_report.report",
                                     "place": "eduroam_report.place",
                                     "note": "eduroam_report.note"
                                 }
