@@ -1,4 +1,5 @@
 from modules.service_pipe import Request
+from . import var
 import telegram as tlg
 from emoji import emojize
 import logging
@@ -48,7 +49,7 @@ def get_action_save(data_key, value):
 
 def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_key=None):
     def action(data, service, **kwargs):
-        req_data = {k: data[v].format(**data) if isinstance(data[v], str) else data[v] for k,v in ((r.format(**data), t.format(**data)) for r,t in data_keys.items())}
+        req_data = {k: data[v].format(**data) if isinstance(data[v], str) else data[v] for k, v in ((r.format(**data), t.format(**data)) for r, t in data_keys.items())}
         if other_data is not None:
             req_data.update(other_data)
         recv = service.send_request(Request(service_name, r_type, **req_data))
@@ -88,28 +89,32 @@ class Text(BaseComponent):
 
 class ButtonsGroup(BaseComponent):
     def __init__(self, msg, raw):
+        self.options = Options(msg, raw['options']) if 'options' in raw else None
         self.buttons = tuple(tuple(Button(msg, b) for b in row) for row in raw['buttons'])
         super(ButtonsGroup, self).__init__(msg, raw)
 
-    def get_content(self, **kwargs):
-        return {'reply_markup': tlg.InlineKeyboardMarkup(list(list(b.get_button(**kwargs) for b in row) for row in self.buttons))}
+    def get_content(self, message, data, **kwargs):
+        return {'reply_markup': tlg.InlineKeyboardMarkup(self.options.get_buttons(data) if self.options is not None else [] + list(list(b.get_button(data) for b in row) for row in self.buttons))}
 
     def act(self, callback, **kwargs):
-        try:
-            next(filter(lambda b: b.callback == callback, sum(self.buttons, start=()))).act(callback=callback, **kwargs)
-        except StopIteration:
-            log.warning(f"Callback {callback} for message {kwargs['message'].code} raised StopIteration")
+        if var.OPTIONBUTTON_CALLBACK_IDENTIFIER in callback:
+            self.options.act(callback=callback, **kwargs)
+        else:
+            try:
+                next(filter(lambda b: b.callback == callback, sum(self.buttons, start=()))).act(callback=callback, **kwargs)
+            except StopIteration:
+                log.warning(f"Callback {callback} for message {kwargs['message'].code} raised StopIteration")
         super(ButtonsGroup, self).act(callback=callback, **kwargs)
 
 
 class Button(BaseComponent):
     def __init__(self, msg, raw):
         self.text = raw['text']
-        self.callback = msg.code + ':' + raw['callback']
+        self.callback = msg.code + var.CALLBACK_IDENTIFIER + raw['callback']
         super(Button, self).__init__(msg, raw)
 
-    def get_button(self, data, **kwargs):
-        return tlg.InlineKeyboardButton(emojize(self.text.format(**data)), callback_data=self.callback)
+    def get_button(self, data):
+        return tlg.InlineKeyboardButton(emojize(str(self.text).format(**data)), callback_data=self.callback)
 
 
 class Answer(BaseComponent):
@@ -122,6 +127,19 @@ class Answer(BaseComponent):
         answer.replace("}", "}}")
         data[self.ans_data_key.format(**data)] = answer
         super(Answer, self).act(answer=answer, data=data, **kwargs)
+
+
+class Options(Answer):
+    def __init__(self, msg, raw):
+        self.opt_data_key = raw['opt_data_key']
+        self.base_callback = msg.code + var.OPTIONBUTTON_CALLBACK_IDENTIFIER
+        super(Options, self).__init__(msg, raw)
+
+    def get_buttons(self, data):
+        return list([tlg.InlineKeyboardButton(emojize(str(opt).format(**data)), callback_data=self.base_callback + str(n)), ] for n, opt in enumerate(data[self.opt_data_key.format(**data)]))
+
+    def act(self, callback, data, **kwargs):
+        super(Options, self).act(answer=data[self.opt_data_key.format(**data)][int(callback.split(var.OPTIONBUTTON_CALLBACK_IDENTIFIER)[-1])], callback=callback, data=data, **kwargs)
 
 
 WIDGET_CLASSES = {'TEXT': Text,

@@ -14,7 +14,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "eduroam_reporter.new_report.text"
+                                "eduroam_reporter.new_report.report"
                             ]
                         ]
                     }

@@ -17,7 +17,7 @@ class Message(object):
     def get_content(self, **kwargs):
         content = {'parse_mode': tlg.ParseMode.HTML}
         for c in self.components.values():
-            content.update(c.get_content(**kwargs))
+            content.update(c.get_content(message=self, **kwargs))
         return content
 
     def act(self, component, **kwargs):

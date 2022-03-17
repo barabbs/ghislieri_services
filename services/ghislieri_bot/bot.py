@@ -74,7 +74,7 @@ class Bot(tlg.Bot):
             log.warning("Connection lost!")
             wait_for_internet()  # TODO: Review taking different Threads into account!
         else:
-            log.error(f"Exception while handling an update: {context.error}")
+            log.error(f"Exception while handling an update: {err}")
             try:
                 chat = self._get_chat(update.effective_user.id)
             except Exception:  # TODO: See if there's a better way to do this
@@ -113,7 +113,11 @@ class Bot(tlg.Bot):
                 messages[filename] = self._load_messages(filepath)
             else:
                 with open(filepath, encoding='UTF-8') as file:
-                    messages[filename.split('.')[0]] = Message(json.load(file))
+                    try:
+                        messages[filename.split('.')[0]] = Message(json.load(file))
+                    except json.decoder.JSONDecodeError as err:
+                        log.error(f"JSON error in file {filepath}")
+                        utl.log_error(err)
         return messages
 
     def get_message(self, code):
