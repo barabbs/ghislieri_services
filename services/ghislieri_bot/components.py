@@ -9,8 +9,11 @@ log = logging.getLogger(__name__)
 
 # Actions
 
-def get_action_new(new_code):
-    return lambda data, chat, bot, **kwargs: chat.session.append(bot.get_message(new_code.format(**data)))
+def get_action_new(new_code, condition_data_key=None):
+    def action(data, chat, bot, **kwargs):
+        if condition_data_key is None or data[condition_data_key]:
+            chat.session.append(bot.get_message(new_code.format(**data)))
+    return action
 
 
 def get_action_back(n=1):
