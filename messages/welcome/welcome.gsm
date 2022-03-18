@@ -14,7 +14,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "welcome.insert_name"
+                                "welcome.insert_surname"
                             ]
                         ]
                     }
