@@ -21,6 +21,18 @@
                 ],
                 [
                     {
+                        "text": "📣    Canali Telegram",
+                        "callback": "telegram_channels",
+                        "actions": [
+                            [
+                                "NEW",
+                                "telegram_channels.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🔧    Impostazioni",
                         "callback": "settings",
                         "actions": [
