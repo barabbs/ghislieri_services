@@ -110,11 +110,12 @@ class ButtonsGroup(BaseComponent):
 class Button(BaseComponent):
     def __init__(self, msg, raw):
         self.text = raw['text']
-        self.callback = msg.code + var.CALLBACK_IDENTIFIER + raw['callback']
+        self.url = raw['url'] if 'url' in raw else None
+        self.callback = msg.code + var.CALLBACK_IDENTIFIER + raw['callback'] if 'callback' in raw else None
         super(Button, self).__init__(msg, raw)
 
     def get_button(self, data):
-        return tlg.InlineKeyboardButton(emojize(str(self.text).format(**data)), callback_data=self.callback)
+        return tlg.InlineKeyboardButton(emojize(str(self.text).format(**data)), callback_data=self.callback, url=self.url)
 
 
 class Answer(BaseComponent):
