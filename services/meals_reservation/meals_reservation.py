@@ -17,13 +17,13 @@ class MealsReservation(BaseService):
         self._load_meals()
 
     def _load_meals(self):
-        for filename in os.listdir(var.RESERVATIONS_DIR):
+        for filename in filter(lambda f: not f[-5:] == ".temp", os.listdir(var.RESERVATIONS_DIR)):
             meal = Meal()
             if meal.load_from_file(filename):
                 self.meals.add(meal)
 
     def _request_get_active_meals(self, user_id):
-        return tuple(m.get_user_reservation(user_id) for m in sorted(self.meals))
+        return sum((m.get_user_reservation(user_id) for m in sorted(self.meals)), start=tuple())
 
-    def _request_toggle_meal(self, user_id, meal):
-        next(filter(lambda x: x.meal == meal["meal"] and x.date == meal["date"], self.meals)).toggle(user_id)
+    def _request_toggle_meal(self, user_id, meal_dict):
+        next(filter(lambda x: x.date == meal_dict["date"], self.meals)).toggle(user_id, meal_dict["meal"])

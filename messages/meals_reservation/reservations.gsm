@@ -28,7 +28,7 @@
                         "toggle_meal",
                         {
                             "user_id": "user_id",
-                            "meal": "meals_reservation.selected_meal"
+                            "meal_dict": "meals_reservation.selected_meal"
                         }
                     ]
                 ]
