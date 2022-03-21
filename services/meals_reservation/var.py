@@ -21,3 +21,9 @@ POSSIBLE_RESERVATIONS = (True, False)
 BUTTON_DATETIME_FORMAT = '%A %d %b %Y'
 BUTTON_RESERVATION_INDICATOR = {True: "🟢", False: "🔴", None: "❔"}
 RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
+
+# Emails
+EMAIL_METADATA = {"From": "Servizio Prenotazione Pasti",
+                  "To": "gesu.barabba.official@gmail.com",
+                  "CC": "alesosso@gmail.com",
+                  "Subject": "Prenotazione pasti {date_str}"}

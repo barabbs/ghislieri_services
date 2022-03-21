@@ -35,7 +35,7 @@ class Meal(object):
         return self.from_date < datetime.now()
 
     def _get_user_reservation(self, user_id, meal):
-        if user_id in self.reservations[meal].keys():
+        if user_id in self.reservations[meal]:
             return self.reservations[meal][user_id]
         return None
 
@@ -70,8 +70,10 @@ class Meal(object):
             res = tuple(sorted(res, key=lambda x: x['student_infos']['surname']))
             n, w = len(res), (len(res) + 2) // 3
             res = tuple(res[i:i + w] for i in range(0, n, w))
-            file.write(templ.render(date_str=get_date_str(self.date, False), reservations=res, total={m: sum(self.reservations[m].values()) for m in self.reservations.keys()}))
+            file.write(templ.render(date_str=get_date_str(self.date, False), reservations=res,
+                                    total={m: sum(1 for i in filter(lambda x: x, self.reservations[m].values())) for m in self.reservations.keys()}))
         pdfkit.from_file(filepath + '.html', filepath + '.pdf')
+        return filepath
 
     def __lt__(self, other):
         return self.date < other.date

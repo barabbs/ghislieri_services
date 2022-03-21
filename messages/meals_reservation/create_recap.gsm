@@ -1,0 +1,54 @@
+{
+    "code": "meals_reservation.create_recap",
+    "components": {
+        "TEXT": {
+            "text": "Create Recap",
+            "actions": [
+                [
+                    "REQ",
+                    "meals_reservation",
+                    "get_active_meals",
+                    {
+                        "user_id": "user_id"
+                    },
+                    {},
+                    "meals_reservation.active_meals"
+                ]
+            ]
+        },
+        "BUTTONS": {
+            "options": {
+                "text": "{date_str}  -  {meal:<6}",
+                "opt_data_key": "meals_reservation.active_meals",
+                "ans_data_key": "meals_reservation.selected_meal",
+                "actions": [
+                    [
+                        "REQ",
+                        "meals_reservation",
+                        "create_recap",
+                        {
+                            "meal_dict": "meals_reservation.selected_meal"
+                        }
+                    ],
+                    [
+                        "BACK"
+                    ]
+                ]
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}
