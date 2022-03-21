@@ -54,6 +54,7 @@ class Bot(tlg.Bot):
         self.messages = self._load_messages(var.MESSAGES_DIR)
         self.chats = self._load_chats()
         self.update_queue = self.updater.start_polling()
+        self.last_sync = None
         log.info(f"Bot created")
 
     # Handlers
@@ -100,7 +101,10 @@ class Bot(tlg.Bot):
 
     def _answer_handler(self, update, context):
         chat = self._get_chat(update)
-        chat.reply('ANSWER', answer=update.message.text)
+        answer = update.message.text
+        answer.replace("{", "{{")
+        answer.replace("}", "}}")
+        chat.reply('ANSWER', answer=answer)
         self._send_message(chat, del_user_msg=update.message.message_id)
 
     # Messages
@@ -185,8 +189,9 @@ class Bot(tlg.Bot):
     # Runtime
 
     def update(self):
-        self.update_queue.put(ChatSyncUpdate())
-        sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
+        if self.last_sync is None or time() > ChatSyncUpdate().update_id + var.STUDENT_UPDATE_SECONDS_INTERVAL:
+            self.last_sync = ChatSyncUpdate()
+            self.update_queue.put(self.last_sync)
 
     def exit(self):
         log.info("Bot exiting...")

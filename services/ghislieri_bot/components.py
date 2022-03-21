@@ -1,7 +1,6 @@
 from modules.service_pipe import Request
 from . import var
 import telegram as tlg
-from emoji import emojize
 import logging
 
 log = logging.getLogger(__name__)
@@ -87,7 +86,7 @@ class Text(BaseComponent):
 
     def get_content(self, data, **kwargs):
         self.act(data=data, **kwargs)
-        return {'text': emojize(self.text.format(**data))}
+        return {'text': self.text.format(**data)}
 
 
 class ButtonsGroup(BaseComponent):
@@ -97,7 +96,7 @@ class ButtonsGroup(BaseComponent):
         super(ButtonsGroup, self).__init__(msg, raw)
 
     def get_content(self, message, data, **kwargs):
-        return {'reply_markup': tlg.InlineKeyboardMarkup(self.options.get_buttons(data) if self.options is not None else [] + list(list(b.get_button(data) for b in row) for row in self.buttons))}
+        return {'reply_markup': tlg.InlineKeyboardMarkup((self.options.get_buttons(data) if self.options is not None else []) + list(list(b.get_button(data) for b in row) for row in self.buttons))}
 
     def act(self, callback, **kwargs):
         if var.OPTIONBUTTON_CALLBACK_IDENTIFIER in callback:
@@ -118,7 +117,7 @@ class Button(BaseComponent):
         super(Button, self).__init__(msg, raw)
 
     def get_button(self, data):
-        return tlg.InlineKeyboardButton(emojize(str(self.text).format(**data)), callback_data=self.callback, url=self.url)
+        return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=self.callback, url=self.url)
 
 
 class Answer(BaseComponent):
@@ -127,20 +126,19 @@ class Answer(BaseComponent):
         super(Answer, self).__init__(msg, raw)
 
     def act(self, answer, data, **kwargs):
-        answer.replace("{", "{{")
-        answer.replace("}", "}}")
         data[self.ans_data_key.format(**data)] = answer
         super(Answer, self).act(answer=answer, data=data, **kwargs)
 
 
 class Options(Answer):
     def __init__(self, msg, raw):
+        self.text = raw['text'] if 'text' in raw else "{opt}"
         self.opt_data_key = raw['opt_data_key']
         self.base_callback = msg.code + var.OPTIONBUTTON_CALLBACK_IDENTIFIER
         super(Options, self).__init__(msg, raw)
 
     def get_buttons(self, data):
-        return list([tlg.InlineKeyboardButton(emojize(str(opt).format(**data)), callback_data=self.base_callback + str(n)), ] for n, opt in enumerate(data[self.opt_data_key.format(**data)]))
+        return list([tlg.InlineKeyboardButton(self.text.format(**opt).format(**data), callback_data=self.base_callback + str(n)), ] for n, opt in enumerate(data[self.opt_data_key.format(**data)]))
 
     def act(self, callback, data, **kwargs):
         super(Options, self).act(answer=data[self.opt_data_key.format(**data)][int(callback.split(var.OPTIONBUTTON_CALLBACK_IDENTIFIER)[-1])], callback=callback, data=data, **kwargs)

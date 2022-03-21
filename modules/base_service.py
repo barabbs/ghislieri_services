@@ -1,5 +1,5 @@
 from multiprocessing import Process
-from time import sleep
+from time import sleep, time
 import logging
 
 log = logging.getLogger(__name__)
@@ -32,8 +32,10 @@ class BaseService(Process):
         log.info(f"{self.SERVICE_NAME} started")
         try:
             while True:
+                t = time()
                 self._update()
-                self._handle_requests()  # TODO: Add sleep time between cycles?
+                self._handle_requests()
+                sleep(max(0., time() - t))
         except StopService:
             log.info(f"{self.SERVICE_NAME} stopping...")
         finally:
