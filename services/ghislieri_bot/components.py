@@ -1,5 +1,6 @@
 from modules.service_pipe import Request
 from . import var
+from time import time
 import telegram as tlg
 import logging
 
@@ -53,7 +54,6 @@ def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_k
 ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'SAVE': get_action_save, 'REQ': get_action_req, }
 
 
-
 # Components
 
 class BaseComponent(object):
@@ -86,21 +86,22 @@ class ButtonsGroup(BaseComponent):
 
     def get_content(self, message, chat, data, **kwargs):
         buttons = list()
+        time_str = str(int(time()))
         for row in self.buttons:
             r_butt = list()
             for b in row:
                 if b.check_permission(chat.permissions):
-                    r_butt.append(b.get_button(data))
+                    r_butt.append(b.get_button(data, time_str))
             if not len(r_butt) == 0:
                 buttons.append(r_butt)
-        return {'reply_markup': tlg.InlineKeyboardMarkup((self.options.get_buttons(data) if self.options is not None else []) + buttons)}
+        return {'reply_markup': tlg.InlineKeyboardMarkup((self.options.get_buttons(data, time_str) if self.options is not None else []) + buttons)}
 
     def act(self, callback, **kwargs):
         if var.OPTIONBUTTON_CALLBACK_IDENTIFIER in callback:
             self.options.act(callback=callback, **kwargs)
         else:
             try:
-                next(filter(lambda b: b.callback == callback, sum(self.buttons, start=()))).act(callback=callback, **kwargs)
+                next(filter(lambda b: b.check_callback(callback), sum(self.buttons, start=()))).act(callback=callback, **kwargs)
             except StopIteration:
                 log.warning(f"Callback {callback} for message {kwargs['message'].code} raised StopIteration")
         super(ButtonsGroup, self).act(callback=callback, **kwargs)
@@ -117,8 +118,11 @@ class Button(BaseComponent):
     def check_permission(self, permissions):
         return self.auth is None or len(self.auth.intersection(permissions)) > 0
 
-    def get_button(self, data):
-        return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=self.callback, url=self.url)
+    def check_callback(self, callback):
+        return self.callback == callback.split(var.TIME_IDENTIFIER)[-1]
+
+    def get_button(self, data, time_str):
+        return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=time_str + var.TIME_IDENTIFIER + self.callback, url=self.url)
 
 
 class Answer(BaseComponent):
@@ -138,8 +142,8 @@ class Options(Answer):
         self.base_callback = msg.code + var.OPTIONBUTTON_CALLBACK_IDENTIFIER
         super(Options, self).__init__(msg, raw)
 
-    def get_buttons(self, data):
-        return list([tlg.InlineKeyboardButton(self.text.format(**opt).format(**data), callback_data=self.base_callback + str(n)), ] for n, opt in enumerate(data[self.opt_data_key.format(**data)]))
+    def get_buttons(self, data, time_str):
+        return list([tlg.InlineKeyboardButton(self.text.format(**opt).format(**data), callback_data=time_str + var.TIME_IDENTIFIER + self.base_callback + str(n)), ] for n, opt in enumerate(data[self.opt_data_key.format(**data)]))
 
     def act(self, callback, data, **kwargs):
         super(Options, self).act(answer=data[self.opt_data_key.format(**data)][int(callback.split(var.OPTIONBUTTON_CALLBACK_IDENTIFIER)[-1])], callback=callback, data=data, **kwargs)
