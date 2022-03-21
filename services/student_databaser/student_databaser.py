@@ -11,7 +11,7 @@ def get_student_infos_dict(chat):
 
 
 def get_chat_dict(chat):
-    return {'user_id': chat[0], 'last_message_id': chat[1], 'student_infos': get_student_infos_dict(chat)}
+    return {'user_id': chat[0], 'last_message_id': chat[1], 'student_infos': get_student_infos_dict(chat), 'permissions': set(chat[-1].split(",")) if chat[-1] is not None else set()}
 
 
 class StudentDatabaser(BaseService):
@@ -53,24 +53,18 @@ class StudentDatabaser(BaseService):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
         return get_chat_dict(self.cursor.fetchone())
 
-    # -------------------------------- OLD CODE --------------------------------
-
-    # def _request_new_student(self, user_id, chat_id, last_message_id):
-    #     self.cursor.execute(f"INSERT INTO {var.DATABASE_STUDENTS_TABLE} (user_id, chat_id, last_message_id) VALUES (?, ?, ?)",
-    #                         (user_id, chat_id, last_message_id))  # plz, don't do SQL injection on me :(
-    #     self.connection.commit()
-    #     new_student = Student(user_id, chat_id, last_message_id)
-    #     self.students.add(new_student)
-    #     return new_student
-    #
-    # def _request_get_student(self, user_id):
-    #     try:
-    #         return next(filter(lambda s: s.user_id == user_id, self.students))
-    #     except StopIteration:
-    #         log.debug("User not found")
-    #         return None
-
-    # -------------------------------- OLD CODE --------------------------------
+    def _request_edit_permission(self, user_id, permission, edit):
+        self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
+        perms = get_chat_dict(self.cursor.fetchone())['permissions']
+        if edit == "add":
+            perms.append(permission)
+        if edit == "rm":
+            try:
+                perms.remove(permission)
+            except ValueError:
+                pass
+        self._edit_database(user_id, 'permissions', ",".join(perms))
+        return get_chat_dict(self.cursor.fetchone())
 
     # Exit
 

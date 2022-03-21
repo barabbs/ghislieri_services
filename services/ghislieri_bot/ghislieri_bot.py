@@ -21,13 +21,15 @@ class GhislieriBot(BaseService):
         with open(os.path.join(var.FEEDBACK_DIR, f"{user_id} - {time}.gbfb"), 'w', encoding='utf-8') as f:
             f.write(f"{header}\n\n{text}")
 
-
     def run(self):
         self.bot = Bot(self)
         super(GhislieriBot, self).run()
 
     def _update(self):
         self.bot.update()
+
+    def _stop(self):
+        self.bot.stop()
 
     def _exit(self):
         self.bot.exit()

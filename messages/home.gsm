@@ -2,7 +2,7 @@
     "code": "home",
     "components": {
         "TEXT": {
-            "text": "🟥🟨🟥🟨    <b>Collegio Ghislieri</b>    🟨🟥🟨🟥",
+            "text": "🟥🟨    <b>Collegio Ghislieri</b>    🟨🟥",
             "actions": []
         },
         "BUTTONS": {
@@ -51,6 +51,18 @@
                             [
                                 "NEW",
                                 "settings.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔓    Admin",
+                        "callback": "admin",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.menu"
                             ]
                         ]
                     }

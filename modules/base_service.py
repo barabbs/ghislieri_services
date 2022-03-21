@@ -56,11 +56,15 @@ class BaseService(Process):
 
     def _request_stop(self):
         log.info(f"{self.SERVICE_NAME} received stop request")
+        self._stop()
         self.pipe.send_back_result(None)
         while not self.stop_event.is_set():
             self._handle_requests()  # TODO: Add sleep time between cycles?
         self.pipe.close()
         raise StopService
+
+    def _stop(self):
+        pass
 
     def _exit(self):
         pass

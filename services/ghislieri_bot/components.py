@@ -12,6 +12,7 @@ def get_action_new(new_code, condition_data_key=None):
     def action(data, chat, bot, **kwargs):
         if condition_data_key is None or data[condition_data_key]:
             chat.session.append(bot.get_message(new_code.format(**data)))
+
     return action
 
 
@@ -95,8 +96,16 @@ class ButtonsGroup(BaseComponent):
         self.buttons = tuple(tuple(Button(msg, b) for b in row) for row in raw['buttons'])
         super(ButtonsGroup, self).__init__(msg, raw)
 
-    def get_content(self, message, data, **kwargs):
-        return {'reply_markup': tlg.InlineKeyboardMarkup((self.options.get_buttons(data) if self.options is not None else []) + list(list(b.get_button(data) for b in row) for row in self.buttons))}
+    def get_content(self, message, chat, data, **kwargs):
+        buttons = list()
+        for row in self.buttons:
+            r_butt = list()
+            for b in row:
+                if b.check_permission(chat.permissions):
+                    r_butt.append(b.get_button(data))
+            if not len(r_butt) == 0:
+                buttons.append(r_butt)
+        return {'reply_markup': tlg.InlineKeyboardMarkup((self.options.get_buttons(data) if self.options is not None else []) + buttons)}
 
     def act(self, callback, **kwargs):
         if var.OPTIONBUTTON_CALLBACK_IDENTIFIER in callback:
@@ -112,9 +121,13 @@ class ButtonsGroup(BaseComponent):
 class Button(BaseComponent):
     def __init__(self, msg, raw):
         self.text = raw['text']
+        self.auth = set(raw['auth']) if 'auth' in raw else None
         self.url = raw['url'] if 'url' in raw else None
         self.callback = msg.code + var.CALLBACK_IDENTIFIER + raw['callback'] if 'callback' in raw else None
         super(Button, self).__init__(msg, raw)
+
+    def check_permission(self, permissions):
+        return self.auth is None or len(self.auth.intersection(permissions)) > 0
 
     def get_button(self, data):
         return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=self.callback, url=self.url)

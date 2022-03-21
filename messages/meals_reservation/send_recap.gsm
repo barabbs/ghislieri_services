@@ -1,11 +1,11 @@
 {
-    "code": "meals_reservation.create_recap",
+    "code": "meals_reservation.send_recap",
     "auth": [
                 "master"
             ],
     "components": {
         "TEXT": {
-            "text": "Create Recap",
+            "text": "Send Recap",
             "actions": [
                 [
                     "REQ",
@@ -28,7 +28,7 @@
                     [
                         "REQ",
                         "meals_reservation",
-                        "create_recap",
+                        "send_recap",
                         {
                             "meal_dict": "meals_reservation.selected_meal"
                         }

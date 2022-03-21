@@ -22,11 +22,30 @@
                 [
                     {
                         "text": "Create Recap",
-                        "callback": "recap",
+                        "callback": "create_recap",
+                        "auth": [
+                                    "master"
+                                ],
                         "actions": [
                             [
                                 "NEW",
                                 "meals_reservation.create_recap"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Send Recap",
+                        "callback": "send_recap",
+
+                        "auth": [
+                                    "master"
+                                ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_reservation.send_recap"
                             ]
                         ]
                     }

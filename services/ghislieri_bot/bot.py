@@ -1,7 +1,7 @@
 from modules.service_pipe import Request
 from modules import utility as utl
 from modules.utility import dotdict
-from .chat import Chat
+from .chat import Chat, MessageAuthorizationError
 from .message import Message
 from . import var
 import telegram as tlg
@@ -78,20 +78,19 @@ class Bot(tlg.Bot):
             log.error(f"Exception while handling an update: {err}")
             try:
                 chat = self._get_chat(update.effective_user.id)
-            except Exception:  # TODO: See if there's a better way to do this
+            except Exception:
                 chat = None
             utl.log_error(err, chat=chat)
-            # raise context.error  # TODO: !!! REMOVE ON DEPLOYMENT !!!
 
     def _chat_sync_handler(self, update, context):
         for chat in self.chats:
-            update_edit = chat.sync(update.update_id)
+            update_edit = not chat.sync(update.update_id)
             if update_edit is not None:
                 self._send_message(chat, edit=update_edit)
 
     def _command_handler(self, update, context):
         chat = self._get_chat(update)
-        chat.reset_session()
+        chat.reset_session(var.WELCOME_MESSAGE_CODE)
         self._send_message(chat, del_user_msg=update.message.message_id)
 
     def _buttons_handler(self, update, context):
@@ -144,12 +143,17 @@ class Bot(tlg.Bot):
         new_msg_id = self.send_message(chat_id=user_id, text="Starting...")
         chat = Chat(self, **self.service.send_request(Request('student_databaser', 'new_chat', user_id, new_msg_id.message_id)))
         self.chats.add(chat)
-        chat.add_reset_message(self.get_message(var.WELCOME_MESSAGE_CODE))
         return chat
 
     # Sending & Editing
 
     def _send_message(self, chat, edit=False, del_user_msg=None):
+        try:
+            chat.check_auth()
+        except MessageAuthorizationError as err:
+            chat.reset_session(var.AUTH_ERROR_MESSAGE_CODE)
+            chat.data['auth_error.code'] = err.msg_code
+            utl.log_error(err, chat=chat, msg_code=err.msg_code)
         message_content = chat.get_message_content()
         if edit:
             self._edit_message(chat, message_content)
@@ -190,12 +194,15 @@ class Bot(tlg.Bot):
 
     def update(self):
         if self.last_sync is None or time() > ChatSyncUpdate().update_id + var.STUDENT_UPDATE_SECONDS_INTERVAL:
-            print("Add update")
             self.last_sync = ChatSyncUpdate()
             self.update_queue.put(self.last_sync)
+
+    def stop(self):
+        for chat in self.chats:
+            chat.reset_session(var.SHUTDOWN_MESSAGE_CODE)
+            self._send_message(chat, edit=True)
 
     def exit(self):
         log.info("Bot exiting...")
         self.updater.stop()
-        pass  # TODO: Terminating procedures
         log.info("Bot exited")

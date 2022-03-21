@@ -19,19 +19,16 @@ class EmailService(BaseService):
     SERVICE_NAME = var.SERVICE_NAME
 
     def _request_send_email(self, sender, receivers, subject, text, attachments=None):
-        # context = ssl.create_default_context()
         try:
             server = smtplib.SMTP(*var.SMTP_SERVER)
-            server.starttls() # Secure the connection
+            server.starttls()
             server.login(*get_email_credentials())
 
             message = MIMEMultipart()
             message["From"] = sender
             message["To"] = ",".join(receivers)
             message["Subject"] = subject
-
             message.attach(MIMEText(text, "plain"))
-
             if attachments is not None:
                 for filepath in attachments:
                     with open(filepath, "rb") as attachment:
