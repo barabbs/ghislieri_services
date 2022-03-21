@@ -2,7 +2,7 @@
     "code": "meals_reservation.reservations",
     "components": {
         "TEXT": {
-            "text": "🍽️    <b>Prenotazione Pasti</b>",
+            "text": "Prenota il <b>Pasto</b>",
             "actions": [
                 [
                     "REQ",

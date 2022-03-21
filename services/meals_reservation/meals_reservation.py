@@ -23,7 +23,10 @@ class MealsReservation(BaseService):
                 self.meals.add(meal)
 
     def _request_get_active_meals(self, user_id):
-        return sum((m.get_user_reservation(user_id) for m in sorted(self.meals)), start=tuple())
+        return sum((m.get_reservation(user_id) for m in sorted(self.meals)), start=tuple())
 
     def _request_toggle_meal(self, user_id, meal_dict):
         next(filter(lambda x: x.date == meal_dict["date"], self.meals)).toggle(user_id, meal_dict["meal"])
+
+    def _request_create_recap(self, meal_dict):
+        next(filter(lambda x: x.date == meal_dict["date"], self.meals)).create_recap(self)

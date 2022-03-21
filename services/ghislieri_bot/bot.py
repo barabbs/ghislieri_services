@@ -190,6 +190,7 @@ class Bot(tlg.Bot):
 
     def update(self):
         if self.last_sync is None or time() > ChatSyncUpdate().update_id + var.STUDENT_UPDATE_SECONDS_INTERVAL:
+            print("Add update")
             self.last_sync = ChatSyncUpdate()
             self.update_queue.put(self.last_sync)
 

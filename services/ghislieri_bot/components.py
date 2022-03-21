@@ -132,7 +132,7 @@ class Answer(BaseComponent):
 
 class Options(Answer):
     def __init__(self, msg, raw):
-        self.text = raw['text'] if 'text' in raw else "{opt}"
+        self.text = raw['text']
         self.opt_data_key = raw['opt_data_key']
         self.base_callback = msg.code + var.OPTIONBUTTON_CALLBACK_IDENTIFIER
         super(Options, self).__init__(msg, raw)

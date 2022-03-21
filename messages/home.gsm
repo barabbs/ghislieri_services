@@ -14,7 +14,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "meals_reservation.reservations"
+                                "meals_reservation.menu"
                             ]
                         ]
                     }

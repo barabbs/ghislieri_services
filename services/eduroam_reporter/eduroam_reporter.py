@@ -16,7 +16,7 @@ class EduroamReporter(BaseService):
             self.default_reports = file.read().split("\n")
 
     def _request_get_default_reports(self):
-        return self.default_reports
+        return tuple({'report': r} for r in self.default_reports)
 
     def _request_new_report(self, user_id, student_infos, report, place, note):
         time = datetime.now().strftime(var.DATETIME_FORMAT)

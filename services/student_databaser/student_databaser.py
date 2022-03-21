@@ -6,6 +6,14 @@ import logging
 log = logging.getLogger(__name__)
 
 
+def get_student_infos_dict(chat):
+    return dict(zip(var.STUDENT_INFOS, chat[2:]))
+
+
+def get_chat_dict(chat):
+    return {'user_id': chat[0], 'last_message_id': chat[1], 'student_infos': get_student_infos_dict(chat)}
+
+
 class StudentDatabaser(BaseService):
     SERVICE_NAME = var.SERVICE_NAME
 
@@ -24,12 +32,14 @@ class StudentDatabaser(BaseService):
         self.connection.commit()
 
     # Requests
-    def _get_chat_dict(self, chat):
-        return {'user_id': chat[0], 'last_message_id': chat[1], 'student_infos': dict(zip(var.STUDENT_INFOS, chat[2:]))}
 
     def _request_get_chats(self):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
-        return tuple(self._get_chat_dict(chat) for chat in self.cursor.fetchall())
+        return tuple(get_chat_dict(chat) for chat in self.cursor.fetchall())
+
+    def _request_get_student_infos(self, user_id):  # TODO: Requeset not used
+        self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
+        return get_student_infos_dict(self.cursor.fetchone())
 
     def _request_set_chat_last_message_id(self, user_id, last_message_id):
         self._edit_database(user_id, 'last_message_id', last_message_id)
@@ -41,7 +51,7 @@ class StudentDatabaser(BaseService):
         self.cursor.execute(f"INSERT INTO {var.DATABASE_STUDENTS_TABLE} (user_id, last_message_id) VALUES (?, ?)", (user_id, last_message_id))
         self.connection.commit()
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
-        return self._get_chat_dict(self.cursor.fetchone())
+        return get_chat_dict(self.cursor.fetchone())
 
     # -------------------------------- OLD CODE --------------------------------
 

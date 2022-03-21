@@ -16,6 +16,7 @@
         },
         "BUTTONS": {
             "options": {
+                "text": "{report}",
                 "opt_data_key": "eduroam_report.default_reports",
                 "ans_data_key": "eduroam_report.report",
                 "actions": [
