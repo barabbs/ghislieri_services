@@ -9,6 +9,18 @@
             "buttons": [
                 [
                     {
+                        "text": "🍽️    Prenotazione Pasti",
+                        "callback": "meals_reservation",
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_reservation.reservations"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "‼️    Segnalazioni Eduroam",
                         "callback": "eduroam_reporter",
                         "actions": [

@@ -34,3 +34,15 @@ class dotdict(dict):
             d = dotdict()
             super(dotdict, self).__setitem__(i, d)
             d.__setitem__(r, value)
+
+
+def get_weekday_name(date, abbr=False):
+    if abbr:
+        return ("lun", "mar", "mer", "gio", "ven", "sab", "dom")[date.weekday()]
+    return ("lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica")[date.weekday()]
+
+
+def get_month_name(date, abbr=False):
+    if abbr:
+        return ("gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic")[date.month - 1]
+    return ("gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre")[date.month - 1]

@@ -1,5 +1,6 @@
 from modules.service_pipe import ServicePipe, Request
 from services.student_databaser.student_databaser import StudentDatabaser
+from services.meals_reservation.meals_reservation import MealsReservation
 from services.eduroam_reporter.eduroam_reporter import EduroamReporter
 from services.ghislieri_bot.ghislieri_bot import GhislieriBot
 from multiprocessing import Event
@@ -8,6 +9,7 @@ import logging
 log = logging.getLogger(__name__)
 
 SERVICES_CLASSES = {'student_databaser': StudentDatabaser,
+                    'meals_reservation': MealsReservation,
                     'eduroam_reporter': EduroamReporter,
                     'ghislieri_bot': GhislieriBot}
 
