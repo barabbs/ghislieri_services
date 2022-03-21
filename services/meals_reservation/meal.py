@@ -32,7 +32,7 @@ class Meal(object):
                     except ValueError:
                         pass
                 j += 1
-        return self.from_date < datetime.now()
+        return self.from_date < datetime.now() < self.date + var.TIMELIMIT
 
     def _get_user_reservation(self, user_id, meal):
         if user_id in self.reservations[meal]:

@@ -18,7 +18,7 @@ def get_email_credentials():
 class EmailService(BaseService):
     SERVICE_NAME = var.SERVICE_NAME
 
-    def _request_send_email(self, metadata, text, attachments=None):
+    def _request_send_email(self, sender, receivers, subject, text, attachments=None):
         # context = ssl.create_default_context()
         try:
             server = smtplib.SMTP(*var.SMTP_SERVER)
@@ -26,8 +26,9 @@ class EmailService(BaseService):
             server.login(*get_email_credentials())
 
             message = MIMEMultipart()
-            for k, v in metadata.items():
-                message[k] = v
+            message["From"] = sender
+            message["To"] = ",".join(receivers)
+            message["Subject"] = subject
 
             message.attach(MIMEText(text, "plain"))
 
@@ -35,10 +36,10 @@ class EmailService(BaseService):
                 for filepath in attachments:
                     with open(filepath, "rb") as attachment:
                         p = MIMEApplication(attachment.read(), _subtype=filepath.split('.')[-1])
-                        p.add_header('Content-Disposition', "attachment; filename={name}".format(name=filepath.split('\\')[-1]))
+                        p.add_header('Content-Disposition', "attachment; filename={name}".format(name=filepath.split('/')[-1]))
                         message.attach(p)
 
-            server.sendmail(metadata["From"], metadata["To"], message.as_string())
+            server.sendmail(sender, receivers, message.as_string())
             log.info(f"Email to {message['To']} sent!")
         except Exception as err:
             log.error(f"Exception while sending email: {err}")

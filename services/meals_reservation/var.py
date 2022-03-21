@@ -16,6 +16,7 @@ RECAP_EXT = ".html"
 # Reservations
 MEALS = ("Pranzo", "Cena")
 POSSIBLE_RESERVATIONS = (True, False)
+TIMELIMIT = datetime.timedelta(hours=18, minutes=48)
 
 # Messages
 BUTTON_DATETIME_FORMAT = '%A %d %b %Y'
@@ -23,7 +24,6 @@ BUTTON_RESERVATION_INDICATOR = {True: "🟢", False: "🔴", None: "❔"}
 RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
 
 # Emails
-EMAIL_METADATA = {"From": "Servizio Prenotazione Pasti",
-                  "To": "gesu.barabba.official@gmail.com",
-                  "CC": "alesosso@gmail.com",
-                  "Subject": "Prenotazione pasti {date_str}"}
+EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
+                  "receivers": ("gesu.barabba.official@gmail.com", "alesosso@gmail.com"),
+                  "subject": "Prenotazione pasti {date_str}"}
