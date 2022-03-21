@@ -77,7 +77,13 @@ class Bot(tlg.Bot):
         else:
             log.error(f"Exception while handling an update: {err}")
             try:
-                chat = self._get_chat(update.effective_user.id)
+                chat = self._get_chat(update)
+                chat.reset_session(var.ERROR_MESSAGE_CODE)
+                chat.data['error'] = err
+                try:
+                    self._send_message(chat, del_user_msg=update.message.message_id)
+                except AttributeError:
+                    self._send_message(chat, edit=True)
             except Exception:
                 chat = None
             utl.log_error(err, chat=chat)

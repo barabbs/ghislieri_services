@@ -1,4 +1,5 @@
 from modules.service_pipe import ServicePipe, Request
+from modules.base_service import BaseService, StopService
 from services.student_databaser.student_databaser import StudentDatabaser
 from services.email_service.email_service import EmailService
 from services.meals_reservation.meals_reservation import MealsReservation
@@ -16,7 +17,9 @@ SERVICES_CLASSES = {'student_databaser': StudentDatabaser,
                     'ghislieri_bot': GhislieriBot}
 
 
-class GhislieriServices(object):
+class GhislieriServices(BaseService):
+    SERVICE_NAME = "ghislieri_services"
+
     def __init__(self, services):
         """
         Class for managing all services
@@ -24,8 +27,7 @@ class GhislieriServices(object):
         :param tuple[str] services: the services to start
         """
         log.info("GhislieriServices initializing...")
-        self.services_pipes = dict(tuple((s, ServicePipe()) for s in ('ghislieri_services',) + services))
-        self.stop_event = Event()
+        super(GhislieriServices, self).__init__(dict(tuple((s, ServicePipe()) for s in ('ghislieri_services',) + services)), Event())
         self.services = dict()
         self._init_services(services)
 
@@ -33,25 +35,26 @@ class GhislieriServices(object):
         for s in services:
             self.services[s] = SERVICES_CLASSES[s](self.services_pipes, self.stop_event)
 
+    # Requests
+
+    def _request_shutdown(self):
+        self.pipe.send_back_result(None)
+        raise StopService
+
+    # Runtime
+
     def run(self):
         for s in self.services:
             self.services[s].start()
         log.info("All Services started")
         try:
-            while True:
-                k = input(" >  ")
-                if k == 'q':
-                    break
-                elif k == 's':
-                    print(self._send_request(Request('student_databaser', 'get_students')))
+            super(GhislieriServices, self).run()
         except KeyboardInterrupt:
-            pass
-
-        self._exit()
-        log.info("GhislieriServices terminated")
+            log.warning(f"{self.SERVICE_NAME} forced stopping (KeyboardInterrupt)...")
+            self._exit()
+            log.info(f"{self.SERVICE_NAME} terminated")
 
     def _exit(self):
-        log.info("GhislieriServices terminating...")
         for service, pipe in self.services_pipes.items():
             if service == 'ghislieri_services':
                 continue
@@ -62,6 +65,3 @@ class GhislieriServices(object):
         for service in self.services.values():
             service.join()
             log.debug(f"Process of {service} service terminated")
-
-    def _send_request(self, request):  # TODO: Consider inheritance of GhislieriServices from BaseService
-        return self.services_pipes[request.service_name].send_request(request=request)

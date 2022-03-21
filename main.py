@@ -24,7 +24,6 @@ def main():
     except Exception as e:
         logger.critical(f"Critical error while running GhislieriServices: {e}")
         utl.log_error(e, severity="critical")
-        gs._exit()  # TODO: Do better closing on error raise
 
 
 if __name__ == '__main__':

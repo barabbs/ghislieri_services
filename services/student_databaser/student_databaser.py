@@ -35,11 +35,7 @@ class StudentDatabaser(BaseService):
 
     def _request_get_chats(self):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
-        return tuple(get_chat_dict(chat) for chat in self.cursor.fetchall())
-
-    def _request_get_student_infos(self, user_id):  # TODO: Requeset not used
-        self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
-        return get_student_infos_dict(self.cursor.fetchone())
+        return sorted((get_chat_dict(chat) for chat in self.cursor.fetchall()), key=lambda x: x["student_infos"]["surname"])
 
     def _request_set_chat_last_message_id(self, user_id, last_message_id):
         self._edit_database(user_id, 'last_message_id', last_message_id)
@@ -57,7 +53,7 @@ class StudentDatabaser(BaseService):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
         perms = get_chat_dict(self.cursor.fetchone())['permissions']
         if edit == "add":
-            perms.append(permission)
+            perms.add(permission)
         if edit == "rm":
             try:
                 perms.remove(permission)

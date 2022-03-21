@@ -38,18 +38,6 @@ def get_action_save(data_key, value):
     return action
 
 
-# TODO:  VVVV  CONSIDER REMOVING  VVVV
-# def get_action_copy(data_keys):
-#     def action(data, **kwargs):
-#         for k in data_keys:
-#             try:
-#                 data[k[0].format(**data)] = data[k[1].format(**data)].copy()
-#             except AttributeError:
-#                 data[k[0].format(**data)] = data[k[1].format(**data)]
-#
-#     return action
-
-
 def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_key=None):
     def action(data, service, **kwargs):
         req_data = {k: data[v].format(**data) if isinstance(data[v], str) else data[v] for k, v in ((r.format(**data), t.format(**data)) for r, t in data_keys.items())}
@@ -62,8 +50,8 @@ def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_k
     return action
 
 
-# ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'SAVE': get_action_save, 'COPY': get_action_copy, 'REQ': get_action_req, }
 ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'SAVE': get_action_save, 'REQ': get_action_req, }
+
 
 
 # Components
