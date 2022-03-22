@@ -16,6 +16,8 @@ class ServicePipe(object):
         with self.lock:
             self.requests_conn.send(request)
             result = self.requests_conn.recv()
+            if isinstance(result, Exception):
+                raise result
         return result
 
     def get_request(self):
