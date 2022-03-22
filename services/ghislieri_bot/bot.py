@@ -39,6 +39,17 @@ class ChatSyncUpdate(tlg.Update):
         super(ChatSyncUpdate, self).__init__(int(time()))
 
 
+class RemoveChatUpdate(tlg.Update):
+    def __init__(self, user_id):
+        super(RemoveChatUpdate, self).__init__(user_id)
+
+
+class NewUser(Exception):
+    def __init__(self, chat, *args):
+        self.chat = chat
+        super(NewUser, self).__init__(*args)
+
+
 class Bot(tlg.Bot):
     def __init__(self, service):
         """
@@ -63,8 +74,8 @@ class Bot(tlg.Bot):
     def _load_handlers(self):
         dispatcher = self.updater.dispatcher
         dispatcher.add_handler(tlg.ext.TypeHandler(ChatSyncUpdate, self._chat_sync_handler))
+        dispatcher.add_handler(tlg.ext.TypeHandler(RemoveChatUpdate, self._remove_chat_handler))
         dispatcher.add_handler(tlg.ext.CommandHandler('start', self._start_command_handler))
-        dispatcher.add_handler(tlg.ext.CommandHandler('home', self._home_command_handler))
         dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._buttons_handler))
         dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._answer_handler))
         dispatcher.add_error_handler(self._error_handler)
@@ -73,7 +84,7 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        if isinstance(err, tlg.error.NetworkError): # TODO: Rewrite with CONNECTION_LOST_ERROR
+        if isinstance(err, tlg.error.NetworkError):  # TODO: Rewrite with CONNECTION_LOST_ERROR
             log.warning("Connection lost!")
             wait_for_internet()  # TODO: Review taking different Threads into account!
         else:
@@ -96,27 +107,37 @@ class Bot(tlg.Bot):
             if update_edit is not None:
                 self._send_message(chat, edit=update_edit)
 
-    def _start_command_handler(self, update, context):
-        chat = self._get_chat(update)
-        chat.reset_session(var.WELCOME_MESSAGE_CODE)
-        self._send_message(chat, del_user_msg=update.message.message_id)
+    def _remove_chat_handler(self, update, context):
+        chat = next(filter(lambda x: x.user_id == update.update_id, self.chats))
+        self.delete_message(chat_id=chat.user_id, message_id=chat.last_message_id)
+        self.chats.remove(chat)
+        log.info(f"Removed student with user_id {update.update_id}")
 
-    def _home_command_handler(self, update, context):
-        chat = self._get_chat(update)
-        chat.reset_session(var.HOME_MESSAGE_CODE)
+    def _start_command_handler(self, update, context):
+        try:
+            chat = self._get_chat(update)
+            chat.reset_session(var.HOME_MESSAGE_CODE)
+        except NewUser as user:
+            chat = user.chat
         self._send_message(chat, del_user_msg=update.message.message_id)
 
     def _buttons_handler(self, update, context):
-        chat = self._get_chat(update)
-        chat.reply('BUTTONS', callback=update.callback_query.data)
+        try:
+            chat = self._get_chat(update)
+            chat.reply('BUTTONS', callback=update.callback_query.data)
+        except NewUser as user:
+            chat = user.chat
         self._send_message(chat, edit=True)
 
     def _answer_handler(self, update, context):
-        chat = self._get_chat(update)
-        answer = update.message.text
-        answer.replace("{", "{{")
-        answer.replace("}", "}}")
-        chat.reply('ANSWER', answer=answer)
+        try:
+            chat = self._get_chat(update)
+            answer = update.message.text
+            answer.replace("{", "{{")
+            answer.replace("}", "}}")
+            chat.reply('ANSWER', answer=answer)
+        except NewUser as user:
+            chat = user.chat
         self._send_message(chat, del_user_msg=update.message.message_id)
 
     # Messages
@@ -156,7 +177,8 @@ class Bot(tlg.Bot):
         new_msg_id = self.send_message(chat_id=user_id, text="Starting...")
         chat = Chat(self, **self.service.send_request(Request('student_databaser', 'new_chat', user_id, new_msg_id.message_id)))
         self.chats.add(chat)
-        return chat
+        chat.reset_session(var.WELCOME_MESSAGE_CODE)
+        raise NewUser(chat)
 
     # Sending & Editing
 
