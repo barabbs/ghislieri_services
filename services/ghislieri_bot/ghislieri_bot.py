@@ -1,5 +1,6 @@
 from modules.base_service import BaseService
-from .bot import Bot
+from modules.service_pipe import Request
+from .bot import Bot, RemoveChatUpdate
 from . import var
 from datetime import datetime
 import os, logging
@@ -21,6 +22,10 @@ class GhislieriBot(BaseService):
         header = f"name={student_infos['name']}\nsurname={student_infos['surname']}\nuser_id={user_id}\ntime={time}"
         with open(os.path.join(var.FEEDBACK_DIR, f"{user_id} - {time}.gbfb"), 'w', encoding='utf-8') as f:
             f.write(f"{header}\n\n{text}")
+
+    def _request_remove_chat(self, user_id):
+        self.send_request(Request("student_databaser", "remove_chat", user_id=user_id))
+        self.bot.update_queue.put(RemoveChatUpdate(user_id))
 
     # Runtime
 

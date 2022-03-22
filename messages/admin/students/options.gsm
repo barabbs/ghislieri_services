@@ -14,7 +14,7 @@
                         "actions": [
                             [
                                 "REQ",
-                                "student_databaser",
+                                "ghislieri_bot",
                                 "remove_chat",
                                 {
                                     "user_id": "admin.selected_student.user_id"
