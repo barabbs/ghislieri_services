@@ -122,7 +122,8 @@ class Button(BaseComponent):
         return self.callback == callback.split(var.TIME_IDENTIFIER)[-1]
 
     def get_button(self, data, time_str):
-        return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=time_str + var.TIME_IDENTIFIER + self.callback, url=self.url)
+        callback = (time_str + var.TIME_IDENTIFIER + self.callback) if self.callback is not None else None
+        return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=callback, url=self.url)
 
 
 class Answer(BaseComponent):
