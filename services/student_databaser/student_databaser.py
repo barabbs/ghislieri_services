@@ -35,7 +35,7 @@ class StudentDatabaser(BaseService):
 
     def _request_get_chats(self):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
-        return sorted((get_chat_dict(chat) for chat in self.cursor.fetchall()), key=lambda x: x["student_infos"]["surname"])
+        return sorted((get_chat_dict(chat) for chat in self.cursor.fetchall()), key=lambda x: (x["student_infos"]["surname"] if x["student_infos"]["surname"] is not None else ""))
 
     def _request_set_chat_last_message_id(self, user_id, last_message_id):
         self._edit_database(user_id, 'last_message_id', last_message_id)
