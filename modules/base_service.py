@@ -54,6 +54,8 @@ class BaseService(Process):
             log.debug(f"{self.SERVICE_NAME} received request {req.r_type} with args {req.args} and kwargs {req.kwargs}")
             try:
                 res = getattr(self, f'_request_{req.r_type}')(*req.args, **req.kwargs)
+            except StopService:
+                raise
             except Exception as err:
                 log.error(f"Error while processing request {req.r_type} with args {req.args} and kwargs {req.kwargs}")
                 utl.log_error(err, service=self.SERVICE_NAME, r_type=req.r_type, args=req.args, kwargs=req.kwargs)
