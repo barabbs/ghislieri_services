@@ -1,4 +1,4 @@
-import os, datetime
+import os
 
 # Directories
 SERVICE_NAME = "eduroam_reporter"

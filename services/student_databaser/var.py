@@ -11,4 +11,3 @@ FILEPATH_DATABASE = os.path.join(DATA_DIR, 'database.gsdb')
 # Database
 DATABASE_STUDENTS_TABLE = "students"
 STUDENT_INFOS = ('name', 'surname', 'email')
-DATABASE_PERMISSIONS_TABLE = "permissions"

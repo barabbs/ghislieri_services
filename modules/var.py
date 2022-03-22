@@ -1,6 +1,7 @@
 import os, datetime
 
 # Directories
+# DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services")
 DATA_DIR = os.path.join(os.getcwd(), 'data')
 LOGS_DIR = os.path.join(DATA_DIR, 'logs')
 ERRORS_DIR = os.path.join(DATA_DIR, 'errors')

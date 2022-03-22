@@ -16,10 +16,9 @@ RECAP_EXT = ".html"
 # Reservations
 MEALS = ("Pranzo", "Cena")
 POSSIBLE_RESERVATIONS = (True, False)
-TIMELIMIT = datetime.timedelta(hours=18, minutes=48)
+TIMELIMIT = datetime.timedelta(hours=7, minutes=0)
 
 # Messages
-BUTTON_DATETIME_FORMAT = '%A %d %b %Y'
 BUTTON_RESERVATION_INDICATOR = {True: "🟢", False: "🔴", None: "❔"}
 RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
 
