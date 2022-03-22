@@ -1,0 +1,46 @@
+{
+    "code": "admin.errors.list",
+    "components": {
+        "TEXT": {
+            "text": "👥    Select <b>error</b>",
+            "actions": [
+                [
+                    "REQ",
+                    "ghislieri_services",
+                    "get_errors",
+                    {},
+                    {},
+                    "admin.errors_list"
+                ]
+            ]
+        },
+        "BUTTONS": {
+            "options": {
+                "text": "{filename}",
+                "opt_data_key": "admin.errors_list",
+                "ans_data_key": "admin.selected_error",
+                "actions": [
+                    [
+                        "NEW",
+                        "admin.errors.show"
+                    ]
+                ]
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+
+    }
+}

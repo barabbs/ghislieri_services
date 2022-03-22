@@ -62,6 +62,10 @@ class StudentDatabaser(BaseService):
         self._edit_database(user_id, 'permissions', ",".join(perms))
         return get_chat_dict(self.cursor.fetchone())
 
+    def _request_remove_chat(self, user_id):
+        self.cursor.execute(f"DELETE FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
+        self.connection.commit()
+
     # Exit
 
     def _exit(self):

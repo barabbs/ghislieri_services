@@ -12,9 +12,10 @@ import logging, os, requests, json
 log = logging.getLogger(__name__)
 
 # Telegram errors
-EDIT_MSG_NOT_FOUND = "Message to edit not found"
-EDIT_MSG_IDENTICAL = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
-DELETE_MSG_NOT_FOUND = "Message to delete not found"
+CONNECTION_LOST_ERROR = "urllib3 HTTPError HTTPSConnectionPool"
+EDIT_MSG_NOT_FOUND_ERROR = "Message to edit not found"
+EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
+DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
 
 
 def get_bot_token():
@@ -62,7 +63,8 @@ class Bot(tlg.Bot):
     def _load_handlers(self):
         dispatcher = self.updater.dispatcher
         dispatcher.add_handler(tlg.ext.TypeHandler(ChatSyncUpdate, self._chat_sync_handler))
-        dispatcher.add_handler(tlg.ext.CommandHandler('start', self._command_handler))
+        dispatcher.add_handler(tlg.ext.CommandHandler('start', self._start_command_handler))
+        dispatcher.add_handler(tlg.ext.CommandHandler('home', self._home_command_handler))
         dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._buttons_handler))
         dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._answer_handler))
         dispatcher.add_error_handler(self._error_handler)
@@ -71,7 +73,7 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        if isinstance(err, tlg.error.NetworkError):
+        if CONNECTION_LOST_ERROR in err.message:
             log.warning("Connection lost!")
             wait_for_internet()  # TODO: Review taking different Threads into account!
         else:
@@ -94,9 +96,14 @@ class Bot(tlg.Bot):
             if update_edit is not None:
                 self._send_message(chat, edit=update_edit)
 
-    def _command_handler(self, update, context):
+    def _start_command_handler(self, update, context):
         chat = self._get_chat(update)
         chat.reset_session(var.WELCOME_MESSAGE_CODE)
+        self._send_message(chat, del_user_msg=update.message.message_id)
+
+    def _home_command_handler(self, update, context):
+        chat = self._get_chat(update)
+        chat.reset_session(var.HOME_MESSAGE_CODE)
         self._send_message(chat, del_user_msg=update.message.message_id)
 
     def _buttons_handler(self, update, context):
@@ -170,14 +177,13 @@ class Bot(tlg.Bot):
         try:
             self.edit_message_text(**message_content)
         except telegram.error.BadRequest as e:
-            if e.message == EDIT_MSG_NOT_FOUND:
+            if e.message == EDIT_MSG_NOT_FOUND_ERROR:
                 log.warning(e.message)
                 self._send_and_delete_message(chat, message_content)
-            elif e.message == EDIT_MSG_IDENTICAL:
+            elif e.message == EDIT_MSG_IDENTICAL_ERROR:
                 log.warning(e.message)
             else:
-                log.error(f"Exception while editing a message: {e}")
-                utl.log_error(e)
+                raise
 
     def _send_and_delete_message(self, chat, message_content, del_user_msg=None):
         try:
@@ -185,11 +191,10 @@ class Bot(tlg.Bot):
             if del_user_msg is not None:
                 self.delete_message(chat_id=message_content['chat_id'], message_id=del_user_msg)
         except telegram.error.BadRequest as e:
-            if e.message == DELETE_MSG_NOT_FOUND:
+            if e.message == DELETE_MSG_NOT_FOUND_ERROR:
                 log.warning(e.message)
             else:
-                log.error(f"Exception while sending and deleting a message: {e}")
-                utl.log_error(e)
+                raise e
         message_content.pop('message_id')
         new_message = self.send_message(**message_content)
         new_id = new_message.message_id

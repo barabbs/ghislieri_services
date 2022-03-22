@@ -1,0 +1,25 @@
+{
+    "code": "errors.error",
+    "components": {
+        "TEXT": {
+            "text": "🛑    <b>Error</b>    🛑\n\nSi è verificato un errore\n<b>error:</b>  {error}\n\n<i>Se il problema persiste, contattare gli amministratori</i>",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "️OK",
+                        "callback": "ok",
+                        "actions": [
+                            [
+                                "HOME"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

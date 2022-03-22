@@ -1,3 +1,4 @@
+from . import var
 from modules.service_pipe import ServicePipe, Request
 from modules.base_service import BaseService, StopService
 from services.student_databaser.student_databaser import StudentDatabaser
@@ -6,7 +7,7 @@ from services.meals_reservation.meals_reservation import MealsReservation
 from services.eduroam_reporter.eduroam_reporter import EduroamReporter
 from services.ghislieri_bot.ghislieri_bot import GhislieriBot
 from multiprocessing import Event
-import logging
+import logging, os
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +41,13 @@ class GhislieriServices(BaseService):
     def _request_shutdown(self):
         self.pipe.send_back_result(None)
         raise StopService
+
+    def _request_get_errors(self):
+        return tuple({"filename": f} for f in sorted(os.listdir(var.ERRORS_DIR)))
+
+    def _request_get_error(self, filename):
+        with open(os.path.join(var.ERRORS_DIR, filename)) as file:
+            return file.read()
 
     # Runtime
 

@@ -1,0 +1,46 @@
+{
+    "code": "admin.students.list",
+    "components": {
+        "TEXT": {
+            "text": "👥    Select <b>student</b>",
+            "actions": [
+                [
+                    "REQ",
+                    "student_databaser",
+                    "get_chats",
+                    {},
+                    {},
+                    "admin.students_list"
+                ]
+            ]
+        },
+        "BUTTONS": {
+            "options": {
+                "text": "{student_infos[surname]} {student_infos[name]}",
+                "opt_data_key": "admin.students_list",
+                "ans_data_key": "admin.selected_student",
+                "actions": [
+                    [
+                        "NEW",
+                        "admin.students.options"
+                    ]
+                ]
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+
+    }
+}
