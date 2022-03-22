@@ -1,0 +1,46 @@
+{
+    "code": "admin.logs.list",
+    "components": {
+        "TEXT": {
+            "text": "👥    Select <b>log</b>",
+            "actions": [
+                [
+                    "REQ",
+                    "ghislieri_services",
+                    "get_logs",
+                    {},
+                    {},
+                    "admin.logs_list"
+                ]
+            ]
+        },
+        "BUTTONS": {
+            "options": {
+                "text": "{filename}",
+                "opt_data_key": "admin.logs_list",
+                "ans_data_key": "admin.selected_log",
+                "actions": [
+                    [
+                        "NEW",
+                        "admin.logs.show"
+                    ]
+                ]
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+
+    }
+}

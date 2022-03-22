@@ -1,0 +1,36 @@
+{
+    "code": "admin.logs.show",
+    "components": {
+        "TEXT": {
+            "text": "<code>{admin[selected_log][text]}</code>",
+            "actions": [
+                [
+                    "REQ",
+                    "ghislieri_services",
+                    "get_log",
+                    {
+                        "filename": "admin.selected_log.filename"
+                    },
+                    {},
+                    "admin.selected_log.text"
+                ]
+            ]
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}
