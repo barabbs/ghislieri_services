@@ -10,19 +10,17 @@
                 [
                     "REQ",
                     "meals_reservation",
-                    "get_active_meals",
-                    {
-                        "user_id": "user_id"
-                    },
+                    "get_all_meals",
                     {},
-                    "meals_reservation.active_meals"
+                    {},
+                    "meals_reservation.all_meals"
                 ]
             ]
         },
         "BUTTONS": {
             "options": {
-                "text": "{date_str}  -  {meal:<6}",
-                "opt_data_key": "meals_reservation.active_meals",
+                "text": "{date_str}",
+                "opt_data_key": "meals_reservation.all_meals",
                 "ans_data_key": "meals_reservation.selected_meal",
                 "actions": [
                     [
