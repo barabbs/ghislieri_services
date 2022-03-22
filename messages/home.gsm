@@ -1,0 +1,74 @@
+{
+    "code": "home",
+    "components": {
+        "TEXT": {
+            "text": "🟥🟨    <b>Collegio Ghislieri</b>    🟨🟥",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "🍽️    Prenotazione Pasti",
+                        "callback": "meals_reservation",
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_reservation.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "‼️    Segnalazioni Eduroam",
+                        "callback": "eduroam_reporter",
+                        "actions": [
+                            [
+                                "NEW",
+                                "eduroam_reporter.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "📣    Canali Telegram",
+                        "callback": "telegram_channels",
+                        "actions": [
+                            [
+                                "NEW",
+                                "telegram_channels.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔧    Impostazioni",
+                        "callback": "settings",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔓    Admin",
+                        "callback": "admin",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.menu"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

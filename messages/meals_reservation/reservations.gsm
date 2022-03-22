@@ -1,0 +1,52 @@
+{
+    "code": "meals_reservation.reservations",
+    "components": {
+        "TEXT": {
+            "text": "Prenota il <b>Pasto</b>",
+            "actions": [
+                [
+                    "REQ",
+                    "meals_reservation",
+                    "get_active_meals",
+                    {
+                        "user_id": "user_id"
+                    },
+                    {},
+                    "meals_reservation.active_meals"
+                ]
+            ]
+        },
+        "BUTTONS": {
+            "options": {
+                "text": "{date_str}  -  {meal:<6}    {reservation_str}",
+                "opt_data_key": "meals_reservation.active_meals",
+                "ans_data_key": "meals_reservation.selected_meal",
+                "actions": [
+                    [
+                        "REQ",
+                        "meals_reservation",
+                        "toggle_meal",
+                        {
+                            "user_id": "user_id",
+                            "meal_dict": "meals_reservation.selected_meal"
+                        }
+                    ]
+                ]
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

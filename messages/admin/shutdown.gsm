@@ -1,0 +1,51 @@
+{
+    "code": "admin.shutdown",
+    "components": {
+        "TEXT": {
+            "text": "Do you really want to <b>shutdown</b>?",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "✔️",
+                        "callback": "yes",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_services",
+                                "shutdown",
+                                {}
+                            ],
+                            [
+                                "HOME"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "❌",
+                        "callback": "no",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

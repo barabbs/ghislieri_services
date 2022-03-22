@@ -1,0 +1,64 @@
+{
+    "code": "admin.menu",
+    "auth": [
+                "master"
+            ],
+    "components": {
+        "TEXT": {
+            "text": "🔓    <b>Admin</b>",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "👥    Students",
+                        "callback": "students",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.students.list"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "⚠️    Errors",
+                        "callback": "errors",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.errors.list"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🛑    Shutdown",
+                        "callback": "shutdown",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.shutdown"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

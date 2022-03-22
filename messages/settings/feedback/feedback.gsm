@@ -1,0 +1,44 @@
+{
+    "code": "settings.feedback.feedback",
+    "components": {
+        "TEXT": {
+            "text": "Scrivi il <b>problema</b> riscontrato o il <b>suggerimento</b> per il bot",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        },
+        "ANSWER": {
+            "ans_data_key": "feedback_ans",
+            "actions": [
+                [
+                    "REQ",
+                    "ghislieri_bot",
+                    "save_feedback",
+                    {
+                    "user_id": "user_id",
+                    "student_infos": "infos",
+                    "text": "feedback_ans"
+                    }
+                ],
+                [
+                    "NEW",
+                    "settings.feedback.thank_you"
+                ]
+            ]
+        }
+    }
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+    table {
+      width:100%;
+    }
+    table.res, th.res, td.res {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    th.res, td.res {
+      padding: 5px;
+      text-align: left;
+    }
+    tr.res:nth-child(even) {
+      background-color: #eee;
+    }
+    tr.res:nth-child(odd) {
+     background-color: #fff;
+    }
+    th.res {
+      background-color: black;
+      color: white;
+    }
+
+
+    </style>
+</head>
+<body>
+<h2>{{date_str}}</h2>
+<hr>
+<table>
+    <tr>
+        {% for col in reservations %}
+        <td style="vertical-align: top">
+        <table class="res">
+            <tr class="res">
+                <th class="res">Cognome</th>
+                <th class="res">Nome</th>
+                <th class="res">Pranzo</th>
+                <th class="res">Cena</th>
+            </tr>
+            {% for res in col %}
+            <tr class="res">
+                <td class="res">{{ res.student_infos.surname }}</td>
+                <td class="res">{{ res.student_infos.name }}</td>
+                {% for p in res.meals %}
+                <td class="res">{{ p }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        {% endfor %}
+        </td>
+    <tr>
+</table>
+
+<div style="width:100%">
+    <hr>
+    <h4>TOTALE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Pranzo: &nbsp; {{total.Pranzo}} &nbsp;&nbsp; - &nbsp;&nbsp; Cena: &nbsp; {{total.Cena}}</h4>
+</div>
+</body>
+</html>

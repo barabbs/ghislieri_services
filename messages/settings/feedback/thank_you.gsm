@@ -1,0 +1,25 @@
+{
+    "code": "settings.feedback.thank_you",
+    "components": {
+        "TEXT": {
+            "text": "Grazie per la segnalazione! 😄",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "OK",
+                        "callback": "ok",
+                        "actions": [
+                            [
+                                "HOME"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

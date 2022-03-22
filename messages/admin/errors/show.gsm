@@ -1,0 +1,36 @@
+{
+    "code": "admin.errors.show",
+    "components": {
+        "TEXT": {
+            "text": "<code>{admin[selected_error][text]}</code>",
+            "actions": [
+                [
+                    "REQ",
+                    "ghislieri_services",
+                    "get_error",
+                    {
+                        "filename": "admin.selected_error.filename"
+                    },
+                    {},
+                    "admin.selected_error.text"
+                ]
+            ]
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

@@ -1,0 +1,78 @@
+{
+    "code": "admin.students.options",
+    "components": {
+        "TEXT": {
+            "text": "Nome <b>{admin[selected_student][student_infos][name]}</b>\nCognome <b>{admin[selected_student][student_infos][surname]}</b>\n\nuser_id {admin[selected_student][user_id]} - last_message_id {admin[selected_student][last_message_id]}\n\nPermissions <i>{admin[selected_student][permissions]}</i>",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "Remove",
+                        "callback": "remove",
+                        "actions": [
+                            [
+                                "REQ",
+                                "student_databaser",
+                                "remove_chat",
+                                {
+                                    "user_id": "admin.selected_student.user_id"
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Add permissions",
+                        "callback": "add_perm",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "admin.permission.edit_type",
+                                "add"
+                            ],
+                            [
+                                "NEW",
+                                "admin.students.edit_permissions"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Remove permissions",
+                        "callback": "rm_perm",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "admin.permission.edit_type",
+                                "rm"
+                            ],
+                            [
+                                "NEW",
+                                "admin.students.edit_permissions"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

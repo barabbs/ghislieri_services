@@ -1,0 +1,46 @@
+{
+    "code": "welcome.insert_name",
+    "components": {
+        "TEXT": {
+            "text": "Inserisci il tuo <b>Cognome</b>",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        },
+        "ANSWER": {
+            "ans_data_key": "infos.surname",
+            "actions": [
+                [
+                    "REQ",
+                    "student_databaser",
+                    "edit_student_info",
+                    {
+                        "user_id": "user_id",
+                        "value": "infos.surname"
+                    },
+                    {
+                        "info": "surname"
+                    }
+                ],
+                [
+                    "NEW",
+                    "welcome.insert_name"
+                ]
+            ]
+        }
+    }
+}

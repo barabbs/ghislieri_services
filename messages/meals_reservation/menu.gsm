@@ -1,0 +1,68 @@
+{
+    "code": "meals_reservation.menu",
+    "components": {
+        "TEXT": {
+            "text": "🍽️    <b>Prenotazione Pasti</b>",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "📆    Prenota",
+                        "callback": "reservations",
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_reservation.reservations"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Create Recap",
+                        "callback": "create_recap",
+                        "auth": [
+                                    "master"
+                                ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_reservation.create_recap"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Send Recap",
+                        "callback": "send_recap",
+
+                        "auth": [
+                                    "master"
+                                ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_reservation.send_recap"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

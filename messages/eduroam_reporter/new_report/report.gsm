@@ -1,0 +1,54 @@
+{
+    "code": "eduroam_reporter.new_report.report",
+    "components": {
+        "TEXT": {
+            "text": "Seleziona una <b>segnalazione</b> o inviane una nuova",
+            "actions": [
+                [
+                    "REQ",
+                    "eduroam_reporter",
+                    "get_default_reports",
+                    {},
+                    {},
+                    "eduroam_report.default_reports"
+                ]
+            ]
+        },
+        "BUTTONS": {
+            "options": {
+                "text": "{report}",
+                "opt_data_key": "eduroam_report.default_reports",
+                "ans_data_key": "eduroam_report.report",
+                "actions": [
+                    [
+                        "NEW",
+                        "eduroam_reporter.new_report.place"
+                    ]
+                ]
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        },
+        "ANSWER": {
+            "ans_data_key": "eduroam_report.report",
+            "actions": [
+                [
+                    "NEW",
+                    "eduroam_reporter.new_report.place"
+                ]
+            ]
+        }
+    }
+}
