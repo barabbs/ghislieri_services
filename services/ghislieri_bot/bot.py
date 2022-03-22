@@ -73,7 +73,7 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        if CONNECTION_LOST_ERROR in err.message:
+        if isinstance(err, tlg.error.NetworkError): # TODO: Rewrite with CONNECTION_LOST_ERROR
             log.warning("Connection lost!")
             wait_for_internet()  # TODO: Review taking different Threads into account!
         else:
