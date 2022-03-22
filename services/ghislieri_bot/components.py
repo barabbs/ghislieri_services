@@ -31,11 +31,6 @@ def get_action_home():
 def get_action_save(data_key, value):
     def action(data, **kwargs):
         data[data_key.format(**data)] = value
-        # if isinstance(value, str):
-        #     data[data_key.format(**data)] = value.format(**data)
-        # else:
-        #     data[data_key.format(**data)] = value
-
     return action
 
 

@@ -1,38 +1,28 @@
 {
-    "code": "meals_reservation.send_recap",
-    "auth": [
-                "master"
-            ],
+    "code": "admin.logs.list",
     "components": {
         "TEXT": {
-            "text": "Send Recap",
+            "text": "👥    Select <b>log</b>",
             "actions": [
                 [
                     "REQ",
-                    "meals_reservation",
-                    "get_all_dates",
+                    "ghislieri_services",
+                    "get_logs",
                     {},
                     {},
-                    "meals_reservation.all_dates"
+                    "admin.logs_list"
                 ]
             ]
         },
         "BUTTONS": {
             "options": {
-                "text": "{date_str}",
-                "opt_data_key": "meals_reservation.all_dates",
-                "ans_data_key": "meals_reservation.selected_date",
+                "text": "{filename}",
+                "opt_data_key": "admin.logs_list",
+                "ans_data_key": "admin.selected_log",
                 "actions": [
                     [
-                        "REQ",
-                        "meals_reservation",
-                        "send_recap",
-                        {
-                            "date_dict": "meals_reservation.selected_date"
-                        }
-                    ],
-                    [
-                        "BACK"
+                        "NEW",
+                        "admin.logs.show"
                     ]
                 ]
             },
@@ -51,5 +41,6 @@
             ],
             "actions": []
         }
+
     }
 }

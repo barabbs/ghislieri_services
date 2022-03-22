@@ -1,9 +1,20 @@
 {
-    "code": "settings.about",
+    "code": "admin.logs.show",
     "components": {
         "TEXT": {
-            "text": "<b>Ghislieri Bot</b> 🤖\nversion 0.0.1b\n\n<i>Developed by Barabba</i>\n\nSource code at https://github.com/barabbs/ghislieri_services",
-            "actions": []
+            "text": "<code>{admin[selected_log][text]}</code>",
+            "actions": [
+                [
+                    "REQ",
+                    "ghislieri_services",
+                    "get_log",
+                    {
+                        "filename": "admin.selected_log.filename"
+                    },
+                    {},
+                    "admin.selected_log.text"
+                ]
+            ]
         },
         "BUTTONS": {
             "buttons": [

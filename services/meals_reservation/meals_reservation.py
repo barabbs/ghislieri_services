@@ -49,11 +49,22 @@ class MealsReservation(BaseService):
     def _request_toggle_meal(self, user_id, meal_dict):
         next(filter(lambda x: x.date == meal_dict["date"], self.meals)).toggle(user_id, meal_dict["meal"])
 
-    def _request_create_recap(self, meal_dict):
-        self.create_recap(self._get_meal(meal_dict["date"]))
+    def _request_get_all_dates(self):
+        dates = list()
+        for f in sorted(os.listdir(var.RESERVATIONS_DIR)):
+            d = datetime.strptime(f, f"Reservations_{var.DATETIME_FORMAT}{var.RESERVATIONS_EXT}")
+            dates.append({"filename": f, "date_str": get_date_str(d)})
+        return dates
 
-    def _request_send_recap(self, meal_dict):
-        self.send_recap(self._get_meal(meal_dict["date"]))
+    def _request_create_recap(self, date_dict):
+        meal = Meal()
+        meal.load_from_file(date_dict["filename"])
+        self.create_recap(meal)
+
+    def _request_send_recap(self, date_dict):
+        meal = Meal()
+        meal.load_from_file(date_dict["filename"])
+        self.send_recap(meal)
 
     # Runtime
 

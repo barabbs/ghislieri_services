@@ -24,6 +24,18 @@
                 ],
                 [
                     {
+                        "text": "📄    Logs",
+                        "callback": "logs",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.logs.list"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "⚠️    Errors",
                         "callback": "errors",
                         "actions": [
