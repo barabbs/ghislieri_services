@@ -45,8 +45,15 @@ class GhislieriServices(BaseService):
     def _request_get_errors(self):
         return tuple({"filename": f} for f in sorted(os.listdir(var.ERRORS_DIR)))
 
+    def _request_get_logs(self):
+        return tuple({"filename": f} for f in sorted(os.listdir(var.LOGS_DIR)))
+
     def _request_get_error(self, filename):
         with open(os.path.join(var.ERRORS_DIR, filename)) as file:
+            return file.read()
+
+    def _request_get_log(self, filename):
+        with open(os.path.join(var.LOGS_DIR, filename)) as file:
             return file.read()
 
     # Runtime
