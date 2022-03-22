@@ -59,6 +59,9 @@
                     {
                         "text": "🔓    Admin",
                         "callback": "admin",
+                        "auth": [
+                                    "master"
+                                ],
                         "actions": [
                             [
                                 "NEW",
