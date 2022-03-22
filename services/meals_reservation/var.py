@@ -24,5 +24,5 @@ RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
 
 # Emails
 EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
-                  "receivers": ("leonardo.scoccia00@gmail.com", "alesosso@gmail.com"),
+                  "receivers": ("gesu.barabba.official@gmail.com", "alesosso@gmail.com"),
                   "subject": "Prenotazione pasti {date_str}"}

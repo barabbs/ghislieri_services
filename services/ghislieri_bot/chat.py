@@ -55,7 +55,7 @@ class Chat(object):
         notify = False
         if message_code is None:
             try:
-                message_code, notify, priority = self.reset_message_queue.popleft()
+                message_code, notify = self.reset_message_queue.popleft()
                 self.last_interaction = False
             except IndexError:
                 message_code, notify = var.HOME_MESSAGE_CODE, False
