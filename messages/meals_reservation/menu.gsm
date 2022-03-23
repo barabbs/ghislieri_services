@@ -13,8 +13,20 @@
                         "callback": "reservations",
                         "actions": [
                             [
+                                "REQ",
+                                "student_databaser",
+                                "get_user_completed_registration",
+                                {
+                                    "user_id": "user_id"
+                                },
+                                {},
+                                "meals_reservation.registration_complete"
+                            ],
+                            [
                                 "NEW",
-                                "meals_reservation.reservations"
+                                "meals_reservation.reservations",
+                                "meals_reservation.registration_complete",
+                                "meals_reservation.finish_registration"
                             ]
                         ]
                     }

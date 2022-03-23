@@ -67,7 +67,6 @@ class Meal(object):
             res = list(service.send_request(Request('student_databaser', 'get_chats')))
             for u in res:
                 u['meals'] = tuple(var.RECAP_RESERVATION_INDICATOR[self._get_user_reservation(u['user_id'], m)] for m in var.MEALS)
-            res = tuple(sorted(res, key=lambda x: x['student_infos']['surname']))
             n, w = len(res), (len(res) + 2) // 3
             res = tuple(res[i:i + w] for i in range(0, n, w))
             file.write(templ.render(date_str=get_date_str(self.date, False), reservations=res,
