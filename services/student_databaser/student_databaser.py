@@ -37,6 +37,11 @@ class StudentDatabaser(BaseService):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
         return sorted((get_chat_dict(chat) for chat in self.cursor.fetchall()), key=lambda x: (x["student_infos"]["surname"] if x["student_infos"]["surname"] is not None else ""))
 
+    def _request_get_user_completed_registration(self, user_id):
+        self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
+        chat_dict = get_chat_dict(self.cursor.fetchone())
+        return chat_dict['student_infos']['name'] is not None and chat_dict['student_infos']['surname'] is not None
+
     def _request_set_chat_last_message_id(self, user_id, last_message_id):
         self._edit_database(user_id, 'last_message_id', last_message_id)
 

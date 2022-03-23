@@ -9,10 +9,12 @@ log = logging.getLogger(__name__)
 
 # Actions
 
-def get_action_new(new_code, condition_data_key=None):
+def get_action_new(new_code, condition_data_key=None, else_new_node=None):
     def action(data, chat, bot, **kwargs):
         if condition_data_key is None or data[condition_data_key]:
             chat.session.append(bot.get_message(new_code.format(**data)))
+        else:
+            chat.session.append(bot.get_message(else_new_node.format(**data)))
 
     return action
 
