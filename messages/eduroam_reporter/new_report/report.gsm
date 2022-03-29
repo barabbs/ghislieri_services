@@ -10,15 +10,15 @@
                     "get_default_reports",
                     {},
                     {},
-                    "eduroam_report.default_reports"
+                    "default_eduroam_reports"
                 ]
             ]
         },
         "BUTTONS": {
             "options": {
                 "text": "{report}",
-                "opt_data_key": "eduroam_report.default_reports",
-                "ans_data_key": "eduroam_report.report",
+                "opt_data_key": "default_eduroam_reports",
+                "ans_data_key": "eduroam_report",
                 "actions": [
                     [
                         "NEW",

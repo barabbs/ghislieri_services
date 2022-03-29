@@ -1,0 +1,37 @@
+{
+    "code": "meals_reservation.finish_registration",
+    "components": {
+        "TEXT": {
+            "text": "❗️    Per favore, inserisci prima i tuoi dati",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "OK",
+                        "callback": "ok",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.profile.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}
