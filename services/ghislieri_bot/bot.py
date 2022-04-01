@@ -84,22 +84,22 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        if isinstance(err, tlg.error.NetworkError):  # TODO: Rewrite with CONNECTION_LOST_ERROR
-            log.warning("Connection lost!")
-            wait_for_internet()  # TODO: Review taking different Threads into account!
-        else:
-            log.error(f"Exception while handling an update: {err}")
+        # if isinstance(err, tlg.error.NetworkError):  # TODO: Rewrite with CONNECTION_LOST_ERROR
+        #     log.warning("Connection lost!")
+        #     wait_for_internet()  # TODO: Review taking different Threads into account!
+        # else:
+        log.error(f"Exception while handling an update: {err}")
+        try:
+            chat = self._get_chat(update)
+            chat.reset_session(var.ERROR_MESSAGE_CODE)
+            chat.data['error'] = err
             try:
-                chat = self._get_chat(update)
-                chat.reset_session(var.ERROR_MESSAGE_CODE)
-                chat.data['error'] = err
-                try:
-                    self._send_message(chat, del_user_msg=update.message.message_id)
-                except AttributeError:
-                    self._send_message(chat, edit=True)
-            except Exception:
-                chat = None
-            utl.log_error(err, chat=chat)
+                self._send_message(chat, del_user_msg=update.message.message_id)
+            except AttributeError:
+                self._send_message(chat, edit=True)
+        except Exception:
+            chat = None
+        utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
         for chat in self.chats:
@@ -209,9 +209,10 @@ class Bot(tlg.Bot):
 
     def _send_and_delete_message(self, chat, message_content, del_user_msg=None):
         try:
-            self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
+            #self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
             if del_user_msg is not None:
-                self.delete_message(chat_id=message_content['chat_id'], message_id=del_user_msg)
+                pass
+                self.delete_message(chat_id=message_content['chat_id'], message_id=del_user_msg)  # TODO: INSERT THIS AGAIN
         except telegram.error.BadRequest as e:
             if e.message == DELETE_MSG_NOT_FOUND_ERROR:
                 log.warning(e.message)
