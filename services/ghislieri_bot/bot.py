@@ -218,11 +218,12 @@ class Bot(tlg.Bot):
                 log.warning(e.message)
             else:
                 raise e
-        message_content.pop('message_id')
-        new_message = self.send_message(**message_content)
-        new_id = new_message.message_id
-        self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
-        chat.set_last_message_id(new_id)
+        self._edit_message(chat, message_content)
+        # message_content.pop('message_id')
+        # new_message = self.send_message(**message_content)
+        # new_id = new_message.message_id
+        # self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
+        # chat.set_last_message_id(new_id)
 
     # Runtime
 
