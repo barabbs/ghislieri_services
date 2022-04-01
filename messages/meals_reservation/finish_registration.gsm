@@ -1,12 +1,24 @@
 {
-    "code": "settings.about",
+    "code": "meals_reservation.finish_registration",
     "components": {
         "TEXT": {
-            "text": "<b>Ghislieri Bot</b> 🤖\nversion 0.0.1g\n\n<i>Developed by Barabba</i>\n\nSource code at https://github.com/barabbs/ghislieri_services",
+            "text": "❗️    Per favore, inserisci prima i tuoi dati",
             "actions": []
         },
         "BUTTONS": {
             "buttons": [
+                [
+                    {
+                        "text": "OK",
+                        "callback": "ok",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.profile.menu"
+                            ]
+                        ]
+                    }
+                ],
                 [
                     {
                         "text": "↩️ Back",
