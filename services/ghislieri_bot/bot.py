@@ -234,10 +234,13 @@ class Bot(tlg.Bot):
 
     def stop(self):
         for chat in self.chats:
+            chat.stop()
             chat.reset_session(var.SHUTDOWN_MESSAGE_CODE)
             self._send_message(chat, edit=True)
 
     def exit(self):
         log.info("Bot exiting...")
+        for chat in self.chats:
+            chat.exit()
         self.updater.stop()
         log.info("Bot exited")
