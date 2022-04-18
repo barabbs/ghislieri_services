@@ -7,7 +7,7 @@
                 [
                     "REQ",
                     "meals_management",
-                    "get_active_meals",
+                    "get_active_reservations",
                     {
                         "user_id": "user_id"
                     },
@@ -25,7 +25,7 @@
                     [
                         "REQ",
                         "meals_management",
-                        "toggle_meal",
+                        "toggle_meal_res",
                         {
                             "user_id": "user_id",
                             "meal_dict": "meals_reservation.selected_meal"

@@ -9,10 +9,10 @@ def get_date_str(date, abbr=True):
     return f"{utl.get_weekday_name(date, abbr).upper()}  {date.strftime('%d')} {utl.get_month_name(date, abbr)} {date.strftime('%Y')}"
 
 
-class Meal(object):
+class Reservation(object):
     def __init__(self, date=None, from_date=None):
         self.date, self.from_date = date, from_date
-        self.reservations = {m: dict() for m in var.MEALS}
+        self.meals_res = {m: dict() for m in var.MEALS}
 
     def load_from_file(self, filename):
         with open(os.path.join(var.RESERVATIONS_DIR, filename)) as file:
@@ -25,29 +25,29 @@ class Meal(object):
                     meal = raw[2 + 3 * j]
                 except IndexError:
                     break
-                self.reservations[meal] = dict()
+                self.meals_res[meal] = dict()
                 for i, r in enumerate(var.POSSIBLE_RESERVATIONS):
                     try:
-                        self.reservations[meal].update({int(k): r for k in raw[3 + 3 * j + i].split(",")})
+                        self.meals_res[meal].update({int(k): r for k in raw[3 + 3 * j + i].split(",")})
                     except ValueError:
                         pass
                 j += 1
         return self.from_date < datetime.now() < self.date + var.TIMELIMIT
 
-    def _get_user_reservation(self, user_id, meal):
-        if user_id in self.reservations[meal]:
-            return self.reservations[meal][user_id]
+    def _get_user_meal_res(self, user_id, meal):
+        if user_id in self.meals_res[meal]:
+            return self.meals_res[meal][user_id]
         return None
 
-    def get_reservation(self, user_id):
+    def get_user_reservations(self, user_id):
         return tuple({"meal": m, "date": self.date, "date_str": get_date_str(self.date),
-                      "reservation_str": var.BUTTON_RESERVATION_INDICATOR[self._get_user_reservation(user_id, m)]} for m in self.reservations.keys())
+                      "reservation_str": var.BUTTON_RESERVATION_INDICATOR[self._get_user_meal_res(user_id, m)]} for m in self.meals_res.keys())
 
     def toggle(self, user_id, meal):
         try:
-            self.reservations[meal][user_id] = not self.reservations[meal][user_id]
+            self.meals_res[meal][user_id] = not self.meals_res[meal][user_id]
         except KeyError:
-            self.reservations[meal][user_id] = var.POSSIBLE_RESERVATIONS[0]
+            self.meals_res[meal][user_id] = var.POSSIBLE_RESERVATIONS[0]
         self.save()
 
     def save(self):
@@ -56,7 +56,7 @@ class Meal(object):
             file.write("\n".join((self.date.strftime(var.DATE_FORMAT), self.from_date.strftime(var.DATE_FORMAT),)) + "\n")
             for m in var.MEALS:
                 file.write(f"{m}\n")
-                file.write("\n".join((",".join((str(u) for u, v in filter(lambda x: x[1] == r, self.reservations[m].items()))) for r in var.POSSIBLE_RESERVATIONS)) + "\n")
+                file.write("\n".join((",".join((str(u) for u, v in filter(lambda x: x[1] == r, self.meals_res[m].items()))) for r in var.POSSIBLE_RESERVATIONS)) + "\n")
             os.rename(filepath + ".temp", filepath)
 
     def create_recap(self, service):
@@ -66,11 +66,11 @@ class Meal(object):
         with open(filepath + ".html", "w") as file:
             res = list(service.send_request(Request('student_databaser', 'get_chats')))
             for u in res:
-                u['meals'] = tuple(var.RECAP_RESERVATION_INDICATOR[self._get_user_reservation(u['user_id'], m)] for m in var.MEALS)
+                u['meals'] = tuple(var.RECAP_RESERVATION_INDICATOR[self._get_user_meal_res(u['user_id'], m)] for m in var.MEALS)
             n, w = len(res), (len(res) + 2) // 3
             res = tuple(res[i:i + w] for i in range(0, n, w))
             file.write(templ.render(date_str=get_date_str(self.date, False), reservations=res,
-                                    total={m: sum(1 for i in filter(lambda x: x, self.reservations[m].values())) for m in self.reservations.keys()}))
+                                    total={m: sum(1 for i in filter(lambda x: x, self.meals_res[m].values())) for m in self.meals_res.keys()}))
         pdfkit.from_file(filepath + '.html', filepath + '.pdf')
         return filepath
 

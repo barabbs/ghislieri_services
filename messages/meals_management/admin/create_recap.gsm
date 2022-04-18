@@ -10,7 +10,7 @@
                 [
                     "REQ",
                     "meals_management",
-                    "get_all_dates",
+                    "get_all_res_dates",
                     {},
                     {},
                     "meals_reservation.all_dates"
