@@ -1,4 +1,5 @@
 from modules.utility import dotdict
+from .notifications import Notification
 from . import var
 import time
 import logging
@@ -57,14 +58,13 @@ class Chat(object):
         if msg_code is None:
             notif = self.bot.notif_center.get_notification(self.user_id)
             if notif is not None:
+                self.last_interaction = notif
                 msg_code, notify = notif.msg_code, notif.notify
                 self.data.update(notif.data)
-                self.last_interaction = False
             else:
                 msg_code, notify = var.HOME_MESSAGE_CODE, False
                 self.last_interaction = True
         self.session = [self.bot.get_message(msg_code), ]
-        print(f"last interaction - {self.last_interaction}")
         return notify
 
     # Syncing
@@ -74,15 +74,17 @@ class Chat(object):
             return self.reset_session()
 
     def _is_session_expired(self, sync_time):
-        if type(self.last_interaction) == bool:
+        if isinstance(self.last_interaction, bool):
             return self.last_interaction
-        return sync_time >= self.last_interaction + var.SESSION_TIMEOUT_SECONDS
+        elif isinstance(self.last_interaction, int):
+            return sync_time >= self.last_interaction + var.SESSION_TIMEOUT_SECONDS
+        return self.last_interaction.expired()
 
     # Exiting
 
     def _add_pending_notification_message(self):
-        if self.last_interaction == False:
-            self.bot.notif_center.add_notification((self.user_id, ), "pending", self._get_message().code, False)
+        if isinstance(self.last_interaction, Notification):
+            self.last_interaction.add_user(self.user_id)
 
     def stop(self):
         self._add_pending_notification_message()

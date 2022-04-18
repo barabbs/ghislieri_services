@@ -1,4 +1,5 @@
-import os, datetime, traceback
+import os, traceback
+import datetime as dt
 from . import var
 
 
@@ -36,13 +37,12 @@ class dotdict(dict):
             d.__setitem__(r, value)
 
 
-def get_str_from_time(dt=None):
-    dt = datetime.datetime.now() if dt is None else dt
-    return dt.strftime(var.DATETIME_FORMAT)
+def get_str_from_time(dtime=None):
+    return (dt.datetime.now() if dtime is None else dtime).strftime(var.DATETIME_FORMAT)
 
 
-def get_time_from_str(t_str):
-    return datetime.datetime.strptime(t_str, var.DATETIME_FORMAT)
+def get_time_from_str(t_str=None):
+    return dt.datetime.now() if t_str is None else dt.datetime.strptime(t_str, var.DATETIME_FORMAT)
 
 
 def get_weekday_name(date, abbr=False):

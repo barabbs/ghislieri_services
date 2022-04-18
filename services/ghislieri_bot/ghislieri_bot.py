@@ -18,8 +18,8 @@ class GhislieriBot(BaseService):
 
     # Requests
 
-    def _request_add_notification(self, users, n_type, msg_code, notify, data=None):
-        self.bot.notif_center.add_notification(users, n_type, msg_code, notify, data)
+    def _request_add_notification(self, **kwargs):
+        self.bot.notif_center.add_notification(**kwargs)
 
     def _request_save_feedback(self, user_id, student_infos, text):
         time = utl.get_str_from_time()
