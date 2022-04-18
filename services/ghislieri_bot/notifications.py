@@ -3,7 +3,7 @@ import json, os
 
 
 class NotificationCenter(object):
-    # TODO: Implement notification preferences (sound/muted/no notification)
+    # TODO: Implement notification preferences (push/no push/no notification, and eventually push but muted ['disable_notification' tag in send_message])
     # TODO: Implement notification expiry date (e.g. so that someone doesn't have to watch meals notification after too much time)
     def __init__(self):
         self.notifications = None

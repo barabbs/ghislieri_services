@@ -8,7 +8,6 @@ from . import var
 import telegram as tlg
 import telegram.ext, telegram.utils.request
 from time import sleep, time
-from collections import defaultdict
 import logging, os, requests, json
 
 log = logging.getLogger(__name__)
@@ -19,6 +18,8 @@ EDIT_MSG_NOT_FOUND_ERROR = "Message to edit not found"
 EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
 DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
 MESSAGE_CANT_BE_DELETED_ERROR = "Message can't be deleted for everyone"
+
+UNDELETABLE_MESSAGE_TEXT = "Questo messaggio può essere eliminato"
 
 
 def get_bot_token():
@@ -88,24 +89,24 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        # if isinstance(err, tlg.error.NetworkError):  # TODO: Rewrite with CONNECTION_LOST_ERROR
-        #     log.warning("Connection lost!")
-        #     wait_for_internet()  # TODO: Review taking different Threads into account!
-        # else:
-        log.error(f"Exception while handling an update: {err}")
-        try:
-            chat = self._get_chat(update)
-            chat.reset_session(var.ERROR_MESSAGE_CODE)
-            chat.data['error'] = err
+        if CONNECTION_LOST_ERROR in err.message:
+            log.warning("Connection lost!")
+        else:
+            log.error(f"Exception while handling an update: {err}")
             try:
-                self._send_message(chat, del_user_msg=update.message.message_id)
-            except AttributeError:
-                self._send_message(chat, edit=True)
-        except Exception:
-            chat = None
-        utl.log_error(err, chat=chat)
+                chat = self._get_chat(update)
+                chat.reset_session(var.ERROR_MESSAGE_CODE)
+                chat.data['error'] = err
+                try:
+                    self._send_message(chat, del_user_msg=update.message.message_id)
+                except AttributeError:
+                    self._send_message(chat, edit=True)
+            except Exception:
+                chat = None
+            utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
+        # TODO:  Implement message refreshing every sometime as messages older than two days can't be deleted (PROBLEM: messages can't be sent without push notification, but only without wound)
         for chat in self.chats:
             update_notify = chat.sync(update.update_id)
             print(f"sync\t{chat.user_id} - {update_notify}")
@@ -215,20 +216,17 @@ class Bot(tlg.Bot):
     def _send_and_delete_message(self, chat, message_content, del_user_msg=None):
         for m in (message_content['message_id'],) if del_user_msg is None else (message_content['message_id'], del_user_msg):
             try:
-                # TODO:  --------------------  VERY IMPORTANT  -------------------
-                # TODO:  Messages older than two days can't be deleted !!!!!!!!!!
-                # TODO:  Implement message refreshing every day (send current
-                # TODO:  message again every day at 5 a.m. without notification)
                 self.delete_message(chat_id=message_content['chat_id'], message_id=m)
             except telegram.error.BadRequest as e:
                 if e.message == DELETE_MSG_NOT_FOUND_ERROR:
                     log.warning(e.message)
                 elif e.message == MESSAGE_CANT_BE_DELETED_ERROR:
-                    raise e  # TODO: Change this to editing to "PLEASE, DELETE THIS MESSAGE MANUALLY OR SMTH"
+                    log.warning(e.message)
+                    self.edit_message(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT)
                 else:
                     raise e
         message_content.pop('message_id')
-        new_message = self.send_message(**message_content)
+        new_message = self.send_message(**message_content, disable_notification=True)
         new_id = new_message.message_id
         self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
         chat.set_last_message_id(new_id)
