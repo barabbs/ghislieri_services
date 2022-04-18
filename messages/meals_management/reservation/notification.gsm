@@ -2,7 +2,7 @@
     "code": "meals_management.reservation.notification",
     "components": {
         "TEXT": {
-            "text": "🍽❔ Hai prenotato i pasti per <i>{day_meal_reservation_not}<\i>?",
+            "text": "🍽❔ Hai prenotato i pasti per <i>{day_meal_reservation_not}</i>?",
             "actions": []
         },
         "BUTTONS": {
