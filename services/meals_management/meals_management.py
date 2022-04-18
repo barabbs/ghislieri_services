@@ -52,7 +52,7 @@ class MealsManagement(BaseService):
     def _request_get_all_dates(self):
         dates = list()
         for f in sorted(os.listdir(var.RESERVATIONS_DIR)):
-            d = datetime.strptime(f, f"Reservations_{var.DATETIME_FORMAT}{var.RESERVATIONS_EXT}")
+            d = datetime.strptime(f, f"Reservations_{var.DATE_FORMAT}{var.RESERVATIONS_EXT}")
             dates.append({"filename": f, "date_str": get_date_str(d)})
         return dates
 

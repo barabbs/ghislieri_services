@@ -9,7 +9,7 @@ RECAPS_DIR = os.path.join(DATA_DIR, 'recaps')
 
 # Files
 RECAP_HTML_TEMPLATE = os.path.join(DATA_DIR, 'recap_html_template.mrtm')
-DATETIME_FORMAT = '%Y-%m-%d'
+DATE_FORMAT = '%Y-%m-%d'
 RESERVATIONS_EXT = ".mr"
 RECAP_EXT = ".html"
 

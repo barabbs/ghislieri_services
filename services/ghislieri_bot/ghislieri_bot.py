@@ -1,5 +1,6 @@
 from modules.base_service import BaseService
 from modules.service_pipe import Request
+from modules import utility as utl
 from .bot import Bot, RemoveChatUpdate
 from . import var
 from datetime import datetime
@@ -21,7 +22,7 @@ class GhislieriBot(BaseService):
         self.bot.notif_center.add_notification(users, n_type, msg_code, notify, data)
 
     def _request_save_feedback(self, user_id, student_infos, text):
-        time = datetime.now().strftime(var.DATETIME_FORMAT)
+        time = utl.get_str_from_time()
         header = f"name={student_infos['name']}\nsurname={student_infos['surname']}\nuser_id={user_id}\ntime={time}"
         with open(os.path.join(var.FEEDBACK_DIR, f"{user_id} - {time}.gbfb"), 'w', encoding='utf-8') as f:
             f.write(f"{header}\n\n{text}")

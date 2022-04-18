@@ -17,8 +17,8 @@ class Meal(object):
     def load_from_file(self, filename):
         with open(os.path.join(var.RESERVATIONS_DIR, filename)) as file:
             raw = tuple(line.replace("\n", "") for line in file.readlines())
-            self.date = datetime.strptime(raw[0], var.DATETIME_FORMAT)
-            self.from_date = datetime.strptime(raw[1], var.DATETIME_FORMAT)
+            self.date = datetime.strptime(raw[0], var.DATE_FORMAT)
+            self.from_date = datetime.strptime(raw[1], var.DATE_FORMAT)
             j = 0
             while True:
                 try:
@@ -51,9 +51,9 @@ class Meal(object):
         self.save()
 
     def save(self):
-        filepath = os.path.join(var.RESERVATIONS_DIR, f"Reservations_{self.date.strftime(var.DATETIME_FORMAT)}{var.RESERVATIONS_EXT}")
+        filepath = os.path.join(var.RESERVATIONS_DIR, f"Reservations_{self.date.strftime(var.DATE_FORMAT)}{var.RESERVATIONS_EXT}")
         with open(filepath + ".temp", "w") as file:
-            file.write("\n".join((self.date.strftime(var.DATETIME_FORMAT), self.from_date.strftime(var.DATETIME_FORMAT),)) + "\n")
+            file.write("\n".join((self.date.strftime(var.DATE_FORMAT), self.from_date.strftime(var.DATE_FORMAT),)) + "\n")
             for m in var.MEALS:
                 file.write(f"{m}\n")
                 file.write("\n".join((",".join((str(u) for u, v in filter(lambda x: x[1] == r, self.reservations[m].items()))) for r in var.POSSIBLE_RESERVATIONS)) + "\n")
@@ -62,7 +62,7 @@ class Meal(object):
     def create_recap(self, service):
         with open(var.RECAP_HTML_TEMPLATE) as templ_file:
             templ = jinja2.Template(templ_file.read())
-        filepath = os.path.join(var.RECAPS_DIR, f"Recap_{self.date.strftime(var.DATETIME_FORMAT)}")
+        filepath = os.path.join(var.RECAPS_DIR, f"Recap_{self.date.strftime(var.DATE_FORMAT)}")
         with open(filepath + ".html", "w") as file:
             res = list(service.send_request(Request('student_databaser', 'get_chats')))
             for u in res:

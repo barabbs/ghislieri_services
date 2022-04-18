@@ -3,7 +3,7 @@ from . import var
 
 
 def log_error(error, severity="error", **kwargs):
-    time = datetime.datetime.now().strftime(var.DATETIME_FORMAT)
+    time = get_str_from_time()
     header = f"severity={severity}\ntime={time}"
     for k in kwargs:
         header += f"\n{k}={kwargs[k]}"
@@ -34,6 +34,15 @@ class dotdict(dict):
             d = dotdict()
             super(dotdict, self).__setitem__(i, d)
             d.__setitem__(r, value)
+
+
+def get_str_from_time(dt=None):
+    dt = datetime.datetime.now() if dt is None else dt
+    return dt.strftime(var.DATETIME_FORMAT)
+
+
+def get_time_from_str(t_str):
+    return datetime.datetime.strptime(t_str, var.DATETIME_FORMAT)
 
 
 def get_weekday_name(date, abbr=False):

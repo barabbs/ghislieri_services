@@ -10,8 +10,6 @@ NOTIFICATIONS_BCKP_FILE = os.path.join(NOTIFICATIONS_DIR, 'notifications_bckp.gb
 MESSAGES_DIR = os.path.join(os.getcwd(), 'messages')
 
 # Files
-
-DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILEPATH_BOT_TOKEN = os.path.join(DATA_DIR, 'ghislieri_bot_token.gbtk')
 
 # Bot
