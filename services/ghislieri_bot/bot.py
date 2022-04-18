@@ -7,6 +7,7 @@ from . import var
 import telegram as tlg
 import telegram.ext, telegram.utils.request
 from time import sleep, time
+from collections import defaultdict
 import logging, os, requests, json
 
 log = logging.getLogger(__name__)
@@ -35,8 +36,13 @@ def wait_for_internet():
 
 
 class ChatSyncUpdate(tlg.Update):
-    def __init__(self):
-        super(ChatSyncUpdate, self).__init__(int(time()))
+    def __init__(self, sync_time=var.SESSION_TIMEOUT_SECONDS):
+        self.notifications = defaultdict(list)
+        super(ChatSyncUpdate, self).__init__(sync_time)
+
+    def add_notification(self, user_id, message_code, notify):
+        self.notifications[user_id].append((message_code, notify))
+        print("add not")
 
 
 class RemoveChatUpdate(tlg.Update):
@@ -66,7 +72,7 @@ class Bot(tlg.Bot):
         self.messages = self._load_messages(var.MESSAGES_DIR)
         self.chats = self._load_chats()
         self.update_queue = self.updater.start_polling()
-        self.last_sync = None
+        self.next_sync = ChatSyncUpdate()
         log.info(f"Bot created")
 
     # Handlers
@@ -102,10 +108,13 @@ class Bot(tlg.Bot):
         utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
+        print("sync")
         for chat in self.chats:
-            update_edit = not chat.sync(update.update_id)
-            if update_edit is not None:
-                self._send_message(chat, edit=update_edit)
+            print(f"\t{chat.user_id} - {update.notifications[chat.user_id]}")
+            update_notify = chat.sync(update.update_id, update.notifications[chat.user_id])
+            print(update_notify)
+            if update_notify is not None:
+                self._send_message(chat, edit=not update_notify)
 
     def _remove_chat_handler(self, update, context):
         chat = next(filter(lambda x: x.user_id == update.update_id, self.chats))
@@ -116,7 +125,7 @@ class Bot(tlg.Bot):
     def _start_command_handler(self, update, context):
         try:
             chat = self._get_chat(update)
-            chat.reset_session(var.HOME_MESSAGE_CODE)
+            chat.reset_session()
         except NewUser as user:
             chat = user.chat
         self._send_message(chat, del_user_msg=update.message.message_id)
@@ -209,7 +218,11 @@ class Bot(tlg.Bot):
 
     def _send_and_delete_message(self, chat, message_content, del_user_msg=None):
         try:
-            #self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
+            # TODO:  --------------------  VERY IMPORTANT  -------------------
+            # TODO:  Messages older than two days can't be deleted !!!!!!!!!!
+            # TODO:  Implement message refreshing every day (send current
+            # TODO:  message again every day at 5 a.m. without notification)
+            self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
             if del_user_msg is not None:
                 pass
                 self.delete_message(chat_id=message_content['chat_id'], message_id=del_user_msg)  # TODO: INSERT THIS AGAIN
@@ -218,19 +231,18 @@ class Bot(tlg.Bot):
                 log.warning(e.message)
             else:
                 raise e
-        self._edit_message(chat, message_content)
-        # message_content.pop('message_id')
-        # new_message = self.send_message(**message_content)
-        # new_id = new_message.message_id
-        # self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
-        # chat.set_last_message_id(new_id)
+        message_content.pop('message_id')
+        new_message = self.send_message(**message_content)
+        new_id = new_message.message_id
+        self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
+        chat.set_last_message_id(new_id)
 
     # Runtime
 
     def update(self):
-        if self.last_sync is None or time() > self.last_sync.update_id + var.STUDENT_UPDATE_SECONDS_INTERVAL:
-            self.last_sync = ChatSyncUpdate()
-            self.update_queue.put(self.last_sync)
+        if time() > self.next_sync.update_id:
+            self.update_queue.put(self.next_sync)
+            self.next_sync = ChatSyncUpdate(int(time()) + var.STUDENT_UPDATE_SECONDS_INTERVAL)
 
     def stop(self):
         for chat in self.chats:

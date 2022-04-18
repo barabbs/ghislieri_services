@@ -17,6 +17,12 @@ class GhislieriBot(BaseService):
 
     # Requests
 
+    def _request_add_notification(self, user_id, message_code, notify):
+
+        chat = next(filter(lambda x: x.user_id == user_id, self.bot.chats))
+        chat.add_reset_message(message_code, notify)
+        # self.bot.next_sync.add_notification(user_id, message_code, notify)
+
     def _request_save_feedback(self, user_id, student_infos, text):
         time = datetime.now().strftime(var.DATETIME_FORMAT)
         header = f"name={student_infos['name']}\nsurname={student_infos['surname']}\nuser_id={user_id}\ntime={time}"

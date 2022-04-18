@@ -60,6 +60,28 @@
                 ],
                 [
                     {
+                        "text": "Test Notification",
+                        "callback": "test_notification",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {},
+                                {
+                                    "user_id": 330886930,
+                                    "message_code": "utility.test_notification",
+                                    "notify": true
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "↩️ Back",
                         "callback": "back",
                         "actions": [

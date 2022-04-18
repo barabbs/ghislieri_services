@@ -54,7 +54,7 @@ class Chat(object):
 
     def reset_session(self, message_code=None):
         self.data = dotdict({'user_id': self.data['user_id'], 'infos': self.data['infos']})
-        notify = False
+        self.last_interaction , notify = False, False
         if message_code is None:
             try:
                 message_code, notify = self.reset_message_queue.popleft()
@@ -70,6 +70,7 @@ class Chat(object):
 
     def _add_pending_notification_message(self):
         if self.last_interaction == False:
+            print("PPPPPPPP")
             self.reset_message_queue.appendleft((self._get_message().code, False))
 
     def _save_reset_messages_backup(self):
@@ -87,14 +88,16 @@ class Chat(object):
 
     # Syncing
 
-    def sync(self, sync_time):
+    def sync(self, sync_time, notifications):
+        for n in notifications:
+            self.add_reset_message(*n)  # TODO: Consider moving add_reset_message method here
         if self._is_session_expired(sync_time):
             return self.reset_session()
 
     def _is_session_expired(self, sync_time):
         if type(self.last_interaction) == bool:
             return self.last_interaction
-        return sync_time > self.last_interaction + var.SESSION_TIMEOUT_SECONDS
+        return sync_time >= self.last_interaction + var.SESSION_TIMEOUT_SECONDS
 
     # Exiting
 

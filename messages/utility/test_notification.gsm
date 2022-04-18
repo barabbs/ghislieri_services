@@ -1,0 +1,25 @@
+{
+    "code": "utility.test_notification",
+    "components": {
+        "TEXT": {
+            "text": "🚧    <b>Test Notification</b>    🚧\n\nTest Notification",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "️OK",
+                        "callback": "ok",
+                        "actions": [
+                            [
+                                "HOME"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}
