@@ -1,4 +1,5 @@
-import os, datetime
+import datetime as dt
+import os
 
 # Directories
 SERVICE_NAME = "meals_management"
@@ -16,7 +17,7 @@ RECAP_EXT = ".html"
 # Reservations
 MEALS = ("Pranzo", "Cena")
 POSSIBLE_RESERVATIONS = (True, False)
-TIMELIMIT = datetime.timedelta(hours=7, minutes=0)
+TIMELIMIT = dt.timedelta(hours=7, minutes=00)
 
 # Messages
 BUTTON_RESERVATION_INDICATOR = {True: "🟢", False: "🔴", None: "❔"}
@@ -26,3 +27,8 @@ RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
 EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
                   "receivers": ("gesu.barabba.official@gmail.com", "alesosso@gmail.com"),
                   "subject": "Prenotazione pasti {date_str}"}
+
+# Notification
+NOTIFICATION_DAYS_BEFORE = dt.timedelta(days=1)
+NOTIFICATION_DATA = {"users": (330886930,), "n_type": "meals", "msg_code": "meals_management.reservation.notification", "notify": True,
+                     "start_time": dt.timedelta(hours=19, minutes=00) - NOTIFICATION_DAYS_BEFORE, "end_time": TIMELIMIT}

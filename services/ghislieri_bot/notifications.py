@@ -6,7 +6,6 @@ import json, os
 
 class NotificationCenter(object):
     # TODO: Implement notification preferences (push/no push/no notification, and eventually push but muted ['disable_notification' tag in send_message])
-    # TODO: Implement notification expiry date (e.g. so that someone doesn't have to watch meals notification after too much time)
     def __init__(self):
         self.notifications = None
         self._load_notifications_backup()
@@ -42,7 +41,8 @@ class NotificationCenter(object):
 
 
 class Notification(object):
-    def __init__(self, users, n_type, msg_code, notify, data=None, start_time=None, end_time=None):
+    def __init__(self, users, n_type, msg_code, notify, data=None, start_time=None, end_time=None, **kwargs):
+        # TODO: Consider removing "notify" and use only default notify status for n_type on notification preferences implementation
         self.users, self.n_type, self.msg_code, self.notify = set(users), n_type, msg_code, notify
         self.start_time = utl.get_time_from_str(start_time)
         self.end_time = None if end_time is None else utl.get_time_from_str(end_time)

@@ -6,7 +6,7 @@ import os, jinja2, pdfkit
 
 
 def get_date_str(date, abbr=True):
-    return f"{utl.get_weekday_name(date, abbr).upper()}  {date.strftime('%d')} {utl.get_month_name(date, abbr)} {date.strftime('%Y')}"
+    return f"{utl.get_weekday_name(date, abbr).upper()} {date.strftime('%d')} {utl.get_month_name(date, abbr)} {date.strftime('%Y')}"
 
 
 class Reservation(object):

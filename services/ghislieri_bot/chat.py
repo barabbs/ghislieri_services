@@ -33,7 +33,6 @@ class Chat(object):
 
     def _set_last_interaction(self):
         self.last_interaction = int(time.time())
-        print(f"last interaction - {self.last_interaction}")
 
     def _get_message(self):
         return self.session[-1]

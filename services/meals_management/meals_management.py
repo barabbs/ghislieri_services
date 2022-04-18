@@ -1,8 +1,9 @@
 from modules.base_service import BaseService
+from modules import utility as utl
 from . import var
 from .reservation import Reservation, get_date_str
 from modules.service_pipe import Request
-from datetime import date, time, datetime, timedelta
+import datetime as dt
 import os
 import logging
 
@@ -16,7 +17,7 @@ class MealsManagement(BaseService):
         super(MealsManagement, self).__init__(*args, **kwargs)
         self.reservations = None
         self._load_reservations()
-        self.last_update = self._get_last_update() - timedelta(days=1)
+        self.last_update = (dt.datetime.now() - var.TIMELIMIT).replace(hour=0, minute=0, second=0, microsecond=0)
 
     def _load_reservations(self):
         self.reservations = set()
@@ -24,10 +25,6 @@ class MealsManagement(BaseService):
             res = Reservation()
             if res.load_from_file(filename):
                 self.reservations.add(res)
-
-    def _get_last_update(self):
-        t = date.today()
-        return datetime(t.year, t.month, t.day)
 
     def _get_reservation(self, date):
         return next(filter(lambda x: x.date == date, self.reservations))
@@ -41,6 +38,13 @@ class MealsManagement(BaseService):
         metadata["subject"] = metadata["subject"].format(date_str=get_date_str(res.date, False))
         self.send_request(Request('email_service', 'send_email', **metadata, text="", attachments=(filepath,)))
 
+    def notify_reservation(self, res):
+        notif_data = var.NOTIFICATION_DATA.copy()
+        for k in ("start_time", "end_time"):
+            notif_data[k] = utl.get_str_from_time(res.date + notif_data[k])
+        notif_data["data"] = {"reservation_day_notif": get_date_str(res.date, False)}
+        self.send_request(Request('ghislieri_bot', 'add_notification', **notif_data))
+
     # Requests
 
     def _request_get_active_reservations(self, user_id):
@@ -52,7 +56,7 @@ class MealsManagement(BaseService):
     def _request_get_all_res_dates(self):
         dates = list()
         for f in sorted(os.listdir(var.RESERVATIONS_DIR)):
-            d = datetime.strptime(f, f"Reservations_{var.DATE_FORMAT}{var.RESERVATIONS_EXT}")
+            d = dt.datetime.strptime(f, f"Reservations_{var.DATE_FORMAT}{var.RESERVATIONS_EXT}")
             dates.append({"filename": f, "date_str": get_date_str(d)})
         return dates
 
@@ -69,13 +73,18 @@ class MealsManagement(BaseService):
     # Runtime
 
     def _update(self):
-        if self.last_update + timedelta(days=1) + var.TIMELIMIT < datetime.now():
+        if self.last_update + dt.timedelta(days=1) + var.TIMELIMIT < dt.datetime.now():
             log.info("Updating...")
-            self.last_update = self._get_last_update()
+            self.last_update += dt.timedelta(days=1)
             try:
                 self.send_res_recap(self._get_reservation(self.last_update))
+                log.info(f"Reservation recap for {get_date_str(self.last_update, False)} sent")
             except StopIteration:
                 pass
-            else:
-                log.info(f"Reservation recap for {get_date_str(self.last_update, False)} sent")
+            try:
+                self.notify_reservation(self._get_reservation(self.last_update + var.NOTIFICATION_DAYS_BEFORE))
+                log.info(f"Notification for {get_date_str(self.last_update + var.NOTIFICATION_DAYS_BEFORE, False)} sent")
+            except StopIteration:
+                pass
+
             self._load_reservations()
