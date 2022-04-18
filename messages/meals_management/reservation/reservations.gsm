@@ -1,5 +1,5 @@
 {
-    "code": "meals_management.reservations",
+    "code": "meals_management.reservation.reservations",
     "components": {
         "TEXT": {
             "text": "Prenota il <b>Pasto</b>",

@@ -1,16 +1,16 @@
 {
-    "code": "meals_management.menu",
+    "code": "meals_management.reservation.notification",
     "components": {
         "TEXT": {
-            "text": "🍽️    <b>Mensa</b>",
+            "text": "🍽❔ Hai prenotato i pasti per <i>{day_meal_reservation_not}<\i>?",
             "actions": []
         },
         "BUTTONS": {
             "buttons": [
                 [
                     {
-                        "text": "📆    Prenota",
-                        "callback": "reservations",
+                        "text": "📆    Prenota!",
+                        "callback": "reserve",
                         "actions": [
                             [
                                 "REQ",
@@ -33,26 +33,11 @@
                 ],
                 [
                     {
-                        "text": "🔓    Admin",
-                        "callback": "meals_admin",
-                        "auth": [
-                                    "master"
-                                ],
+                        "text": "Più tardi",
+                        "callback": "ok",
                         "actions": [
                             [
-                                "NEW",
-                                "meals_management.admin.menu"
-                            ]
-                        ]
-                    }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
+                                "HOME"
                             ]
                         ]
                     }
