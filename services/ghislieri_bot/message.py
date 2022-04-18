@@ -31,8 +31,3 @@ class Message(object):
             pass
         else:
             actor.act(message=self, **kwargs)
-
-    def save(self):
-        # TODO: Finish this saving method (problem with saving actions as their origin isn't remembered)
-        return {'code': self.code,
-                'components': dict((k, d.save()) for k, d in self.components.items())}
