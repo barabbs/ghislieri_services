@@ -17,6 +17,7 @@ CONNECTION_LOST_ERROR = "urllib3 HTTPError HTTPSConnectionPool"
 EDIT_MSG_NOT_FOUND_ERROR = "Message to edit not found"
 EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
 DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
+MESSAGE_CANT_BE_DELETED_ERROR = "Message can't be deleted for everyone"
 
 
 def get_bot_token():
@@ -108,11 +109,9 @@ class Bot(tlg.Bot):
         utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
-        print("sync")
         for chat in self.chats:
-            print(f"\t{chat.user_id} - {update.notifications[chat.user_id]}")
             update_notify = chat.sync(update.update_id, update.notifications[chat.user_id])
-            print(update_notify)
+            print(f"sync\t{chat.user_id} - {update.notifications[chat.user_id]} - {update_notify}")
             if update_notify is not None:
                 self._send_message(chat, edit=not update_notify)
 
@@ -217,20 +216,20 @@ class Bot(tlg.Bot):
                 raise
 
     def _send_and_delete_message(self, chat, message_content, del_user_msg=None):
-        try:
-            # TODO:  --------------------  VERY IMPORTANT  -------------------
-            # TODO:  Messages older than two days can't be deleted !!!!!!!!!!
-            # TODO:  Implement message refreshing every day (send current
-            # TODO:  message again every day at 5 a.m. without notification)
-            self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
-            if del_user_msg is not None:
-                pass
-                self.delete_message(chat_id=message_content['chat_id'], message_id=del_user_msg)  # TODO: INSERT THIS AGAIN
-        except telegram.error.BadRequest as e:
-            if e.message == DELETE_MSG_NOT_FOUND_ERROR:
-                log.warning(e.message)
-            else:
-                raise e
+        for m in (message_content['message_id'],) if del_user_msg is None else (message_content['message_id'], del_user_msg):
+            try:
+                # TODO:  --------------------  VERY IMPORTANT  -------------------
+                # TODO:  Messages older than two days can't be deleted !!!!!!!!!!
+                # TODO:  Implement message refreshing every day (send current
+                # TODO:  message again every day at 5 a.m. without notification)
+                self.delete_message(chat_id=message_content['chat_id'], message_id=m)
+            except telegram.error.BadRequest as e:
+                if e.message == DELETE_MSG_NOT_FOUND_ERROR:
+                    log.warning(e.message)
+                elif e.message == MESSAGE_CANT_BE_DELETED_ERROR:
+                    raise e  # TODO: Change this to editing to "PLEASE, DELETE THIS MESSAGE MANUALLY OR SMTH"
+                else:
+                    raise e
         message_content.pop('message_id')
         new_message = self.send_message(**message_content)
         new_id = new_message.message_id

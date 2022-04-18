@@ -17,8 +17,8 @@ class Chat(object):
     def __init__(self, bot, user_id, last_message_id, student_infos, permissions):
         self.bot, self.user_id, self.last_message_id = bot, user_id, last_message_id
         self.data = dotdict({'user_id': self.user_id, 'infos': student_infos})
-        self.session, self.last_interaction = list(), 0
-        self.reset_message_queue = self._load_reset_messages_backup()
+        self.session, self.last_interaction, self.reset_message_queue = list(), 0, None
+        self._load_reset_messages_backup()
         self.permissions = permissions
 
     def check_auth(self):
@@ -34,6 +34,7 @@ class Chat(object):
 
     def _set_last_interaction(self):
         self.last_interaction = int(time.time())
+        print(f"last interaction - {self.last_interaction}")
 
     def _get_message(self):
         return self.session[-1]
@@ -54,7 +55,7 @@ class Chat(object):
 
     def reset_session(self, message_code=None):
         self.data = dotdict({'user_id': self.data['user_id'], 'infos': self.data['infos']})
-        self.last_interaction , notify = False, False
+        self.last_interaction, notify = False, False
         if message_code is None:
             try:
                 message_code, notify = self.reset_message_queue.popleft()
@@ -63,6 +64,7 @@ class Chat(object):
                 message_code, notify = var.HOME_MESSAGE_CODE, False
                 self.last_interaction = True
         self.session = [self.bot.get_message(message_code), ]
+        print(f"last interaction - {self.last_interaction}")
         return notify
 
     def add_reset_message(self, message_code, notify=False):
@@ -75,16 +77,19 @@ class Chat(object):
 
     def _save_reset_messages_backup(self):
         # TODO: Consider saving also data (when implemented) for notifications on close
-        with open(os.path.join(var.RESET_MESSAGES_BCKP_DIR, f"{self.user_id}{var.RESET_MESSAGES_BCKP_EXT}"), 'w', encoding='UTF-8') as file:
+        filepath = os.path.join(var.RESET_MESSAGES_BCKP_DIR, f"{self.user_id}{var.RESET_MESSAGES_BCKP_EXT}")
+        with open(filepath, 'w', encoding='UTF-8') as file:
             json.dump(list(self.reset_message_queue), file)
 
     def _load_reset_messages_backup(self):
         # TODO: Consider loading also data (when implemented) for notifications on start
+        filepath = os.path.join(var.RESET_MESSAGES_BCKP_DIR, f"{self.user_id}{var.RESET_MESSAGES_BCKP_EXT}")
         try:
-            with open(os.path.join(var.RESET_MESSAGES_BCKP_DIR, f"{self.user_id}{var.RESET_MESSAGES_BCKP_EXT}"), encoding='UTF-8') as file:
-                return deque(json.load(file))
+            with open(filepath, encoding='UTF-8') as file:
+                self.reset_message_queue = deque(json.load(file))
+            os.remove(filepath)
         except FileNotFoundError:
-            return deque()
+            self.reset_message_queue = deque()
 
     # Syncing
 
