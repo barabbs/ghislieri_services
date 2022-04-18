@@ -3,6 +3,7 @@ from modules import utility as utl
 from modules.utility import dotdict
 from .chat import Chat, MessageAuthorizationError
 from .message import Message
+from .notifications import NotificationCenter
 from . import var
 import telegram as tlg
 import telegram.ext, telegram.utils.request
@@ -37,16 +38,11 @@ def wait_for_internet():
 
 
 class ChatSyncUpdate(tlg.Update):
-    def __init__(self, sync_time=var.SESSION_TIMEOUT_SECONDS):
-        self.notifications = defaultdict(list)
-        super(ChatSyncUpdate, self).__init__(sync_time)
-
-    def add_notification(self, user_id, message_code, notify):
-        self.notifications[user_id].append((message_code, notify))
-        print("add not")
+    def __init__(self):
+        super(ChatSyncUpdate, self).__init__(int(time()))
 
 
-class RemoveChatUpdate(tlg.Update):
+class RemoveChatUpdate(tlg.Update):  # TODO: Consider removing this
     def __init__(self, user_id):
         super(RemoveChatUpdate, self).__init__(user_id)
 
@@ -72,8 +68,9 @@ class Bot(tlg.Bot):
         self._load_handlers()
         self.messages = self._load_messages(var.MESSAGES_DIR)
         self.chats = self._load_chats()
+        self.notif_center = NotificationCenter()
         self.update_queue = self.updater.start_polling()
-        self.next_sync = ChatSyncUpdate()
+        self.last_sync = None
         log.info(f"Bot created")
 
     # Handlers
@@ -110,8 +107,8 @@ class Bot(tlg.Bot):
 
     def _chat_sync_handler(self, update, context):
         for chat in self.chats:
-            update_notify = chat.sync(update.update_id, update.notifications[chat.user_id])
-            print(f"sync\t{chat.user_id} - {update.notifications[chat.user_id]} - {update_notify}")
+            update_notify = chat.sync(update.update_id)
+            print(f"sync\t{chat.user_id} - {update_notify}")
             if update_notify is not None:
                 self._send_message(chat, edit=not update_notify)
 
@@ -239,9 +236,9 @@ class Bot(tlg.Bot):
     # Runtime
 
     def update(self):
-        if time() > self.next_sync.update_id:
-            self.update_queue.put(self.next_sync)
-            self.next_sync = ChatSyncUpdate(int(time()) + var.STUDENT_UPDATE_SECONDS_INTERVAL)
+        if self.last_sync is None or time() > self.last_sync.update_id + var.STUDENT_UPDATE_SECONDS_INTERVAL:
+            self.last_sync = ChatSyncUpdate()
+            self.update_queue.put(self.last_sync)
 
     def stop(self):
         for chat in self.chats:
@@ -251,7 +248,6 @@ class Bot(tlg.Bot):
 
     def exit(self):
         log.info("Bot exiting...")
-        for chat in self.chats:
-            chat.exit()
+        self.notif_center.exit()
         self.updater.stop()
         log.info("Bot exited")

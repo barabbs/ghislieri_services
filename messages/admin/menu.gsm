@@ -69,8 +69,9 @@
                                 "add_notification",
                                 {},
                                 {
-                                    "user_id": 330886930,
-                                    "message_code": "utility.test_notification",
+                                    "users": [330886930],
+                                    "n_type": "meals",
+                                    "msg_code": "utility.test_notification",
                                     "notify": true
                                 }
                             ],

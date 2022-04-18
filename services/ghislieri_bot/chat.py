@@ -1,7 +1,6 @@
 from modules.utility import dotdict
 from . import var
-from collections import deque
-import json, os, time
+import time
 import logging
 
 log = logging.getLogger(__name__)
@@ -17,8 +16,7 @@ class Chat(object):
     def __init__(self, bot, user_id, last_message_id, student_infos, permissions):
         self.bot, self.user_id, self.last_message_id = bot, user_id, last_message_id
         self.data = dotdict({'user_id': self.user_id, 'infos': student_infos})
-        self.session, self.last_interaction, self.reset_message_queue = list(), 0, None
-        self._load_reset_messages_backup()
+        self.session, self.last_interaction = list(), 0
         self.permissions = permissions
 
     def check_auth(self):
@@ -53,49 +51,25 @@ class Chat(object):
 
     # Resetting session
 
-    def reset_session(self, message_code=None):
+    def reset_session(self, msg_code=None):
         self.data = dotdict({'user_id': self.data['user_id'], 'infos': self.data['infos']})
         self.last_interaction, notify = False, False
-        if message_code is None:
-            try:
-                message_code, notify = self.reset_message_queue.popleft()
+        if msg_code is None:
+            notif = self.bot.notif_center.get_notification(self.user_id)
+            if notif is not None:
+                msg_code, notify = notif.msg_code, notif.notify
+                self.data.update(notif.data)
                 self.last_interaction = False
-            except IndexError:
-                message_code, notify = var.HOME_MESSAGE_CODE, False
+            else:
+                msg_code, notify = var.HOME_MESSAGE_CODE, False
                 self.last_interaction = True
-        self.session = [self.bot.get_message(message_code), ]
+        self.session = [self.bot.get_message(msg_code), ]
         print(f"last interaction - {self.last_interaction}")
         return notify
 
-    def add_reset_message(self, message_code, notify=False):
-        self.reset_message_queue.append((message_code, notify))  # TODO: Consider adding passing additional for notifications
-
-    def _add_pending_notification_message(self):
-        if self.last_interaction == False:
-            print("PPPPPPPP")
-            self.reset_message_queue.appendleft((self._get_message().code, False))
-
-    def _save_reset_messages_backup(self):
-        # TODO: Consider saving also data (when implemented) for notifications on close
-        filepath = os.path.join(var.RESET_MESSAGES_BCKP_DIR, f"{self.user_id}{var.RESET_MESSAGES_BCKP_EXT}")
-        with open(filepath, 'w', encoding='UTF-8') as file:
-            json.dump(list(self.reset_message_queue), file)
-
-    def _load_reset_messages_backup(self):
-        # TODO: Consider loading also data (when implemented) for notifications on start
-        filepath = os.path.join(var.RESET_MESSAGES_BCKP_DIR, f"{self.user_id}{var.RESET_MESSAGES_BCKP_EXT}")
-        try:
-            with open(filepath, encoding='UTF-8') as file:
-                self.reset_message_queue = deque(json.load(file))
-            os.remove(filepath)
-        except FileNotFoundError:
-            self.reset_message_queue = deque()
-
     # Syncing
 
-    def sync(self, sync_time, notifications):
-        for n in notifications:
-            self.add_reset_message(*n)  # TODO: Consider moving add_reset_message method here
+    def sync(self, sync_time):
         if self._is_session_expired(sync_time):
             return self.reset_session()
 
@@ -106,11 +80,12 @@ class Chat(object):
 
     # Exiting
 
+    def _add_pending_notification_message(self):
+        if self.last_interaction == False:
+            self.bot.notif_center.add_notification((self.user_id, ), "pending", self._get_message().code, False)
+
     def stop(self):
         self._add_pending_notification_message()
-
-    def exit(self):
-        self._save_reset_messages_backup()
 
     def __str__(self):
         return f"Chat ({self.get_info('name')} {self.get_info('surname')}, user_id {self.user_id})"

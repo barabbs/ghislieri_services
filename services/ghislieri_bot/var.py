@@ -5,14 +5,14 @@ SERVICE_NAME = "ghislieri_bot"
 # DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
 DATA_DIR = os.path.join(os.getcwd(), 'data', SERVICE_NAME)
 FEEDBACK_DIR = os.path.join(DATA_DIR, 'feedback')
-RESET_MESSAGES_BCKP_DIR = os.path.join(DATA_DIR, 'reset_messages')
+NOTIFICATIONS_DIR = os.path.join(DATA_DIR, 'notifications')
+NOTIFICATIONS_BCKP_FILE = os.path.join(NOTIFICATIONS_DIR, 'notifications_bckp.gbnb')
 MESSAGES_DIR = os.path.join(os.getcwd(), 'messages')
 
 # Files
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILEPATH_BOT_TOKEN = os.path.join(DATA_DIR, 'ghislieri_bot_token.gbtk')
-RESET_MESSAGES_BCKP_EXT = ".gbrm"
 
 # Bot
 REQUEST_CONNECTION_POOL_SIZE = 8
