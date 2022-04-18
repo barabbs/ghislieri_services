@@ -9,11 +9,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class MealsReservation(BaseService):
+class MealsManagement(BaseService):
     SERVICE_NAME = var.SERVICE_NAME
 
     def __init__(self, *args, **kwargs):
-        super(MealsReservation, self).__init__(*args, **kwargs)
+        super(MealsManagement, self).__init__(*args, **kwargs)
         self.meals = None
         self._load_meals()
         self.last_update = self._get_last_update() - timedelta(days=1)

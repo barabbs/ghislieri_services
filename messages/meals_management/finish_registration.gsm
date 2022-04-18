@@ -1,5 +1,5 @@
 {
-    "code": "meals_reservation.finish_registration",
+    "code": "meals_management.finish_registration",
     "components": {
         "TEXT": {
             "text": "❗️    Per favore, inserisci prima i tuoi dati",

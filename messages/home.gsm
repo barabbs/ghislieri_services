@@ -9,12 +9,12 @@
             "buttons": [
                 [
                     {
-                        "text": "🍽️    Prenotazione Pasti",
-                        "callback": "meals_reservation",
+                        "text": "🍽️    Mensa",
+                        "callback": "meals_management",
                         "actions": [
                             [
                                 "NEW",
-                                "meals_reservation.menu"
+                                "meals_management.menu"
                             ]
                         ]
                     }

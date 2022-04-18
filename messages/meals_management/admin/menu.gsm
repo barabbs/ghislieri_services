@@ -1,36 +1,15 @@
 {
-    "code": "meals_reservation.menu",
+    "code": "meals_management.admin.menu",
+    "auth": [
+                "master"
+            ],
     "components": {
         "TEXT": {
-            "text": "🍽️    <b>Prenotazione Pasti</b>",
+            "text": "🍽️    <b>Admin Mensa</b>",
             "actions": []
         },
         "BUTTONS": {
             "buttons": [
-                [
-                    {
-                        "text": "📆    Prenota",
-                        "callback": "reservations",
-                        "actions": [
-                            [
-                                "REQ",
-                                "student_databaser",
-                                "get_user_completed_registration",
-                                {
-                                    "user_id": "user_id"
-                                },
-                                {},
-                                "meals_reservation.registration_complete"
-                            ],
-                            [
-                                "NEW",
-                                "meals_reservation.reservations",
-                                "meals_reservation.registration_complete",
-                                "meals_reservation.finish_registration"
-                            ]
-                        ]
-                    }
-                ],
                 [
                     {
                         "text": "Create Recap",
@@ -41,7 +20,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "meals_reservation.create_recap"
+                                "meals_management.admin.create_recap"
                             ]
                         ]
                     }
@@ -57,7 +36,7 @@
                         "actions": [
                             [
                                 "NEW",
-                                "meals_reservation.send_recap"
+                                "meals_management.admin.send_recap"
                             ]
                         ]
                     }

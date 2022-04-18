@@ -1,7 +1,7 @@
 import os, datetime
 
 # Directories
-SERVICE_NAME = "meals_reservation"
+SERVICE_NAME = "meals_management"
 # DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
 DATA_DIR = os.path.join(os.getcwd(), 'data', SERVICE_NAME)
 RESERVATIONS_DIR = os.path.join(DATA_DIR, 'reservations')

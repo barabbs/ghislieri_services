@@ -1,35 +1,38 @@
 {
-    "code": "meals_reservation.reservations",
+    "code": "meals_management.admin.send_recap",
+    "auth": [
+                "master"
+            ],
     "components": {
         "TEXT": {
-            "text": "Prenota il <b>Pasto</b>",
+            "text": "Send Recap",
             "actions": [
                 [
                     "REQ",
-                    "meals_reservation",
-                    "get_active_meals",
-                    {
-                        "user_id": "user_id"
-                    },
+                    "meals_management",
+                    "get_all_dates",
                     {},
-                    "meals_reservation.active_meals"
+                    {},
+                    "meals_reservation.all_dates"
                 ]
             ]
         },
         "BUTTONS": {
             "options": {
-                "text": "{date_str}  -  {meal:<6}    {reservation_str}",
-                "opt_data_key": "meals_reservation.active_meals",
-                "ans_data_key": "meals_reservation.selected_meal",
+                "text": "{date_str}",
+                "opt_data_key": "meals_reservation.all_dates",
+                "ans_data_key": "meals_reservation.selected_date",
                 "actions": [
                     [
                         "REQ",
-                        "meals_reservation",
-                        "toggle_meal",
+                        "meals_management",
+                        "send_recap",
                         {
-                            "user_id": "user_id",
-                            "meal_dict": "meals_reservation.selected_meal"
+                            "date_dict": "meals_reservation.selected_date"
                         }
+                    ],
+                    [
+                        "BACK"
                     ]
                 ]
             },

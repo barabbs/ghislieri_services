@@ -1,0 +1,64 @@
+{
+    "code": "meals_management.menu",
+    "components": {
+        "TEXT": {
+            "text": "🍽️    <b>Mensa</b>",
+            "actions": []
+        },
+        "BUTTONS": {
+            "buttons": [
+                [
+                    {
+                        "text": "📆    Prenota",
+                        "callback": "reservations",
+                        "actions": [
+                            [
+                                "REQ",
+                                "student_databaser",
+                                "get_user_completed_registration",
+                                {
+                                    "user_id": "user_id"
+                                },
+                                {},
+                                "registration_complete"
+                            ],
+                            [
+                                "NEW",
+                                "meals_management.reservations",
+                                "registration_complete",
+                                "meals_management.finish_registration"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔓    Admin",
+                        "callback": "meals_admin",
+                        "auth": [
+                                    "master"
+                                ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_management.admin.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "callback": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "actions": []
+        }
+    }
+}

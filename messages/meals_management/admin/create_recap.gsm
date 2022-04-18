@@ -1,15 +1,15 @@
 {
-    "code": "meals_reservation.send_recap",
+    "code": "meals_management.admin.create_recap",
     "auth": [
                 "master"
             ],
     "components": {
         "TEXT": {
-            "text": "Send Recap",
+            "text": "Create Recap",
             "actions": [
                 [
                     "REQ",
-                    "meals_reservation",
+                    "meals_management",
                     "get_all_dates",
                     {},
                     {},
@@ -25,8 +25,8 @@
                 "actions": [
                     [
                         "REQ",
-                        "meals_reservation",
-                        "send_recap",
+                        "meals_management",
+                        "create_recap",
                         {
                             "date_dict": "meals_reservation.selected_date"
                         }
