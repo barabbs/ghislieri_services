@@ -16,6 +16,9 @@ class GhislieriBot(BaseService):
         super(GhislieriBot, self).__init__(*args, **kwargs)
         self.bot = None
 
+    def _load_tasks(self):
+        self.scheduler.every(var.BOT_SYNC_SECONDS_INTERVAL).seconds.do(self._task_sync_bot)
+
     # Requests
 
     def _request_add_notification(self, **kwargs):
@@ -37,8 +40,8 @@ class GhislieriBot(BaseService):
         self.bot = Bot(self)
         super(GhislieriBot, self).run()
 
-    def _update(self):
-        self.bot.update()
+    def _task_sync_bot(self):
+        self.bot.sync()
 
     def _stop(self):
         self.bot.stop()

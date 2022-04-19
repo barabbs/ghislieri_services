@@ -11,4 +11,4 @@ DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILEPATH_LOG = os.path.join(LOGS_DIR, f'ghislieri_services {datetime.datetime.now().strftime(DATETIME_FORMAT)}.log')
 
 #
-SERVICE_UPDATE_INTERVAL =0.03125
+SERVICE_UPDATE_INTERVAL = 0.0625

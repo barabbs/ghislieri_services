@@ -1,5 +1,7 @@
 from . import utility as utl
+from . import var
 from multiprocessing import Process
+import schedule as sch
 from time import sleep, time
 import logging
 
@@ -25,6 +27,11 @@ class BaseService(Process):
         self.services_pipes = services_pipes
         self.stop_event = stop_event
         self.pipe = self.services_pipes[self.SERVICE_NAME]
+        self.scheduler = sch.Scheduler()
+        self._load_tasks()
+
+    def _load_tasks(self):
+        pass
 
     def send_request(self, request):
         return self.services_pipes[request.service_name].send_request(request=request)
@@ -35,8 +42,9 @@ class BaseService(Process):
             while True:
                 t = time()
                 self._update()
+                self._execute_tasks()
                 self._handle_requests()
-                sleep(max(0., time() - t))
+                sleep(max(0., var.SERVICE_UPDATE_INTERVAL - (time() - t)))
         except StopService:
             log.info(f"{self.SERVICE_NAME} stopping...")
         finally:
@@ -45,6 +53,9 @@ class BaseService(Process):
 
     def _update(self):
         pass
+
+    def _execute_tasks(self):
+        self.scheduler.run_pending()
 
     def _handle_requests(self):
         while True:

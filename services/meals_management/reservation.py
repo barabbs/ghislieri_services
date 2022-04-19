@@ -1,7 +1,7 @@
 from . import var
 from modules.service_pipe import Request
 from modules import utility as utl
-from datetime import datetime
+import datetime as dt
 import os, jinja2, pdfkit
 
 
@@ -17,8 +17,7 @@ class Reservation(object):
     def load_from_file(self, filename):
         with open(os.path.join(var.RESERVATIONS_DIR, filename)) as file:
             raw = tuple(line.replace("\n", "") for line in file.readlines())
-            self.date = datetime.strptime(raw[0], var.DATE_FORMAT)
-            self.from_date = datetime.strptime(raw[1], var.DATE_FORMAT)
+            self.date, self.from_date = dt.date.fromisoformat(raw[0]), dt.date.fromisoformat(raw[1])
             j = 0
             while True:
                 try:
@@ -32,7 +31,7 @@ class Reservation(object):
                     except ValueError:
                         pass
                 j += 1
-        return self.from_date < datetime.now() < self.date + var.TIMELIMIT
+        return self.from_date <= (dt.datetime.now() - var.TIMELIMIT).date() < self.date
 
     def _get_user_meal_res(self, user_id, meal):
         if user_id in self.meals_res[meal]:

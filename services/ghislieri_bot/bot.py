@@ -71,7 +71,7 @@ class Bot(tlg.Bot):
         self.chats = self._load_chats()
         self.notif_center = NotificationCenter()
         self.update_queue = self.updater.start_polling()
-        self.last_sync = None
+        self.sync()
         log.info(f"Bot created")
 
     # Handlers
@@ -106,6 +106,7 @@ class Bot(tlg.Bot):
             utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
+        print(f"sync - {update.update_id}")
         # TODO:  Implement message refreshing every sometime as messages older than two days can't be deleted (PROBLEM: messages can't be sent without push notification, but only without wound)
         for chat in self.chats:
             update_notify = chat.sync(update.update_id)
@@ -221,7 +222,7 @@ class Bot(tlg.Bot):
                     log.warning(e.message)
                 elif e.message == MESSAGE_CANT_BE_DELETED_ERROR:
                     log.warning(e.message)
-                    self.edit_message(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT)
+                    self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT)
                 else:
                     raise e
         message_content.pop('message_id')
@@ -232,10 +233,8 @@ class Bot(tlg.Bot):
 
     # Runtime
 
-    def update(self):
-        if self.last_sync is None or time() > self.last_sync.update_id + var.STUDENT_UPDATE_SECONDS_INTERVAL:
-            self.last_sync = ChatSyncUpdate()
-            self.update_queue.put(self.last_sync)
+    def sync(self):
+        self.update_queue.put(ChatSyncUpdate())
 
     def stop(self):
         for chat in self.chats:

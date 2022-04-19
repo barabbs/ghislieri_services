@@ -19,6 +19,10 @@ class MealsManagement(BaseService):
         self._load_reservations()
         self.last_update = (dt.datetime.now() - var.TIMELIMIT).replace(hour=0, minute=0, second=0, microsecond=0)
 
+    def _load_tasks(self):
+        self.scheduler.every().day.at(var.EMAIL_SENDING_TIME).do(self._task_send_res_recap)
+        self.scheduler.every().day.at(var.NOTIFICATION_SENDING_TIME).do(self._task_send_notification)
+
     def _load_reservations(self):
         self.reservations = set()
         for filename in filter(lambda f: not f[-5:] == ".temp", os.listdir(var.RESERVATIONS_DIR)):
@@ -26,7 +30,8 @@ class MealsManagement(BaseService):
             if res.load_from_file(filename):
                 self.reservations.add(res)
 
-    def _get_reservation(self, date):
+    def _get_reservation(self, delta=dt.timedelta()):
+        date = dt.date.today() + delta
         return next(filter(lambda x: x.date == date, self.reservations))
 
     def create_res_recap(self, res):
@@ -40,8 +45,7 @@ class MealsManagement(BaseService):
 
     def notify_reservation(self, res):
         notif_data = var.NOTIFICATION_DATA.copy()
-        for k in ("start_time", "end_time"):
-            notif_data[k] = utl.get_str_from_time(res.date + notif_data[k])
+        notif_data["end_time"] = utl.get_str_from_time(res.date + notif_data["end_time"])
         notif_data["data"] = {"reservation_day_notif": get_date_str(res.date, False)}
         self.send_request(Request('ghislieri_bot', 'add_notification', **notif_data))
 
@@ -71,20 +75,18 @@ class MealsManagement(BaseService):
         self.send_res_recap(res)
 
     # Runtime
+    def _task_send_res_recap(self):
+        log.info("Sending Res Recap...")
+        try:
+            self.send_res_recap(self._get_reservation())
+            log.info(f"Reservation recap for today sent")
+        except StopIteration:
+            pass
+        self._load_reservations()
 
-    def _update(self):
-        if self.last_update + dt.timedelta(days=1) + var.TIMELIMIT < dt.datetime.now():
-            log.info("Updating...")
-            self.last_update += dt.timedelta(days=1)
-            try:
-                self.send_res_recap(self._get_reservation(self.last_update))
-                log.info(f"Reservation recap for {get_date_str(self.last_update, False)} sent")
-            except StopIteration:
-                pass
-            try:
-                self.notify_reservation(self._get_reservation(self.last_update + var.NOTIFICATION_DAYS_BEFORE))
-                log.info(f"Notification for {get_date_str(self.last_update + var.NOTIFICATION_DAYS_BEFORE, False)} sent")
-            except StopIteration:
-                pass
-
-            self._load_reservations()
+    def _task_send_notification(self):
+        try:
+            self.notify_reservation(self._get_reservation(var.NOTIFICATION_DAYS_BEFORE))
+            log.info(f"Notification for today+{var.NOTIFICATION_DAYS_BEFORE} sent")
+        except StopIteration:
+            pass
