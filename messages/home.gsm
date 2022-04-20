@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "🍽️    Mensa",
-                        "callback": "meals_management",
+                        "id": "meals_management",
                         "actions": [
                             [
                                 "NEW",
@@ -22,7 +22,7 @@
                 [
                     {
                         "text": "‼️    Segnalazioni Eduroam",
-                        "callback": "eduroam_reporter",
+                        "id": "eduroam_reporter",
                         "actions": [
                             [
                                 "NEW",
@@ -34,7 +34,7 @@
                 [
                     {
                         "text": "📣    Canali Telegram",
-                        "callback": "telegram_channels",
+                        "id": "telegram_channels",
                         "actions": [
                             [
                                 "NEW",
@@ -46,7 +46,7 @@
                 [
                     {
                         "text": "🔧    Impostazioni",
-                        "callback": "settings",
+                        "id": "settings",
                         "actions": [
                             [
                                 "NEW",
@@ -58,10 +58,10 @@
                 [
                     {
                         "text": "🔓    Admin",
-                        "callback": "admin",
                         "auth": [
-                                    "master"
-                                ],
+                            "master"
+                        ],
+                        "id": "admin",
                         "actions": [
                             [
                                 "NEW",
@@ -70,8 +70,7 @@
                         ]
                     }
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "Remove",
-                        "callback": "remove",
+                        "id": "remove",
                         "actions": [
                             [
                                 "REQ",
@@ -29,7 +29,7 @@
                 [
                     {
                         "text": "Add permissions",
-                        "callback": "add_perm",
+                        "id": "add_perm",
                         "actions": [
                             [
                                 "SAVE",
@@ -46,7 +46,7 @@
                 [
                     {
                         "text": "Remove permissions",
-                        "callback": "rm_perm",
+                        "id": "rm_perm",
                         "actions": [
                             [
                                 "SAVE",
@@ -59,20 +59,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

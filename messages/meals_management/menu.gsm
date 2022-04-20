@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "📆    Prenota",
-                        "callback": "reservations",
+                        "id": "reservations",
                         "actions": [
                             [
                                 "REQ",
@@ -34,10 +34,10 @@
                 [
                     {
                         "text": "🔓    Admin",
-                        "callback": "meals_admin",
                         "auth": [
-                                    "master"
-                                ],
+                            "master"
+                        ],
+                        "id": "meals_admin",
                         "actions": [
                             [
                                 "NEW",
@@ -45,20 +45,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

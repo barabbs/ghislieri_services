@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "OK",
-                        "callback": "ok",
+                        "id": "ok",
                         "actions": [
                             [
                                 "HOME"
@@ -18,8 +18,7 @@
                         ]
                     }
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

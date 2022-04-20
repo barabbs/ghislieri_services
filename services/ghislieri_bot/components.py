@@ -30,13 +30,6 @@ def get_action_home():
     return lambda chat, **kwargs: chat.reset_session()
 
 
-def get_action_save(data_key, value):
-    def action(data, **kwargs):
-        data[data_key.format(**data)] = value
-
-    return action
-
-
 def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_key=None):
     def action(data, service, **kwargs):
         req_data = {k: data[v].format(**data) if isinstance(data[v], str) else data[v] for k, v in ((r.format(**data), t.format(**data)) for r, t in data_keys.items())}
@@ -49,14 +42,28 @@ def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_k
     return action
 
 
-ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'SAVE': get_action_save, 'REQ': get_action_req, }
+def get_action_save(data_key, value):
+    def action(data, **kwargs):
+        data[data_key.format(**data)] = value
+
+    return action
+
+
+def get_action_add(data_key, increment):
+    def action(data, **kwargs):
+        data[data_key.format(**data)] += increment
+
+    return action
+
+
+ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'REQ': get_action_req, 'SAVE': get_action_save, 'ADD': get_action_add}
 
 
 # Components
 
 class BaseComponent(object):
-    def __init__(self, msg, raw):
-        self.actions = tuple(ACTION_DECORATORS[a[0]](*a[1:]) for a in raw['actions'])
+    def __init__(self, raw):
+        self.actions = tuple(ACTION_DECORATORS[a[0]](*a[1:]) for a in raw['actions']) if 'actions' in raw else tuple()
 
     def get_content(self, **kwargs):
         return dict()
@@ -67,88 +74,133 @@ class BaseComponent(object):
 
 
 class Text(BaseComponent):
-    def __init__(self, msg, raw):
+    def __init__(self, raw):
         self.text = raw['text']
-        super(Text, self).__init__(msg, raw)
+        super(Text, self).__init__(raw)
 
     def get_content(self, data, **kwargs):
         self.act(data=data, **kwargs)
         return {'text': self.text.format(**data)}
 
 
-class Keyboard(BaseComponent):
-    def __init__(self, msg, raw):
-        self.options = Options(msg, raw['options']) if 'options' in raw else None
-        self.buttons = tuple(tuple(Button(msg, b) for b in row) for row in raw['buttons'])
-        super(Keyboard, self).__init__(msg, raw)
-
-    def get_content(self, message, chat, data, **kwargs):
-        time_str = str(int(time()))
-        buttons = self.options.get_buttons(data, time_str) if self.options is not None else []
-        for row in self.buttons:
-            r_butt = list()
-            for b in row:
-                if b.check_permission(chat.permissions):
-                    r_butt.append(b.get_button(data, time_str))
-            if not len(r_butt) == 0:
-                buttons.append(r_butt)
-        return {'reply_markup': tlg.InlineKeyboardMarkup(buttons)}
-
-    def act(self, callback, **kwargs):
-        if var.OPTIONBUTTON_CALLBACK_IDENTIFIER in callback:
-            self.options.act(callback=callback, **kwargs)
-        else:
-            try:
-                next(filter(lambda b: b.check_callback(callback), sum(self.buttons, start=()))).act(callback=callback, **kwargs)
-            except StopIteration:
-                log.warning(f"Callback {callback} for message {kwargs['message'].code} raised StopIteration")
-        super(Keyboard, self).act(callback=callback, **kwargs)
-
-
-class Button(BaseComponent):
-    def __init__(self, msg, raw):
-        self.text = raw['text']
-        self.auth = set(raw['auth']) if 'auth' in raw else None
-        self.url = raw['url'] if 'url' in raw else None
-        self.callback = msg.code + var.CALLBACK_IDENTIFIER + raw['callback'] if 'callback' in raw else None
-        super(Button, self).__init__(msg, raw)
-
-    def check_permission(self, permissions):
-        return self.auth is None or len(self.auth.intersection(permissions)) > 0
-
-    def check_callback(self, callback):
-        return self.callback == callback.split(var.TIME_IDENTIFIER)[-1]
-
-    def get_button(self, data, time_str):
-        callback = (time_str + var.TIME_IDENTIFIER + self.callback) if self.callback is not None else None
-        return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=callback, url=self.url)
-
-
 class Answer(BaseComponent):
-    def __init__(self, msg, raw):
+    def __init__(self, raw):
         self.ans_data_key = raw['ans_data_key']
-        super(Answer, self).__init__(msg, raw)
+        super(Answer, self).__init__(raw)
 
     def act(self, answer, data, **kwargs):
         data[self.ans_data_key.format(**data)] = answer
         super(Answer, self).act(answer=answer, data=data, **kwargs)
 
 
-class Options(Answer):
-    def __init__(self, msg, raw):
-        self.text = raw['text']
-        self.opt_data_key = raw['opt_data_key']
-        self.base_callback = msg.code + var.OPTIONBUTTON_CALLBACK_IDENTIFIER
-        super(Options, self).__init__(msg, raw)
+# Keyboard
 
-    def get_buttons(self, data, time_str):
-        return list([tlg.InlineKeyboardButton(self.text.format(**opt).format(**data), callback_data=time_str + var.TIME_IDENTIFIER + self.base_callback + str(n)), ] for n, opt in
-                    enumerate(data[self.opt_data_key.format(**data)]))
+class Keyboard(BaseComponent):
+    def __init__(self, raw):
+        self.parts = list(KEYBOARD_PARTE_CLASSES[part](p_raw) for part, p_raw in raw.items())
+        # super(Keyboard, self).__init__(raw)  # Removed 'actions' from KEYBOARD component as it seems not to be used
 
-    def act(self, callback, data, **kwargs):
-        super(Options, self).act(answer=data[self.opt_data_key.format(**data)][int(callback.split(var.OPTIONBUTTON_CALLBACK_IDENTIFIER)[-1])], callback=callback, data=data, **kwargs)
+    def get_content(self, **kwargs):
+        time_str = str(int(time()))
+        buttons = sum((part.get_keys(time_str=time_str, **kwargs) for part in self.parts), start=list())
+        return {'reply_markup': tlg.InlineKeyboardMarkup(buttons)}
+
+    def act(self, callback, **kwargs):
+        time_str, msg_code, part_flag, key_id = callback.split(var.CALLBACK_SEP)
+        if kwargs['message'].code != msg_code:
+            log.warning(f"wrong msg_code - callback {callback} for message {kwargs['message'].code}")
+            return
+        for p in self.parts:
+            if p.check_flag(part_flag):
+                p.act(key_id=key_id, **kwargs)
+                break
+        else:
+            log.warning(f"wrong part_flag - callback {callback} for message {kwargs['message'].code}")
+            return
+#super(Keyboard, self).act(callback=callback, **kwargs)
 
 
-COMPONENTS_CLASSES = {'TEXT': Text,
-                      'KEYBOARD': Keyboard,
-                      'ANSWER': Answer}
+class Key(BaseComponent):
+    def __init__(self, raw):
+        self.text, self.id = raw['text'], raw['id']
+        self.auth = set(raw['auth']) if 'auth' in raw else None
+        self.url = raw['url'] if 'url' in raw else None
+        super(Key, self).__init__(raw)
+
+    def _check_permission(self, permissions):
+        return self.auth is None or len(self.auth.intersection(permissions)) > 0
+
+    def check_id(self, key_id):
+        return self.id == key_id
+
+    def _get_callback(self, time_str, message, part, **kwargs):
+        return var.CALLBACK_SEP.join((time_str, message.code, part.get_flag(), self.id))
+
+    def get_key(self, data, permissions=None, **kwargs):
+        if permissions is None or self._check_permission(permissions):
+            return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=self._get_callback(**kwargs) if self.url is None else None, url=self.url)
+
+
+class Buttons(BaseComponent):
+    PART_FLAG = 'b'
+
+    def __init__(self, raw):
+        self.buttons = tuple(tuple(Key(b) for b in row) for row in raw)
+
+    def get_flag(self):
+        return self.PART_FLAG
+
+    def check_flag(self, flag):
+        return self.PART_FLAG == flag
+
+    def get_keys(self, chat, **kwargs):
+        return list(filter(lambda r: len(r) != 0,
+                           (list(filter(lambda x: x is not None, (b.get_key(part=self, permissions=chat.permissions, **kwargs) for b in row))) for row in self.buttons)))
+
+    def act(self, key_id, **kwargs):
+        for b in sum(self.buttons, tuple()):
+            if b.check_id(key_id):
+                b.act(**kwargs)
+                break
+        else:
+            log.warning(f"wrong key_id - callback {kwargs['callback']} for message {kwargs['message'].code}")
+
+
+class Options(Buttons, Answer):
+    PART_FLAG = 'o'
+
+    def __init__(self, raw):
+        self.text, self.opt_data_key = raw['text'], raw['opt_data_key']
+        self.page_data_key = raw['page_data_key'] if 'page_data_key' in raw else None
+        self.page_shape = raw['page_shape'] if 'page_shape' in raw else var.DEFAULT_PAGE_SHAPE
+        super(Buttons, self).__init__(raw)
+
+    def get_keys(self, data, **kwargs):
+        opt_data = data.copy()
+        options = list()
+        for n, opt in enumerate(data[self.opt_data_key.format(**data)]):
+            opt_data.update(opt)
+            options.append([Key({'text': self.text, 'id': str(n)}).get_key(part=self, data=opt_data, **kwargs), ])
+        return options
+
+    def act(self, key_id, data, **kwargs):
+        super(Buttons, self).act(answer=data[self.opt_data_key.format(**data)][int(key_id)], data=data, **kwargs)
+
+
+get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)
+get_raw_home_nav = lambda text='🏠 Home': ({'text': text, 'id': 'home', 'actions': [['HOME']]},)
+get_raw_arrows_nav = lambda page_data_key: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['ADD', page_data_key, -1]]}, {'text': '▶️', 'id': 'arrow_r', 'actions': [['ADD', page_data_key, 1]]})
+
+NAVIGATION_RAW_GENERATORS = {'back': get_raw_back_nav, 'home': get_raw_home_nav, 'arrows': get_raw_arrows_nav}
+
+
+class Navigation(Buttons):
+    PART_FLAG = 'n'
+
+    def __init__(self, raw):
+        super(Navigation, self).__init__(sum((NAVIGATION_RAW_GENERATORS[n[0]](*n[1:]) for n in row), start=tuple()) for row in raw)
+
+
+KEYBOARD_PARTE_CLASSES = {'options': Options, 'buttons': Buttons, 'navigation': Navigation}
+
+COMPONENTS_CLASSES = {'TEXT': Text, 'KEYBOARD': Keyboard, 'ANSWER': Answer}

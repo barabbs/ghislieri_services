@@ -1,8 +1,8 @@
 {
     "code": "admin.menu",
     "auth": [
-                "master"
-            ],
+        "master"
+    ],
     "components": {
         "TEXT": {
             "text": "🔓    <b>Admin</b>",
@@ -13,7 +13,7 @@
                 [
                     {
                         "text": "👥    Students",
-                        "callback": "students",
+                        "id": "students",
                         "actions": [
                             [
                                 "NEW",
@@ -25,7 +25,7 @@
                 [
                     {
                         "text": "📄    Logs",
-                        "callback": "logs",
+                        "id": "logs",
                         "actions": [
                             [
                                 "NEW",
@@ -37,7 +37,7 @@
                 [
                     {
                         "text": "⚠️    Errors",
-                        "callback": "errors",
+                        "id": "errors",
                         "actions": [
                             [
                                 "NEW",
@@ -49,7 +49,7 @@
                 [
                     {
                         "text": "🛑    Shutdown",
-                        "callback": "shutdown",
+                        "id": "shutdown",
                         "actions": [
                             [
                                 "NEW",
@@ -61,7 +61,7 @@
                 [
                     {
                         "text": "Test Notification",
-                        "callback": "test_notification",
+                        "id": "test_notification",
                         "actions": [
                             [
                                 "REQ",
@@ -69,7 +69,9 @@
                                 "add_notification",
                                 {},
                                 {
-                                    "users": [330886930],
+                                    "users": [
+                                        330886930
+                                    ],
                                     "n_type": "meals",
                                     "msg_code": "utility.test_notification",
                                     "notify": true
@@ -80,20 +82,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

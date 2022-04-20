@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "📩    Nuova Segnalazione",
-                        "callback": "new_report",
+                        "id": "new_report",
                         "actions": [
                             [
                                 "NEW",
@@ -18,20 +18,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

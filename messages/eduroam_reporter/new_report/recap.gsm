@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "✔️",
-                        "callback": "yes",
+                        "id": "yes",
                         "actions": [
                             [
                                 "REQ",
@@ -32,7 +32,7 @@
                     },
                     {
                         "text": "❌",
-                        "callback": "no",
+                        "id": "no",
                         "actions": [
                             [
                                 "BACK",
@@ -40,20 +40,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "OK",
-                        "callback": "ok",
+                        "id": "ok",
                         "actions": [
                             [
                                 "NEW",
@@ -18,20 +18,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

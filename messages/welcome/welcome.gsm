@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "Prosegui ➡️️",
-                        "callback": "next",
+                        "id": "next",
                         "actions": [
                             [
                                 "NEW",
@@ -19,8 +19,7 @@
                         ]
                     }
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

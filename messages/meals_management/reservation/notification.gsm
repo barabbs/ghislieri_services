@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "📆    Prenota ora!",
-                        "callback": "reserve",
+                        "id": "reserve",
                         "actions": [
                             [
                                 "REQ",
@@ -30,20 +30,16 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "Più tardi",
-                        "callback": "ok",
-                        "actions": [
-                            [
-                                "HOME"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "Più tardi"
+                    ]
+                ]
+            ]
         }
     }
 }

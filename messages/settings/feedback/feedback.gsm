@@ -6,20 +6,14 @@
             "actions": []
         },
         "KEYBOARD": {
-            "buttons": [
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         },
         "ANSWER": {
             "ans_data_key": "feedback_ans",
@@ -29,9 +23,9 @@
                     "ghislieri_bot",
                     "save_feedback",
                     {
-                    "user_id": "user_id",
-                    "student_infos": "infos",
-                    "text": "feedback_ans"
+                        "user_id": "user_id",
+                        "student_infos": "infos",
+                        "text": "feedback_ans"
                     }
                 ],
                 [

@@ -1,8 +1,8 @@
 {
     "code": "meals_management.admin.create_recap",
     "auth": [
-                "master"
-            ],
+        "master"
+    ],
     "components": {
         "TEXT": {
             "text": "Create Recap",
@@ -36,20 +36,14 @@
                     ]
                 ]
             },
-            "buttons": [
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

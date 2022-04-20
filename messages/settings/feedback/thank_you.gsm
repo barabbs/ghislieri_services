@@ -6,20 +6,14 @@
             "actions": []
         },
         "KEYBOARD": {
-            "buttons": [
+            "navigation": [
                 [
-                    {
-                        "text": "OK",
-                        "callback": "ok",
-                        "actions": [
-                            [
-                                "HOME"
-                            ]
-                        ]
-                    }
+                    [
+                        "home",
+                        "OK"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

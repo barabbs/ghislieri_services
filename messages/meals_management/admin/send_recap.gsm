@@ -1,8 +1,8 @@
 {
     "code": "meals_management.admin.send_recap",
     "auth": [
-                "master"
-            ],
+        "master"
+    ],
     "components": {
         "TEXT": {
             "text": "Send Recap",
@@ -36,20 +36,14 @@
                     ]
                 ]
             },
-            "buttons": [
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

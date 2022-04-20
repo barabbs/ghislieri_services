@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "👤    Profilo",
-                        "callback": "profile",
+                        "id": "profile",
                         "actions": [
                             [
                                 "NEW",
@@ -22,7 +22,7 @@
                 [
                     {
                         "text": "💬    Segnalazioni e Suggerimenti",
-                        "callback": "feedback",
+                        "id": "feedback",
                         "actions": [
                             [
                                 "NEW",
@@ -34,7 +34,7 @@
                 [
                     {
                         "text": "ℹ️    Informazioni",
-                        "callback": "about",
+                        "id": "about",
                         "actions": [
                             [
                                 "NEW",
@@ -42,20 +42,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

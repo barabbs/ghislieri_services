@@ -1,8 +1,8 @@
 {
     "code": "meals_management.admin.menu",
     "auth": [
-                "master"
-            ],
+        "master"
+    ],
     "components": {
         "TEXT": {
             "text": "🍽️    <b>Admin Mensa</b>",
@@ -13,10 +13,10 @@
                 [
                     {
                         "text": "Create Recap",
-                        "callback": "create_recap",
                         "auth": [
-                                    "master"
-                                ],
+                            "master"
+                        ],
+                        "id": "create_recap",
                         "actions": [
                             [
                                 "NEW",
@@ -28,11 +28,10 @@
                 [
                     {
                         "text": "Send Recap",
-                        "callback": "send_recap",
-
                         "auth": [
-                                    "master"
-                                ],
+                            "master"
+                        ],
+                        "id": "send_recap",
                         "actions": [
                             [
                                 "NEW",
@@ -40,20 +39,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

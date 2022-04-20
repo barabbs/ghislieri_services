@@ -28,6 +28,7 @@ def get_bot_token():
 
 
 def wait_for_internet():
+    return
     log.info(f"Internet Connection - waiting...")
     while True:
         try:
@@ -89,21 +90,22 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        if CONNECTION_LOST_ERROR in err.message:
-            log.warning("Connection lost!")
-        else:
-            log.error(f"Exception while handling an update: {err}")
+        raise err
+        # if err CONNECTION_LOST_ERROR in err.message:  #  TODO: Correct this "AttributeError: 'Error' object has no attribute 'message'"
+        #     log.warning("Connection lost!")
+        #     return
+        log.error(f"Exception while handling an update: {err}")
+        try:
+            chat = self._get_chat(update)
+            chat.reset_session(var.ERROR_MESSAGE_CODE)
+            chat.data['error'] = err
             try:
-                chat = self._get_chat(update)
-                chat.reset_session(var.ERROR_MESSAGE_CODE)
-                chat.data['error'] = err
-                try:
-                    self._send_message(chat, del_user_msg=update.message.message_id)
-                except AttributeError:
-                    self._send_message(chat, edit=True)
-            except Exception:
-                chat = None
-            utl.log_error(err, chat=chat)
+                self._send_message(chat, del_user_msg=update.message.message_id)
+            except AttributeError:
+                self._send_message(chat, edit=True)
+        except Exception:
+            chat = None
+        utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
         print(f"sync - {update.update_id}")
