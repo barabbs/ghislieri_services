@@ -5,7 +5,7 @@
             "text": "In che stanza o zona del Collegio?",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

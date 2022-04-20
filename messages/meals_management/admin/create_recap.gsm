@@ -17,7 +17,7 @@
                 ]
             ]
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "options": {
                 "text": "{date_str}",
                 "opt_data_key": "meals_reservation.all_dates",

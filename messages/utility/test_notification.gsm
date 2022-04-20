@@ -5,7 +5,7 @@
             "text": "🚧    <b>Test Notification</b>    🚧\n\nTest Notification",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

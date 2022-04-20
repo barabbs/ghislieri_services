@@ -5,7 +5,7 @@
             "text": "❗️    Per favore, inserisci prima i tuoi dati",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

@@ -14,7 +14,7 @@
                 ]
             ]
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "options": {
                 "text": "{report}",
                 "opt_data_key": "default_eduroam_reports",

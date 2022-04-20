@@ -33,6 +33,7 @@ def get_action_home():
 def get_action_save(data_key, value):
     def action(data, **kwargs):
         data[data_key.format(**data)] = value
+
     return action
 
 
@@ -75,15 +76,15 @@ class Text(BaseComponent):
         return {'text': self.text.format(**data)}
 
 
-class ButtonsGroup(BaseComponent):
+class Keyboard(BaseComponent):
     def __init__(self, msg, raw):
         self.options = Options(msg, raw['options']) if 'options' in raw else None
         self.buttons = tuple(tuple(Button(msg, b) for b in row) for row in raw['buttons'])
-        super(ButtonsGroup, self).__init__(msg, raw)
+        super(Keyboard, self).__init__(msg, raw)
 
     def get_content(self, message, chat, data, **kwargs):
-        buttons = list()
         time_str = str(int(time()))
+        buttons = self.options.get_buttons(data, time_str) if self.options is not None else []
         for row in self.buttons:
             r_butt = list()
             for b in row:
@@ -91,7 +92,7 @@ class ButtonsGroup(BaseComponent):
                     r_butt.append(b.get_button(data, time_str))
             if not len(r_butt) == 0:
                 buttons.append(r_butt)
-        return {'reply_markup': tlg.InlineKeyboardMarkup((self.options.get_buttons(data, time_str) if self.options is not None else []) + buttons)}
+        return {'reply_markup': tlg.InlineKeyboardMarkup(buttons)}
 
     def act(self, callback, **kwargs):
         if var.OPTIONBUTTON_CALLBACK_IDENTIFIER in callback:
@@ -101,7 +102,7 @@ class ButtonsGroup(BaseComponent):
                 next(filter(lambda b: b.check_callback(callback), sum(self.buttons, start=()))).act(callback=callback, **kwargs)
             except StopIteration:
                 log.warning(f"Callback {callback} for message {kwargs['message'].code} raised StopIteration")
-        super(ButtonsGroup, self).act(callback=callback, **kwargs)
+        super(Keyboard, self).act(callback=callback, **kwargs)
 
 
 class Button(BaseComponent):
@@ -141,12 +142,13 @@ class Options(Answer):
         super(Options, self).__init__(msg, raw)
 
     def get_buttons(self, data, time_str):
-        return list([tlg.InlineKeyboardButton(self.text.format(**opt).format(**data), callback_data=time_str + var.TIME_IDENTIFIER + self.base_callback + str(n)), ] for n, opt in enumerate(data[self.opt_data_key.format(**data)]))
+        return list([tlg.InlineKeyboardButton(self.text.format(**opt).format(**data), callback_data=time_str + var.TIME_IDENTIFIER + self.base_callback + str(n)), ] for n, opt in
+                    enumerate(data[self.opt_data_key.format(**data)]))
 
     def act(self, callback, data, **kwargs):
         super(Options, self).act(answer=data[self.opt_data_key.format(**data)][int(callback.split(var.OPTIONBUTTON_CALLBACK_IDENTIFIER)[-1])], callback=callback, data=data, **kwargs)
 
 
-WIDGET_CLASSES = {'TEXT': Text,
-                  'BUTTONS': ButtonsGroup,
-                  'ANSWER': Answer}
+COMPONENTS_CLASSES = {'TEXT': Text,
+                      'KEYBOARD': Keyboard,
+                      'ANSWER': Answer}

@@ -5,7 +5,7 @@
             "text": "✏️ Inserisci {edit_infos_dialog}",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

@@ -13,7 +13,7 @@ class Message(object):
 
     def _load_components(self, comp):
         for k, d in comp.items():
-            self.components[k] = WIDGET_CLASSES[k](self, d)
+            self.components[k] = COMPONENTS_CLASSES[k](self, d)
 
     def check_permission(self, permissions):
         return self.auth is None or len(self.auth.intersection(permissions)) > 0

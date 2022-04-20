@@ -5,7 +5,7 @@
             "text": "<b>Ghislieri Bot</b> 🤖\nversion 0.0.1h\n\n<i>Developed by Barabba</i>\n\nSource code at https://github.com/barabbs/ghislieri_services",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

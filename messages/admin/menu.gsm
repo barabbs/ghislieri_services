@@ -8,7 +8,7 @@
             "text": "🔓    <b>Admin</b>",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

@@ -5,7 +5,7 @@
             "text": "🍽️    <b>Mensa</b>",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

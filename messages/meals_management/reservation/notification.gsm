@@ -5,7 +5,7 @@
             "text": "🍽❗️ <b>Prenotazione Pasti</b>\n\nHai prenotato per <i>{reservation_day_notif}</i>?",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

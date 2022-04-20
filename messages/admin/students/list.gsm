@@ -14,7 +14,7 @@
                 ]
             ]
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "options": {
                 "text": "{student_infos[surname]} {student_infos[name]}",
                 "opt_data_key": "admin.students_list",

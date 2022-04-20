@@ -5,7 +5,7 @@
             "text": "<b>Segnalazione:</b>    {eduroam_report[report]}\n<b>Luogo:</b>    {eduroam_report[place]}\n<b>Note:</b>    {eduroam_report[note]}\n\n✉️  Inviare la segnalazione?",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

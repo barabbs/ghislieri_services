@@ -5,7 +5,7 @@
             "text": "Modifica le tue informazioni",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

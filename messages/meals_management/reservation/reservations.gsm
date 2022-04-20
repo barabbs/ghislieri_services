@@ -16,7 +16,7 @@
                 ]
             ]
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "options": {
                 "text": "{date_str}  -  {meal:<6}    {reservation_str}",
                 "opt_data_key": "meals_reservation.active_meals",

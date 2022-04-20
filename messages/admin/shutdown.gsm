@@ -5,7 +5,7 @@
             "text": "Do you really want to <b>shutdown</b>?",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

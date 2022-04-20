@@ -5,7 +5,7 @@
             "text": "Inserisci il tuo <b>Cognome</b>",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

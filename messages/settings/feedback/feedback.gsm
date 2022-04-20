@@ -5,7 +5,7 @@
             "text": "Scrivi il <b>problema</b> riscontrato o il <b>suggerimento</b> per il bot",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {

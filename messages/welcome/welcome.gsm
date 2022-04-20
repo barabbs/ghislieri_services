@@ -5,7 +5,7 @@
             "text": "Benvenuto su <b>Ghislieri Bot</b>, il bot per i <i>servizi del Collegio</i>! 😄\n\nPer iniziare compila per favore i seguenti dati",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {
