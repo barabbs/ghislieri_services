@@ -81,7 +81,7 @@ class Bot(tlg.Bot):
         dispatcher.add_handler(tlg.ext.TypeHandler(ChatSyncUpdate, self._chat_sync_handler))
         dispatcher.add_handler(tlg.ext.TypeHandler(RemoveChatUpdate, self._remove_chat_handler))
         dispatcher.add_handler(tlg.ext.CommandHandler('start', self._start_command_handler))
-        dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._buttons_handler))
+        dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._keyboard_handler))
         dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._answer_handler))
         dispatcher.add_error_handler(self._error_handler)
         # TODO: Add Files Handler
@@ -127,10 +127,10 @@ class Bot(tlg.Bot):
             chat = user.chat
         self._send_message(chat, del_user_msg=update.message.message_id)
 
-    def _buttons_handler(self, update, context):
+    def _keyboard_handler(self, update, context):
         try:
             chat = self._get_chat(update)
-            chat.reply('BUTTONS', callback=update.callback_query.data)
+            chat.reply('KEYBOARD', callback=update.callback_query.data)
         except NewUser as user:
             chat = user.chat
         self._send_message(chat, edit=True)
