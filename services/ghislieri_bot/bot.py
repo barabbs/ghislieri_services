@@ -90,7 +90,6 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        raise err
         # if err CONNECTION_LOST_ERROR in err.message:  #  TODO: Correct this "AttributeError: 'Error' object has no attribute 'message'"
         #     log.warning("Connection lost!")
         #     return

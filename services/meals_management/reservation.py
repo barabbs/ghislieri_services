@@ -63,7 +63,7 @@ class Reservation(object):
             templ = jinja2.Template(templ_file.read())
         filepath = os.path.join(var.RECAPS_DIR, f"Recap_{self.date.strftime(var.DATE_FORMAT)}")
         with open(filepath + ".html", "w") as file:
-            res = list(service.send_request(Request('student_databaser', 'get_chats')))
+            res = list(service.send_request(Request('student_databaser', 'get_chats', group="student", sort=True)))
             for u in res:
                 u['meals'] = tuple(var.RECAP_RESERVATION_INDICATOR[self._get_user_meal_res(u['user_id'], m)] for m in var.MEALS)
             n, w = len(res), (len(res) + 2) // 3

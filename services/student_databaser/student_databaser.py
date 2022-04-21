@@ -20,7 +20,6 @@ class StudentDatabaser(BaseService):
     def __init__(self, *args, **kwargs):
         super(StudentDatabaser, self).__init__(*args, **kwargs)
         self.connection, self.cursor = None, None
-        log.info(f"{self.SERVICE_NAME} loading...")
         self._load_database()
 
     def _load_database(self):
@@ -33,26 +32,27 @@ class StudentDatabaser(BaseService):
 
     # Requests
 
-    def _request_get_chats(self):
+    def _request_get_chats(self, group=None, sort=False):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
-        return sorted((get_chat_dict(chat) for chat in self.cursor.fetchall()), key=lambda x: (x["student_infos"]["surname"] if x["student_infos"]["surname"] is not None else ""))
-
-    def _request_get_user_completed_registration(self, user_id):
-        self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
-        chat_dict = get_chat_dict(self.cursor.fetchone())
-        return chat_dict['student_infos']['name'] is not None and chat_dict['student_infos']['surname'] is not None
-
-    def _request_set_chat_last_message_id(self, user_id, last_message_id):
-        self._edit_database(user_id, 'last_message_id', last_message_id)
-
-    def _request_edit_student_info(self, user_id, info, value):
-        self._edit_database(user_id, info, value)
+        if group is None:
+            chats = (get_chat_dict(chat) for chat in self.cursor.fetchall())
+        else:
+            chats = filter(lambda x: group in x['groups'], (get_chat_dict(chat) for chat in self.cursor.fetchall()))
+        if sort:
+            chats = sorted(chats, key=lambda x: x["student_infos"]["surname"] if x["student_infos"]["surname"] is not None else "")
+        return tuple(chats)
 
     def _request_new_chat(self, user_id, last_message_id):
         self.cursor.execute(f"INSERT INTO {var.DATABASE_STUDENTS_TABLE} (user_id, last_message_id) VALUES (?, ?)", (user_id, last_message_id))
         self.connection.commit()
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
         return get_chat_dict(self.cursor.fetchone())
+
+    def _request_set_chat_last_message_id(self, user_id, last_message_id):
+        self._edit_database(user_id, 'last_message_id', last_message_id)
+
+    def _request_edit_student_info(self, user_id, info, value):
+        self._edit_database(user_id, info, value)
 
     def _request_edit_group(self, user_id, group, edit):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))

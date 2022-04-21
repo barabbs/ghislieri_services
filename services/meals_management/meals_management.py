@@ -34,16 +34,16 @@ class MealsManagement(BaseService):
         date = dt.date.today() + delta
         return next(filter(lambda x: x.date == date, self.reservations))
 
-    def create_res_recap(self, res):
+    def _create_res_recap(self, res):
         return res.create_recap(self)
 
-    def send_res_recap(self, res):
-        filepath = self.create_res_recap(res) + ".pdf"
+    def _send_res_recap(self, res):
+        filepath = self._create_res_recap(res) + ".pdf"
         metadata = var.EMAIL_METADATA.copy()
         metadata["subject"] = metadata["subject"].format(date_str=get_date_str(res.date, False))
         self.send_request(Request('email_service', 'send_email', **metadata, text="", attachments=(filepath,)))
 
-    def notify_reservation(self, res):
+    def _notify_reservation(self, res):
         notif_data = var.NOTIFICATION_DATA.copy()
         notif_data["end_time"] = utl.get_str_from_time(res.date + notif_data["end_time"])
         notif_data["data"] = {"reservation_day_notif": get_date_str(res.date, False)}
@@ -67,18 +67,18 @@ class MealsManagement(BaseService):
     def _request_create_recap(self, date_dict):
         res = Reservation()
         res.load_from_file(date_dict["filename"])
-        self.create_res_recap(res)
+        self._create_res_recap(res)
 
     def _request_send_recap(self, date_dict):
         res = Reservation()
         res.load_from_file(date_dict["filename"])
-        self.send_res_recap(res)
+        self._send_res_recap(res)
 
     # Runtime
     def _task_send_res_recap(self):
         log.info("Sending Res Recap...")
         try:
-            self.send_res_recap(self._get_reservation())
+            self._send_res_recap(self._get_reservation())
             log.info(f"Reservation recap for today sent")
         except StopIteration:
             pass
@@ -86,7 +86,7 @@ class MealsManagement(BaseService):
 
     def _task_send_notification(self):
         try:
-            self.notify_reservation(self._get_reservation(var.NOTIFICATION_DAYS_BEFORE))
+            self._notify_reservation(self._get_reservation(var.NOTIFICATION_DAYS_BEFORE))
             log.info(f"Notification for today+{var.NOTIFICATION_DAYS_BEFORE} sent")
         except StopIteration:
             pass

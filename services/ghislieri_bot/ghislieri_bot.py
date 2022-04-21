@@ -21,8 +21,10 @@ class GhislieriBot(BaseService):
 
     # Requests
 
-    def _request_add_notification(self, **kwargs):
-        self.bot.notif_center.add_notification(**kwargs)
+    def _request_add_notification(self, users=None, groups=None, **kwargs):
+        if groups is not None:
+            users = (set() if users is None else users).union(*(set(c['user_id'] for c in self.send_request(Request("student_databaser", "get_chats", group=g))) for g in groups))
+        self.bot.notif_center.add_notification(users=users, **kwargs)
 
     def _request_save_feedback(self, user_id, student_infos, text):
         time = utl.get_str_from_time()

@@ -1,5 +1,8 @@
 {
     "code": "home",
+    "whitelist": [
+        "student"
+    ],
     "components": {
         "TEXT": {
             "text": "🟥🟨    <b>Collegio Ghislieri</b>    🟨🟥",

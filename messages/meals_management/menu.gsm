@@ -13,20 +13,8 @@
                         "id": "reservations",
                         "actions": [
                             [
-                                "REQ",
-                                "student_databaser",
-                                "get_user_completed_registration",
-                                {
-                                    "user_id": "user_id"
-                                },
-                                {},
-                                "registration_complete"
-                            ],
-                            [
                                 "NEW",
-                                "meals_management.reservation.reservations",
-                                "registration_complete",
-                                "meals_management.reservation.finish_registration"
+                                "meals_management.reservation.reservations"
                             ]
                         ]
                     }

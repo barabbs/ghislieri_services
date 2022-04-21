@@ -17,7 +17,7 @@ RECAP_EXT = ".html"
 # Reservations
 MEALS = ("Pranzo", "Cena")
 POSSIBLE_RESERVATIONS = (True, False)
-TIMELIMIT = dt.timedelta(hours=12, minutes=50)
+TIMELIMIT = dt.timedelta(hours=15, minutes=25)
 
 # Messages
 BUTTON_RESERVATION_INDICATOR = {True: "🟢", False: "🔴", None: "❔"}
@@ -27,9 +27,9 @@ RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
 EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
                   "receivers": ("gesu.barabba.official@gmail.com", "alesosso@gmail.com"),
                   "subject": "Prenotazione pasti {date_str}"}
-EMAIL_SENDING_TIME = "12:50:00"
+EMAIL_SENDING_TIME = "15:25:00"
 
 # Notification
-NOTIFICATION_SENDING_TIME = "12:55:00"
+NOTIFICATION_SENDING_TIME = "15:28:30"
 NOTIFICATION_DAYS_BEFORE = dt.timedelta(days=1)
-NOTIFICATION_DATA = {"users": (330886930,), "n_type": "meals", "msg_code": "meals_management.reservation.notification", "notify": True, "end_time": TIMELIMIT}
+NOTIFICATION_DATA = {"groups": ('student',), "n_type": "meals", "msg_code": "meals_management.reservation.notification", "notify": True, "end_time": TIMELIMIT}
