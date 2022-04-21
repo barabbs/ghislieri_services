@@ -19,6 +19,11 @@
                 "text": "{student_infos[surname]} {student_infos[name]}",
                 "opt_data_key": "admin.students_list",
                 "ans_data_key": "admin.selected_student",
+                "page_data_key": "student_list_page",
+                "page_shape": [
+                    2,
+                    8
+                ],
                 "actions": [
                     [
                         "NEW",
@@ -28,6 +33,12 @@
             },
             "buttons": [],
             "navigation": [
+                [
+                    [
+                        "arrows",
+                        "student_list_page"
+                    ]
+                ],
                 [
                     [
                         "back"

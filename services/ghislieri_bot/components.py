@@ -117,7 +117,9 @@ class Keyboard(BaseComponent):
         else:
             log.warning(f"wrong part_flag - callback {callback} for message {kwargs['message'].code}")
             return
-#super(Keyboard, self).act(callback=callback, **kwargs)
+
+
+# super(Keyboard, self).act(callback=callback, **kwargs)
 
 
 class Key(BaseComponent):
@@ -176,12 +178,19 @@ class Options(Buttons, Answer):
         super(Buttons, self).__init__(raw)
 
     def get_keys(self, data, **kwargs):
-        opt_data = data.copy()
-        options = list()
-        for n, opt in enumerate(data[self.opt_data_key.format(**data)]):
-            opt_data.update(opt)
-            options.append([Key({'text': self.text, 'id': str(n)}).get_key(part=self, data=opt_data, **kwargs), ])
-        return options
+        w, h = self.page_shape
+        try:
+            page = data[self.page_data_key] if self.page_data_key is not None else 0
+        except KeyError:
+            data[self.page_data_key], page = 0, 0
+        options, opt_data, keys = list(enumerate(data[self.opt_data_key.format(**data)][page * h * w:(page + 1) * h * w])), data.copy(), list()
+        shaped_options = [options[i:i + w] for i in range(0, min(len(options), w * h), w)]
+        for row in shaped_options:
+            keys.append(list())
+            for n, opt in row:
+                opt_data.update(opt)
+                keys[-1].append(Key({'text': self.text, 'id': str(n)}).get_key(part=self, data=opt_data, **kwargs))
+        return keys
 
     def act(self, key_id, data, **kwargs):
         super(Buttons, self).act(answer=data[self.opt_data_key.format(**data)][int(key_id)], data=data, **kwargs)
