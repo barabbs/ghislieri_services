@@ -125,12 +125,13 @@ class Keyboard(BaseComponent):
 class Key(BaseComponent):
     def __init__(self, raw):
         self.text, self.id = raw['text'], raw['id']
-        self.auth = set(raw['auth']) if 'auth' in raw else None
+        self.auth = tuple(set(raw[k]) if k in raw else None for k in ('whitelist', 'blacklist'))
         self.url = raw['url'] if 'url' in raw else None
         super(Key, self).__init__(raw)
 
-    def _check_permission(self, permissions):
-        return self.auth is None or len(self.auth.intersection(permissions)) > 0
+    def _check_permission(self, groups):
+        w, b = self.auth
+        return (w is None or len(w.intersection(groups)) > 0) and (b is None or len(b.intersection(groups)) == 0)
 
     def check_id(self, key_id):
         return self.id == key_id
@@ -157,7 +158,7 @@ class Buttons(BaseComponent):
 
     def get_keys(self, chat, **kwargs):
         return list(filter(lambda r: len(r) != 0,
-                           (list(filter(lambda x: x is not None, (b.get_key(part=self, permissions=chat.permissions, **kwargs) for b in row))) for row in self.buttons)))
+                           (list(filter(lambda x: x is not None, (b.get_key(part=self, permissions=chat.groups, **kwargs) for b in row))) for row in self.buttons)))
 
     def act(self, key_id, **kwargs):
         for b in sum(self.buttons, tuple()):
@@ -180,7 +181,7 @@ class Options(Buttons, Answer):
     def get_keys(self, data, **kwargs):
         w, h = self.page_shape
         try:
-            page = data[self.page_data_key] if self.page_data_key is not None else 0
+            page = data[self.page_data_key] if self.page_data_key is not None else 0   # TODO: Add control for page range (not too big, not negative ?)
         except KeyError:
             data[self.page_data_key], page = 0, 0
         options, opt_data, keys = list(enumerate(data[self.opt_data_key.format(**data)][page * h * w:(page + 1) * h * w])), data.copy(), list()

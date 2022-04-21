@@ -34,10 +34,10 @@
                 [
                     {
                         "text": "🔓    Admin",
-                        "auth": [
+                        "id": "meals_admin",
+                        "whitelist": [
                             "master"
                         ],
-                        "id": "meals_admin",
                         "actions": [
                             [
                                 "NEW",

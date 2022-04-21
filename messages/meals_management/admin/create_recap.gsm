@@ -1,6 +1,6 @@
 {
     "code": "meals_management.admin.create_recap",
-    "auth": [
+    "whitelist": [
         "master"
     ],
     "components": {

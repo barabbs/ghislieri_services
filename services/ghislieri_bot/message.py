@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 class Message(object):
     def __init__(self, raw):
         self.code = raw['code']
-        self.auth = set(raw['auth']) if 'auth' in raw else None
+        self.auth = tuple(set(raw[k]) if k in raw else None for k in ('whitelist', 'blacklist'))
         self.components = dict()
         self._load_components(raw['components'])
 
@@ -15,8 +15,9 @@ class Message(object):
         for k, d in comp.items():
             self.components[k] = COMPONENTS_CLASSES[k](d)
 
-    def check_permission(self, permissions):
-        return self.auth is None or len(self.auth.intersection(permissions)) > 0
+    def check_permission(self, groups):
+        w, b = self.auth
+        return (w is None or len(w.intersection(groups)) > 0) and (b is None or len(b.intersection(groups)) == 0)
 
     def get_content(self, chat, **kwargs):
         content = {'parse_mode': tlg.ParseMode.HTML}

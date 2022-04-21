@@ -11,7 +11,7 @@ def get_student_infos_dict(chat):
 
 
 def get_chat_dict(chat):
-    return {'user_id': chat[0], 'last_message_id': chat[1], 'student_infos': get_student_infos_dict(chat), 'permissions': set(chat[-1].split(",")) if chat[-1] is not None else set()}
+    return {'user_id': chat[0], 'last_message_id': chat[1], 'student_infos': get_student_infos_dict(chat), 'groups': set(chat[-1].split(",")) if chat[-1] is not None else set()}
 
 
 class StudentDatabaser(BaseService):
@@ -54,17 +54,17 @@ class StudentDatabaser(BaseService):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
         return get_chat_dict(self.cursor.fetchone())
 
-    def _request_edit_permission(self, user_id, permission, edit):
+    def _request_edit_group(self, user_id, group, edit):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
-        perms = get_chat_dict(self.cursor.fetchone())['permissions']
+        perms = get_chat_dict(self.cursor.fetchone())['groups']
         if edit == "add":
-            perms.add(permission)
+            perms.add(group)
         if edit == "rm":
             try:
-                perms.remove(permission)
+                perms.remove(group)
             except ValueError:
                 pass
-        self._edit_database(user_id, 'permissions', ",".join(perms))
+        self._edit_database(user_id, 'groups', ",".join(perms))
         return get_chat_dict(self.cursor.fetchone())
 
     def _request_remove_chat(self, user_id):

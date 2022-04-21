@@ -14,15 +14,15 @@ class MessageAuthorizationError(Exception):
 
 
 class Chat(object):
-    def __init__(self, bot, user_id, last_message_id, student_infos, permissions):
+    def __init__(self, bot, user_id, last_message_id, student_infos, groups):
         self.bot, self.user_id, self.last_message_id = bot, user_id, last_message_id
         self.data = dotdict({'user_id': self.user_id, 'infos': student_infos})
         self.session, self.last_interaction = list(), 0
-        self.permissions = permissions
+        self.groups = groups
 
     def check_auth(self):
         msg = self._get_message()
-        if not msg.check_permission(self.permissions):
+        if not msg.check_permission(self.groups):
             raise MessageAuthorizationError(msg.code)
 
     def get_info(self, info):

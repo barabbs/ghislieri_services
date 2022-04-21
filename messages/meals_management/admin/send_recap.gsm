@@ -1,6 +1,6 @@
 {
     "code": "meals_management.admin.send_recap",
-    "auth": [
+    "whitelist": [
         "master"
     ],
     "components": {

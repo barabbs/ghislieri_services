@@ -1,6 +1,6 @@
 {
     "code": "meals_management.admin.menu",
-    "auth": [
+    "whitelist": [
         "master"
     ],
     "components": {
@@ -13,10 +13,10 @@
                 [
                     {
                         "text": "Create Recap",
-                        "auth": [
+                        "id": "create_recap",
+                        "whitelist": [
                             "master"
                         ],
-                        "id": "create_recap",
                         "actions": [
                             [
                                 "NEW",
@@ -28,10 +28,10 @@
                 [
                     {
                         "text": "Send Recap",
-                        "auth": [
+                        "id": "send_recap",
+                        "whitelist": [
                             "master"
                         ],
-                        "id": "send_recap",
                         "actions": [
                             [
                                 "NEW",

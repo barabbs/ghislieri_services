@@ -1,6 +1,6 @@
 {
     "code": "admin.menu",
-    "auth": [
+    "whitelist": [
         "master"
     ],
     "components": {
