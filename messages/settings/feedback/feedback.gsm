@@ -23,9 +23,9 @@
                     "ghislieri_bot",
                     "save_feedback",
                     {
-                        "user_id": "user_id",
-                        "student_infos": "infos",
-                        "text": "feedback_ans"
+                        "user_id": "$user_id",
+                        "student_infos": "$infos",
+                        "text": "$feedback_ans"
                     }
                 ],
                 [

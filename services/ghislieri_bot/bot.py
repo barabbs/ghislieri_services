@@ -95,7 +95,7 @@ class Bot(tlg.Bot):
         #     return
         log.error(f"Exception while handling an update: {err}")
         try:
-            chat = self._get_chat(update)
+            chat = self._get_chat_from_update(update)
             chat.reset_session(var.ERROR_MESSAGE_CODE)
             chat.data['error'] = err
             try:
@@ -115,14 +115,14 @@ class Bot(tlg.Bot):
                 self._send_message(chat, edit=not update_notify)
 
     def _remove_chat_handler(self, update, context):
-        chat = next(filter(lambda x: x.user_id == update.update_id, self.chats))
+        chat = self.get_chat_from_id(update.update_id)
         self.delete_message(chat_id=chat.user_id, message_id=chat.last_message_id)
         self.chats.remove(chat)
         log.info(f"Removed student with user_id {update.update_id}")
 
     def _start_command_handler(self, update, context):
         try:
-            chat = self._get_chat(update)
+            chat = self._get_chat_from_update(update)
             chat.reset_session()
         except NewUser as user:
             chat = user.chat
@@ -130,7 +130,7 @@ class Bot(tlg.Bot):
 
     def _keyboard_handler(self, update, context):
         try:
-            chat = self._get_chat(update)
+            chat = self._get_chat_from_update(update)
             chat.reply('KEYBOARD', callback=update.callback_query.data)
         except NewUser as user:
             chat = user.chat
@@ -138,7 +138,7 @@ class Bot(tlg.Bot):
 
     def _answer_handler(self, update, context):
         try:
-            chat = self._get_chat(update)
+            chat = self._get_chat_from_update(update)
             answer = update.message.text
             answer.replace("{", "{{")
             answer.replace("}", "}}")
@@ -172,11 +172,14 @@ class Bot(tlg.Bot):
     def _load_chats(self):
         return set(Chat(self, **s) for s in self.service.send_request(Request('student_databaser', 'get_chats')))
 
-    def _get_chat(self, update):
+    def _get_chat_from_update(self, update):
         try:
-            return next(filter(lambda c: c.user_id == update.effective_user.id, self.chats))
+            return self.get_chat_from_id(update.effective_user.id)
         except StopIteration:
             return self._new_student_signup(update)
+
+    def get_chat_from_id(self, user_id):
+        return next(filter(lambda c: c.user_id == user_id, self.chats))
 
     def _new_student_signup(self, update):
         user_id = update.effective_user.id
@@ -186,6 +189,9 @@ class Bot(tlg.Bot):
         self.chats.add(chat)
         chat.reset_session(var.WELCOME_MESSAGE_CODE)
         raise NewUser(chat)
+
+    def expire_notification(self, user_id):
+        self.get_chat_from_id(user_id).expire_notification()
 
     # Sending & Editing
 

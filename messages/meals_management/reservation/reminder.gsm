@@ -1,5 +1,5 @@
 {
-    "code": "meals_management.reservation.notification",
+    "code": "meals_management.reservation.reminder",
     "components": {
         "TEXT": {
             "text": "🍽❗️ <b>Prenotazione Pasti</b>\n\nHai prenotato per <i>{reservation_day_notif}</i>?",
@@ -13,20 +13,8 @@
                         "id": "reserve",
                         "actions": [
                             [
-                                "REQ",
-                                "student_databaser",
-                                "get_user_completed_registration",
-                                {
-                                    "user_id": "user_id"
-                                },
-                                {},
-                                "registration_complete"
-                            ],
-                            [
                                 "NEW",
-                                "meals_management.reservation.reservations",
-                                "registration_complete",
-                                "meals_management.reservation.finish_registration"
+                                "meals_management.reservation.reservations"
                             ]
                         ]
                     }

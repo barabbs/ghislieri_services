@@ -9,9 +9,8 @@
                     "meals_management",
                     "get_active_reservations",
                     {
-                        "user_id": "user_id"
+                        "user_id": "$user_id"
                     },
-                    {},
                     "meals_reservation.active_meals"
                 ]
             ]
@@ -27,8 +26,8 @@
                         "meals_management",
                         "toggle_meal_res",
                         {
-                            "user_id": "user_id",
-                            "meal_dict": "meals_reservation.selected_meal"
+                            "user_id": "$user_id",
+                            "meal_dict": "$meals_reservation.selected_meal"
                         }
                     ]
                 ]

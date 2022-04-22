@@ -65,17 +65,13 @@
                         "actions": [
                             [
                                 "REQ",
-                                "ghislieri_bot",
-                                "add_notification",
-                                {},
+                                "ghislieri_services",
+                                "test",
                                 {
-                                    "users": [
-                                        330886930
-                                    ],
-                                    "n_type": "meals",
-                                    "msg_code": "utility.test_notification",
-                                    "notify": true
-                                }
+                                    "user_id": "$user_id",
+                                    "infos": "$infos"
+                                },
+                                "admin.students_list"
                             ],
                             [
                                 "BACK"

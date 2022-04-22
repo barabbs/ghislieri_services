@@ -2,19 +2,32 @@ from modules.service_pipe import Request
 from . import var
 from time import time
 import telegram as tlg
+from collections.abc import Iterable
 import logging
 
 log = logging.getLogger(__name__)
 
 
+def format_data(raw, data):
+    if isinstance(raw, str):
+        if raw[0] == var.DATA_FORMATTING_HEAD:
+            return data[raw[1:].format(**data)]
+        return raw.format(**data)
+    if isinstance(raw, dict):
+        return dict({format_data(k, data): format_data(v, data) for k, v in raw.items()})
+    if isinstance(raw, list) or isinstance(raw, tuple):
+        return tuple(format_data(i, data) for i in raw)
+    return raw
+
+
 # Actions
 
-def get_action_new(new_code, condition_data_key=None, else_new_node=None):
+def get_action_new(new_code, condition_data_key=None, else_new_code=None):
     def action(data, chat, bot, **kwargs):
         if condition_data_key is None or data[condition_data_key]:
-            chat.session.append(bot.get_message(new_code.format(**data)))
+            chat.session.append(bot.get_message(format_data(new_code, data)))
         else:
-            chat.session.append(bot.get_message(else_new_node.format(**data)))
+            chat.session.append(bot.get_message(format_data(else_new_code, data)))
 
     return action
 
@@ -30,12 +43,12 @@ def get_action_home():
     return lambda chat, **kwargs: chat.reset_session()
 
 
-def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_key=None):
+def get_action_req(service_name, r_type, send_data=None, recv_data_key=None):
+    if send_data is None:
+        send_data = dict()
+
     def action(data, service, **kwargs):
-        req_data = {k: data[v].format(**data) if isinstance(data[v], str) else data[v] for k, v in ((r.format(**data), t.format(**data)) for r, t in data_keys.items())}
-        if other_data is not None:
-            req_data.update(other_data)
-        recv = service.send_request(Request(service_name, r_type, **req_data))
+        recv = service.send_request(Request(service_name, r_type, **format_data(send_data, data)))
         if recv_data_key is not None:
             data[recv_data_key] = recv
 
@@ -44,14 +57,14 @@ def get_action_req(service_name, r_type, data_keys, other_data=None, recv_data_k
 
 def get_action_save(data_key, value):
     def action(data, **kwargs):
-        data[data_key.format(**data)] = value
+        data[format_data(data_key, data)] = value
 
     return action
 
 
 def get_action_add(data_key, increment):
     def action(data, **kwargs):
-        data[data_key.format(**data)] += increment
+        data[format_data(data_key, data)] += increment
 
     return action
 
@@ -89,7 +102,7 @@ class Answer(BaseComponent):
         super(Answer, self).__init__(raw)
 
     def act(self, answer, data, **kwargs):
-        data[self.ans_data_key.format(**data)] = answer
+        data[format_data(self.ans_data_key, data)] = answer
         super(Answer, self).act(answer=answer, data=data, **kwargs)
 
 
@@ -181,10 +194,10 @@ class Options(Buttons, Answer):
     def get_keys(self, data, **kwargs):
         w, h = self.page_shape
         try:
-            page = data[self.page_data_key] if self.page_data_key is not None else 0   # TODO: Add control for page range (not too big, not negative ?)
+            page = data[self.page_data_key] if self.page_data_key is not None else 0  # TODO: Add control for page range (not too big, not negative ?)
         except KeyError:
             data[self.page_data_key], page = 0, 0
-        options, opt_data, keys = list(enumerate(data[self.opt_data_key.format(**data)][page * h * w:(page + 1) * h * w])), data.copy(), list()
+        options, opt_data, keys = list(enumerate(data[format_data(self.opt_data_key, data)][page * h * w:(page + 1) * h * w])), data.copy(), list()
         shaped_options = [options[i:i + w] for i in range(0, min(len(options), w * h), w)]
         for row in shaped_options:
             keys.append(list())
@@ -194,7 +207,7 @@ class Options(Buttons, Answer):
         return keys
 
     def act(self, key_id, data, **kwargs):
-        super(Buttons, self).act(answer=data[self.opt_data_key.format(**data)][int(key_id)], data=data, **kwargs)
+        super(Buttons, self).act(answer=data[format_data(self.opt_data_key, data)][int(key_id)], data=data, **kwargs)
 
 
 get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)

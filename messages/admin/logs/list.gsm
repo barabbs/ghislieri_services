@@ -9,7 +9,6 @@
                     "ghislieri_services",
                     "get_logs",
                     {},
-                    {},
                     "admin.logs_list"
                 ]
             ]

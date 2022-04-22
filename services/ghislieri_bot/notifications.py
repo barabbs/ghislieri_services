@@ -2,6 +2,9 @@ from modules import utility as utl
 from . import var
 import datetime as dt
 import json, os
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class NotificationCenter(object):
@@ -21,6 +24,7 @@ class NotificationCenter(object):
 
     def add_notification(self, **kwargs):
         self.notifications.append(Notification(**kwargs))
+        log.info(f"Added notification with kwargs {kwargs}")
 
     def _save_notifications_backup(self):
         with open(var.NOTIFICATIONS_BCKP_FILE, 'w', encoding='UTF-8') as file:
@@ -41,12 +45,11 @@ class NotificationCenter(object):
 
 
 class Notification(object):
-    def __init__(self, users, n_type, msg_code, notify, data=None, start_time=None, end_time=None, **kwargs):
+    def __init__(self, users, n_type, msg_code, notify, data=None, start_time=None, end_time=False, **kwargs):
         # TODO: Consider removing "notify" and use only default notify status for n_type on notification preferences implementation
-        self.users, self.n_type, self.msg_code, self.notify = set(users), n_type, msg_code, notify
-        self.start_time = utl.get_time_from_str(start_time)
-        self.end_time = None if end_time is None else utl.get_time_from_str(end_time)
-        self.data = dict() if data is None else data
+        self.users, self.n_type, self.msg_code, self.notify, self.data = set(users), n_type, msg_code, notify, dict() if data is None else data
+        self.start_time = dt.datetime.now() if start_time is None else utl.get_time_from_str(start_time)
+        self.end_time = end_time if isinstance(end_time, bool) else utl.get_time_from_str(end_time)
 
     def check_user(self, user_id):
         if dt.datetime.now() > self.start_time and user_id in self.users:
@@ -58,11 +61,19 @@ class Notification(object):
         self.users.add(user_id)
 
     def expired(self):
-        return self.end_time is not None and dt.datetime.now() > self.end_time
+        if isinstance(self.end_time, bool):
+            return self.end_time
+        return dt.datetime.now() > self.end_time
+
+    def expire(self):
+        self.end_time = True
 
     def to_save(self):
         return {"users": list(self.users), "n_type": self.n_type, "msg_code": self.msg_code, "notify": self.notify, "data": self.data,
-                "start_time": utl.get_str_from_time(self.start_time), "end_time": None if self.end_time is None else utl.get_str_from_time(self.end_time)}
+                "start_time": utl.get_str_from_time(self.start_time), "end_time": self.end_time if isinstance(self.end_time, bool) else utl.get_str_from_time(self.end_time)}
 
     def __bool__(self):
         return len(self.users) != 0 and not self.expired()
+
+    def __str__(self):
+        return f"Notification {self.to_save()}"

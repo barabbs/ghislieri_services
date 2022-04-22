@@ -9,9 +9,8 @@
                     "ghislieri_services",
                     "get_error",
                     {
-                        "filename": "admin.selected_error.filename"
+                        "filename": "$admin.selected_error.filename"
                     },
-                    {},
                     "admin.selected_error.text"
                 ]
             ]

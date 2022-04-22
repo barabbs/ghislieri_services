@@ -23,16 +23,26 @@
                     "student_databaser",
                     "edit_student_info",
                     {
-                        "user_id": "user_id",
-                        "value": "infos.name"
-                    },
-                    {
+                        "user_id": "$user_id",
+                        "value": "$infos.name",
                         "info": "name"
                     }
                 ],
                 [
-                    "NEW",
-                    "welcome.thank_you"
+                    "REQ",
+                    "ghislieri_bot",
+                    "add_notification",
+                    {
+                        "users": [
+                            "$user_id"
+                        ],
+                        "n_type": "new_sub",
+                        "msg_code": "welcome.checking",
+                        "notify": false
+                    }
+                ],
+                [
+                    "HOME"
                 ]
             ]
         }

@@ -1,5 +1,6 @@
-from . import var
 from modules.base_service import BaseService
+from modules.service_pipe import Request
+from . import var
 import sqlite3 as sql
 import logging
 
@@ -56,16 +57,16 @@ class StudentDatabaser(BaseService):
 
     def _request_edit_group(self, user_id, group, edit):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
-        perms = get_chat_dict(self.cursor.fetchone())['groups']
+        groups = get_chat_dict(self.cursor.fetchone())['groups']
         if edit == "add":
-            perms.add(group)
+            groups.add(group)
         if edit == "rm":
             try:
-                perms.remove(group)
+                groups.remove(group)
             except ValueError:
                 pass
-        self._edit_database(user_id, 'groups', ",".join(perms))
-        return get_chat_dict(self.cursor.fetchone())
+        self._edit_database(user_id, 'groups', ",".join(groups))
+        self.send_request(Request("ghislieri_bot", "set_groups", user_id=user_id, groups=groups))
 
     def _request_remove_chat(self, user_id):
         self.cursor.execute(f"DELETE FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))

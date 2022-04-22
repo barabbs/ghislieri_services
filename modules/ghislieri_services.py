@@ -56,6 +56,13 @@ class GhislieriServices(BaseService):
         with open(os.path.join(var.LOGS_DIR, filename)) as file:
             return file.read()
 
+    def _request_get_version(self):
+        with open(os.path.join(var.CHANGELOGS_DIR, var.CHANGELOGS_FILENAME)) as file:
+            return {"version": var.VERSION, "changelog": file.read()}
+
+    def _request_test(self, **kwargs):
+        print(kwargs)
+
     # Runtime
 
     def run(self):

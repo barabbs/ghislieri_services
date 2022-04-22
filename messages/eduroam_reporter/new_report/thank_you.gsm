@@ -1,22 +1,17 @@
 {
-    "code": "settings.feedback.thank_you",
+    "code": "eduroam_reporter.new_report.thank_you",
     "components": {
         "TEXT": {
             "text": "Grazie per la segnalazione! 😄",
             "actions": []
         },
         "KEYBOARD": {
-            "buttons": [
+            "navigation": [
                 [
-                    {
-                        "text": "OK",
-                        "id": "ok",
-                        "actions": [
-                            [
-                                "HOME"
-                            ]
-                        ]
-                    }
+                    [
+                        "home",
+                        "OK"
+                    ]
                 ]
             ]
         }

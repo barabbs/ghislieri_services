@@ -31,6 +31,9 @@ class Chat(object):
     def set_last_message_id(self, new_message_id):
         self.last_message_id = new_message_id
 
+    def set_groups(self, groups):
+        self.groups = groups
+
     def _set_last_interaction(self):
         self.last_interaction = int(time.time())
 
@@ -41,8 +44,10 @@ class Chat(object):
         return {'data': self.data, 'bot': self.bot, 'service': self.bot.service, 'chat': self}
 
     def reply(self, component, **kwargs):
-        self._set_last_interaction()
-        self._get_message().act(component, **self._get_component_args(), **kwargs)
+        msg = self._get_message()
+        if component in msg.components:
+            self._set_last_interaction()
+            self._get_message().act(component, **self._get_component_args(), **kwargs)
 
     def get_message_content(self, **kwargs):
         content = {'chat_id': self.user_id, 'message_id': self.last_message_id}
@@ -70,7 +75,9 @@ class Chat(object):
 
     def sync(self, sync_time):
         if self._is_session_expired(sync_time):
+            print(f"\t{self.user_id} EXP {self.last_interaction}")
             return self.reset_session()
+        print(f"\t{self.user_id} --- {self.last_interaction}\t\t\t{self._get_message().code}")
 
     def _is_session_expired(self, sync_time):
         if isinstance(self.last_interaction, bool):
@@ -78,6 +85,9 @@ class Chat(object):
         elif isinstance(self.last_interaction, int):
             return sync_time >= self.last_interaction + var.SESSION_TIMEOUT_SECONDS
         return self.last_interaction.expired()
+
+    def expire_notification(self):
+        self.last_interaction.expire()
 
     # Exiting
 

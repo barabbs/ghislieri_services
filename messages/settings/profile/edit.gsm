@@ -23,9 +23,9 @@
                     "student_databaser",
                     "edit_student_info",
                     {
-                        "user_id": "user_id",
-                        "info": "edit_infos_key",
-                        "value": "infos.{edit_infos_key}"
+                        "user_id": "$user_id",
+                        "info": "$edit_infos_key",
+                        "value": "$infos.{edit_infos_key}"
                     }
                 ],
                 [

@@ -15,8 +15,7 @@
                             [
                                 "REQ",
                                 "ghislieri_services",
-                                "shutdown",
-                                {}
+                                "shutdown"
                             ]
                         ]
                     },

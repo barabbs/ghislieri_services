@@ -12,7 +12,6 @@
                     "meals_management",
                     "get_all_res_dates",
                     {},
-                    {},
                     "meals_reservation.all_dates"
                 ]
             ]
@@ -28,7 +27,7 @@
                         "meals_management",
                         "send_recap",
                         {
-                            "date_dict": "meals_reservation.selected_date"
+                            "date_dict": "$meals_reservation.selected_date"
                         }
                     ],
                     [

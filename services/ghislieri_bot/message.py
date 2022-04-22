@@ -26,9 +26,4 @@ class Message(object):
         return content
 
     def act(self, component, **kwargs):
-        try:
-            actor = self.components[component]
-        except KeyError:
-            pass
-        else:
-            actor.act(message=self, **kwargs)
+        self.components[component].act(message=self, **kwargs)

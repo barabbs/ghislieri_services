@@ -9,9 +9,8 @@
                     "ghislieri_services",
                     "get_log",
                     {
-                        "filename": "admin.selected_log.filename"
+                        "filename": "$admin.selected_log.filename"
                     },
-                    {},
                     "admin.selected_log.text"
                 ]
             ]

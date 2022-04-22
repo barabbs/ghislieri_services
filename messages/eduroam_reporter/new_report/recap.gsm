@@ -17,11 +17,11 @@
                                 "eduroam_reporter",
                                 "new_report",
                                 {
-                                    "user_id": "user_id",
-                                    "student_infos": "infos",
-                                    "report": "eduroam_report.report",
-                                    "place": "eduroam_report.place",
-                                    "note": "eduroam_report.note"
+                                    "user_id": "$user_id",
+                                    "student_infos": "$infos",
+                                    "report": "$eduroam_report.report",
+                                    "place": "$eduroam_report.place",
+                                    "note": "$eduroam_report.note"
                                 }
                             ],
                             [

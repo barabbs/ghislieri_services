@@ -23,10 +23,8 @@
                     "student_databaser",
                     "edit_student_info",
                     {
-                        "user_id": "user_id",
-                        "value": "infos.surname"
-                    },
-                    {
+                        "user_id": "$user_id",
+                        "value": "$infos.surname",
                         "info": "surname"
                     }
                 ],

@@ -8,7 +8,6 @@
                     "REQ",
                     "student_databaser",
                     "get_chats",
-                    {},
                     {
                         "sort": true
                     },

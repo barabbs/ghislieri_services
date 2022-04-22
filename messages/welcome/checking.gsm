@@ -1,0 +1,29 @@
+{
+    "code": "welcome.checking",
+    "components": {
+        "TEXT": {
+            "text": "Grazie! 😄\n\nStiamo <b>verificando</b> il tuo account, riceverai una <b>notifica</b> una volta completato",
+            "actions": [
+                [
+                    "REQ",
+                    "ghislieri_bot",
+                    "add_notification",
+                    {
+                        "groups": [
+                            "master"
+                        ],
+                        "n_type": "admin",
+                        "msg_code": "notifications.admin.check_subscription",
+                        "notify": true,
+                        "data": {
+                            "new_sub": {
+                                "user_id": "$user_id",
+                                "infos": "$infos"
+                            }
+                        }
+                    }
+                ]
+            ]
+        }
+    }
+}

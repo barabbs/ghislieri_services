@@ -9,7 +9,6 @@
                     "eduroam_reporter",
                     "get_default_reports",
                     {},
-                    {},
                     "default_eduroam_reports"
                 ]
             ]

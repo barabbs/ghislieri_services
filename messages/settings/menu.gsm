@@ -33,7 +33,17 @@
                 ],
                 [
                     {
-                        "text": "ℹ️    Informazioni",
+                        "text": "🆕️    Changelog",
+                        "id": "changelog",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.changelog"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "ℹ️    Info",
                         "id": "about",
                         "actions": [
                             [
