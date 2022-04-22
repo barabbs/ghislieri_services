@@ -226,9 +226,10 @@ class Bot(tlg.Bot):
             except telegram.error.BadRequest as e:
                 if e.message == DELETE_MSG_NOT_FOUND_ERROR:
                     log.warning(e.message)
+                    # self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT)
                 elif e.message == MESSAGE_CANT_BE_DELETED_ERROR:
                     log.warning(e.message)
-                    self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT)
+                    self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT, parse_mode=tlg.ParseMode.HTML)
                 else:
                     raise e
         message_content.pop('message_id')

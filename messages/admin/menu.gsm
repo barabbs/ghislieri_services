@@ -20,6 +20,16 @@
                                 "admin.students.list"
                             ]
                         ]
+                    },
+                    {
+                        "text": "🔔    Notifications",
+                        "id": "notifications",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.notifications.menu"
+                            ]
+                        ]
                     }
                 ],
                 [
@@ -32,9 +42,7 @@
                                 "admin.logs.list"
                             ]
                         ]
-                    }
-                ],
-                [
+                    },
                     {
                         "text": "⚠️    Errors",
                         "id": "errors",
@@ -54,27 +62,6 @@
                             [
                                 "NEW",
                                 "admin.shutdown"
-                            ]
-                        ]
-                    }
-                ],
-                [
-                    {
-                        "text": "Test Notification",
-                        "id": "test_notification",
-                        "actions": [
-                            [
-                                "REQ",
-                                "ghislieri_services",
-                                "test",
-                                {
-                                    "user_id": "$user_id",
-                                    "infos": "$infos"
-                                },
-                                "admin.students_list"
-                            ],
-                            [
-                                "BACK"
                             ]
                         ]
                     }
