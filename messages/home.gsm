@@ -1,20 +1,23 @@
 {
     "code": "home",
+    "whitelist": [
+        "student"
+    ],
     "components": {
         "TEXT": {
             "text": "🟥🟨    <b>Collegio Ghislieri</b>    🟨🟥",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {
-                        "text": "🍽️    Prenotazione Pasti",
-                        "callback": "meals_reservation",
+                        "text": "🍽️    Mensa",
+                        "id": "meals_management",
                         "actions": [
                             [
                                 "NEW",
-                                "meals_reservation.menu"
+                                "meals_management.menu"
                             ]
                         ]
                     }
@@ -22,7 +25,7 @@
                 [
                     {
                         "text": "‼️    Segnalazioni Eduroam",
-                        "callback": "eduroam_reporter",
+                        "id": "eduroam_reporter",
                         "actions": [
                             [
                                 "NEW",
@@ -34,7 +37,7 @@
                 [
                     {
                         "text": "📣    Canali Telegram",
-                        "callback": "telegram_channels",
+                        "id": "telegram_channels",
                         "actions": [
                             [
                                 "NEW",
@@ -46,7 +49,7 @@
                 [
                     {
                         "text": "🔧    Impostazioni",
-                        "callback": "settings",
+                        "id": "settings",
                         "actions": [
                             [
                                 "NEW",
@@ -58,10 +61,10 @@
                 [
                     {
                         "text": "🔓    Admin",
-                        "callback": "admin",
-                        "auth": [
-                                    "master"
-                                ],
+                        "id": "admin",
+                        "whitelist": [
+                            "master"
+                        ],
                         "actions": [
                             [
                                 "NEW",
@@ -70,8 +73,7 @@
                         ]
                     }
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

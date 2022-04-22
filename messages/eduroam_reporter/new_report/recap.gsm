@@ -5,23 +5,23 @@
             "text": "<b>Segnalazione:</b>    {eduroam_report[report]}\n<b>Luogo:</b>    {eduroam_report[place]}\n<b>Note:</b>    {eduroam_report[note]}\n\n✉️  Inviare la segnalazione?",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {
                         "text": "✔️",
-                        "callback": "yes",
+                        "id": "yes",
                         "actions": [
                             [
                                 "REQ",
                                 "eduroam_reporter",
                                 "new_report",
                                 {
-                                    "user_id": "user_id",
-                                    "student_infos": "infos",
-                                    "report": "eduroam_report.report",
-                                    "place": "eduroam_report.place",
-                                    "note": "eduroam_report.note"
+                                    "user_id": "$user_id",
+                                    "student_infos": "$infos",
+                                    "report": "$eduroam_report.report",
+                                    "place": "$eduroam_report.place",
+                                    "note": "$eduroam_report.note"
                                 }
                             ],
                             [
@@ -32,7 +32,7 @@
                     },
                     {
                         "text": "❌",
-                        "callback": "no",
+                        "id": "no",
                         "actions": [
                             [
                                 "BACK",
@@ -40,20 +40,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

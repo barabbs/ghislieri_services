@@ -5,21 +5,15 @@
             "text": "Inserisci il tuo <b>Cognome</b>",
             "actions": []
         },
-        "BUTTONS": {
-            "buttons": [
+        "KEYBOARD": {
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         },
         "ANSWER": {
             "ans_data_key": "infos.surname",
@@ -29,10 +23,8 @@
                     "student_databaser",
                     "edit_student_info",
                     {
-                        "user_id": "user_id",
-                        "value": "infos.surname"
-                    },
-                    {
+                        "user_id": "$user_id",
+                        "value": "$infos.surname",
                         "info": "surname"
                     }
                 ],

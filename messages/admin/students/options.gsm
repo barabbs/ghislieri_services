@@ -2,22 +2,22 @@
     "code": "admin.students.options",
     "components": {
         "TEXT": {
-            "text": "Nome <b>{admin[selected_student][student_infos][name]}</b>\nCognome <b>{admin[selected_student][student_infos][surname]}</b>\n\nuser_id {admin[selected_student][user_id]} - last_message_id {admin[selected_student][last_message_id]}\n\nPermissions <i>{admin[selected_student][permissions]}</i>",
+            "text": "Nome <b>{admin[selected_student][student_infos][name]}</b>\nCognome <b>{admin[selected_student][student_infos][surname]}</b>\n\nuser_id {admin[selected_student][user_id]} - last_message_id {admin[selected_student][last_message_id]}\n\nGroups <i>{admin[selected_student][groups]}</i>",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {
                         "text": "Remove",
-                        "callback": "remove",
+                        "id": "remove",
                         "actions": [
                             [
                                 "REQ",
                                 "ghislieri_bot",
                                 "remove_chat",
                                 {
-                                    "user_id": "admin.selected_student.user_id"
+                                    "user_id": "$admin.selected_student.user_id"
                                 }
                             ],
                             [
@@ -29,7 +29,7 @@
                 [
                     {
                         "text": "Add permissions",
-                        "callback": "add_perm",
+                        "id": "add_perm",
                         "actions": [
                             [
                                 "SAVE",
@@ -46,7 +46,7 @@
                 [
                     {
                         "text": "Remove permissions",
-                        "callback": "rm_perm",
+                        "id": "rm_perm",
                         "actions": [
                             [
                                 "SAVE",
@@ -59,20 +59,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

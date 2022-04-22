@@ -5,21 +5,15 @@
             "text": "Inserisci il tuo <b>Nome</b>",
             "actions": []
         },
-        "BUTTONS": {
-            "buttons": [
+        "KEYBOARD": {
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         },
         "ANSWER": {
             "ans_data_key": "infos.name",
@@ -29,16 +23,26 @@
                     "student_databaser",
                     "edit_student_info",
                     {
-                        "user_id": "user_id",
-                        "value": "infos.name"
-                    },
-                    {
+                        "user_id": "$user_id",
+                        "value": "$infos.name",
                         "info": "name"
                     }
                 ],
                 [
-                    "NEW",
-                    "welcome.thank_you"
+                    "REQ",
+                    "ghislieri_bot",
+                    "add_notification",
+                    {
+                        "users": [
+                            "$user_id"
+                        ],
+                        "n_type": "new_sub",
+                        "msg_code": "welcome.checking",
+                        "notify": false
+                    }
+                ],
+                [
+                    "HOME"
                 ]
             ]
         }

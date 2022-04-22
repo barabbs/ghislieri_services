@@ -1,23 +1,33 @@
 {
     "code": "admin.menu",
-    "auth": [
-                "master"
-            ],
+    "whitelist": [
+        "master"
+    ],
     "components": {
         "TEXT": {
             "text": "🔓    <b>Admin</b>",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {
                         "text": "👥    Students",
-                        "callback": "students",
+                        "id": "students",
                         "actions": [
                             [
                                 "NEW",
                                 "admin.students.list"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "🔔    Notifications",
+                        "id": "notifications",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.notifications.menu"
                             ]
                         ]
                     }
@@ -25,19 +35,17 @@
                 [
                     {
                         "text": "📄    Logs",
-                        "callback": "logs",
+                        "id": "logs",
                         "actions": [
                             [
                                 "NEW",
                                 "admin.logs.list"
                             ]
                         ]
-                    }
-                ],
-                [
+                    },
                     {
                         "text": "⚠️    Errors",
-                        "callback": "errors",
+                        "id": "errors",
                         "actions": [
                             [
                                 "NEW",
@@ -49,7 +57,7 @@
                 [
                     {
                         "text": "🛑    Shutdown",
-                        "callback": "shutdown",
+                        "id": "shutdown",
                         "actions": [
                             [
                                 "NEW",
@@ -57,20 +65,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

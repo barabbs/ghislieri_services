@@ -1,5 +1,7 @@
 from . import utility as utl
+from . import var
 from multiprocessing import Process
+import schedule as sch
 from time import sleep, time
 import logging
 
@@ -25,6 +27,11 @@ class BaseService(Process):
         self.services_pipes = services_pipes
         self.stop_event = stop_event
         self.pipe = self.services_pipes[self.SERVICE_NAME]
+        self.scheduler = sch.Scheduler()
+        self._load_tasks()
+
+    def _load_tasks(self):
+        pass
 
     def send_request(self, request):
         return self.services_pipes[request.service_name].send_request(request=request)
@@ -35,8 +42,9 @@ class BaseService(Process):
             while True:
                 t = time()
                 self._update()
+                self._execute_tasks()
                 self._handle_requests()
-                sleep(max(0., time() - t))
+                sleep(max(0., var.SERVICE_UPDATE_INTERVAL - (time() - t)))
         except StopService:
             log.info(f"{self.SERVICE_NAME} stopping...")
         finally:
@@ -46,6 +54,9 @@ class BaseService(Process):
     def _update(self):
         pass
 
+    def _execute_tasks(self):
+        self.scheduler.run_pending()
+
     def _handle_requests(self):
         while True:
             req = self.pipe.get_request()
@@ -54,13 +65,13 @@ class BaseService(Process):
             log.debug(f"{self.SERVICE_NAME} received request {req.r_type} with args {req.args} and kwargs {req.kwargs}")
             try:
                 res = getattr(self, f'_request_{req.r_type}')(*req.args, **req.kwargs)
+                self.pipe.send_back_result(res)
             except StopService:
                 raise
             except Exception as err:
                 log.error(f"Error while processing request {req.r_type} with args {req.args} and kwargs {req.kwargs}")
                 utl.log_error(err, service=self.SERVICE_NAME, r_type=req.r_type, args=req.args, kwargs=req.kwargs)
-                res = err
-            self.pipe.send_back_result(res)
+                self.pipe.send_back_result(err)
 
     def _request_stop(self):
         log.info(f"{self.SERVICE_NAME} received stop request")

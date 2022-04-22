@@ -1,4 +1,5 @@
 from modules.base_service import BaseService
+from modules import utility as utl
 from . import var
 from datetime import datetime
 import os
@@ -19,7 +20,7 @@ class EduroamReporter(BaseService):
         return tuple({'report': r} for r in self.default_reports)
 
     def _request_new_report(self, user_id, student_infos, report, place, note):
-        time = datetime.now().strftime(var.DATETIME_FORMAT)
+        time = utl.get_str_from_time()
         header = f"name={student_infos['name']}\nsurname={student_infos['surname']}\nuser_id={user_id}\ntime={time}"
         with open(os.path.join(var.REPORTS_DIR, f"{user_id} - {time}.errp"), 'w', encoding='utf-8') as f:
             f.write(f"{header}\n\nPLACE:\t {place}\nREPORT:\t {report}\nNOTE:\t {note}")

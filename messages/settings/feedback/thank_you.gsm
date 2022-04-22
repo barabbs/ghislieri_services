@@ -5,21 +5,15 @@
             "text": "Grazie per la segnalazione! 😄",
             "actions": []
         },
-        "BUTTONS": {
-            "buttons": [
+        "KEYBOARD": {
+            "navigation": [
                 [
-                    {
-                        "text": "OK",
-                        "callback": "ok",
-                        "actions": [
-                            [
-                                "HOME"
-                            ]
-                        ]
-                    }
+                    [
+                        "home",
+                        "OK"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

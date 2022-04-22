@@ -5,11 +5,12 @@
             "text": "📣    <b>Canali Telegram del Collegio</b>",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {
                         "text": "🟥    Collegio Ghislieri - Alunni    🟨",
+                        "id": "college",
                         "url": "https://t.me/+iikDkY01v8IzZTU0",
                         "actions": []
                     }
@@ -17,6 +18,7 @@
                 [
                     {
                         "text": "🧬    Ghislieri Scienza",
+                        "id": "gs",
                         "url": "https://t.me/+HPp6RHiNbsYxZTE0",
                         "actions": []
                     }
@@ -24,6 +26,7 @@
                 [
                     {
                         "text": "🏛    Philosophicum Ghislieri",
+                        "id": "phg",
                         "url": "https://t.me/+yK29NfmXbdwyMGI0",
                         "actions": []
                     }
@@ -31,23 +34,19 @@
                 [
                     {
                         "text": "🎻    Bardi Ghisleriani",
+                        "id": "bardi",
                         "url": "https://t.me/+lic4qD4Za5hjZjVk",
                         "actions": []
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         }
     }
 }

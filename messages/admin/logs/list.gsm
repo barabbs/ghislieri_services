@@ -9,12 +9,11 @@
                     "ghislieri_services",
                     "get_logs",
                     {},
-                    {},
                     "admin.logs_list"
                 ]
             ]
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "options": {
                 "text": "{filename}",
                 "opt_data_key": "admin.logs_list",
@@ -26,21 +25,14 @@
                     ]
                 ]
             },
-            "buttons": [
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
-
     }
 }

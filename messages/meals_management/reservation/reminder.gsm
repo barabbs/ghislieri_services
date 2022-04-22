@@ -1,20 +1,20 @@
 {
-    "code": "eduroam_reporter.menu",
+    "code": "meals_management.reservation.reminder",
     "components": {
         "TEXT": {
-            "text": "‼️    <b>Segnalazioni Eduroam</b>",
+            "text": "🍽❗️ <b>Prenotazione Pasti</b>\n\nHai prenotato per <i>{reservation_day_notif}</i>?",
             "actions": []
         },
         "KEYBOARD": {
             "buttons": [
                 [
                     {
-                        "text": "📩    Nuova Segnalazione",
-                        "id": "new_report",
+                        "text": "📆    Prenota ora!",
+                        "id": "reserve",
                         "actions": [
                             [
                                 "NEW",
-                                "eduroam_reporter.new_report.report"
+                                "meals_management.reservation.reservations"
                             ]
                         ]
                     }
@@ -23,7 +23,8 @@
             "navigation": [
                 [
                     [
-                        "back"
+                        "home",
+                        "Più tardi"
                     ]
                 ]
             ]

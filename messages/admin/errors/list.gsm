@@ -9,12 +9,11 @@
                     "ghislieri_services",
                     "get_errors",
                     {},
-                    {},
                     "admin.errors_list"
                 ]
             ]
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "options": {
                 "text": "{filename}",
                 "opt_data_key": "admin.errors_list",
@@ -26,21 +25,14 @@
                     ]
                 ]
             },
-            "buttons": [
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
-
     }
 }

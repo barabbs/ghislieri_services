@@ -1,25 +1,19 @@
 {
-    "code": "settings.feedback.thank_you",
+    "code": "welcome.thank_you",
     "components": {
         "TEXT": {
-            "text": "Grazie! 😄",
+            "text": "✅    Verifiche terminate!",
             "actions": []
         },
-        "BUTTONS": {
-            "buttons": [
+        "KEYBOARD": {
+            "navigation": [
                 [
-                    {
-                        "text": "Inizia!",
-                        "callback": "start",
-                        "actions": [
-                            [
-                                "HOME"
-                            ]
-                        ]
-                    }
+                    [
+                        "home",
+                        "Inizia!"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

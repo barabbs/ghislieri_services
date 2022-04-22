@@ -5,12 +5,12 @@
             "text": "Note eventuali",
             "actions": []
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "buttons": [
                 [
                     {
                         "text": "Nessuna nota",
-                        "callback": "no_note",
+                        "id": "no_note",
                         "actions": [
                             [
                                 "SAVE",
@@ -23,20 +23,15 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
                 ]
             ],
-            "actions": []
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
         },
         "ANSWER": {
             "ans_data_key": "eduroam_report.note",

@@ -1,23 +1,22 @@
 {
-    "code": "meals_reservation.send_recap",
-    "auth": [
-                "master"
-            ],
+    "code": "meals_management.admin.send_recap",
+    "whitelist": [
+        "master"
+    ],
     "components": {
         "TEXT": {
             "text": "Send Recap",
             "actions": [
                 [
                     "REQ",
-                    "meals_reservation",
-                    "get_all_dates",
-                    {},
+                    "meals_management",
+                    "get_all_res_dates",
                     {},
                     "meals_reservation.all_dates"
                 ]
             ]
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "options": {
                 "text": "{date_str}",
                 "opt_data_key": "meals_reservation.all_dates",
@@ -25,10 +24,10 @@
                 "actions": [
                     [
                         "REQ",
-                        "meals_reservation",
+                        "meals_management",
                         "send_recap",
                         {
-                            "date_dict": "meals_reservation.selected_date"
+                            "date_dict": "$meals_reservation.selected_date"
                         }
                     ],
                     [
@@ -36,20 +35,14 @@
                     ]
                 ]
             },
-            "buttons": [
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
     }
 }

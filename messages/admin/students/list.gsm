@@ -8,17 +8,23 @@
                     "REQ",
                     "student_databaser",
                     "get_chats",
-                    {},
-                    {},
+                    {
+                        "sort": true
+                    },
                     "admin.students_list"
                 ]
             ]
         },
-        "BUTTONS": {
+        "KEYBOARD": {
             "options": {
                 "text": "{student_infos[surname]} {student_infos[name]}",
                 "opt_data_key": "admin.students_list",
                 "ans_data_key": "admin.selected_student",
+                "page_data_key": "student_list_page",
+                "page_shape": [
+                    2,
+                    8
+                ],
                 "actions": [
                     [
                         "NEW",
@@ -26,21 +32,20 @@
                     ]
                 ]
             },
-            "buttons": [
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "arrows",
+                        "student_list_page"
+                    ]
+                ],
+                [
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         }
-
     }
 }

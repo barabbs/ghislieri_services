@@ -1,0 +1,41 @@
+{
+    "code": "notifications.update",
+    "components": {
+        "TEXT": {
+            "text": "🎉    <b>Nuovo Aggiornamento!</b>    🎉\n\nversione {about[version_data][version]}",
+            "actions": [
+                [
+                    "REQ",
+                    "ghislieri_services",
+                    "get_version",
+                    {},
+                    "about.version_data"
+                ]
+            ]
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "🆕️    Vedi le Novità",
+                        "id": "changelog",
+                        "actions": [
+                            [
+                                "NEW",
+                                "settings.changelog"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

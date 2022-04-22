@@ -1,0 +1,51 @@
+{
+    "code": "admin.notifications.menu",
+    "whitelist": [
+        "master"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "🔔    <b>Notifications</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "🆕️    New update",
+                        "id": "students",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {
+                                    "groups": [
+                                        "student"
+                                    ],
+                                    "n_type": "update",
+                                    "msg_code": "notifications.update",
+                                    "notify": true,
+                                    "enabled_time": {
+                                        "days": 1,
+                                        "hours": 12
+                                    }
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

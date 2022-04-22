@@ -1,0 +1,53 @@
+{
+    "code": "meals_management.admin.menu",
+    "whitelist": [
+        "master"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "🍽️    <b>Admin Mensa</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "Create Recap",
+                        "id": "create_recap",
+                        "whitelist": [
+                            "master"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_management.admin.create_recap"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Send Recap",
+                        "id": "send_recap",
+                        "whitelist": [
+                            "master"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_management.admin.send_recap"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

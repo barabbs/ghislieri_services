@@ -3,6 +3,7 @@ from modules import utility as utl
 from modules.utility import dotdict
 from .chat import Chat, MessageAuthorizationError
 from .message import Message
+from .notifications import NotificationCenter
 from . import var
 import telegram as tlg
 import telegram.ext, telegram.utils.request
@@ -16,6 +17,9 @@ CONNECTION_LOST_ERROR = "urllib3 HTTPError HTTPSConnectionPool"
 EDIT_MSG_NOT_FOUND_ERROR = "Message to edit not found"
 EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
 DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
+MESSAGE_CANT_BE_DELETED_ERROR = "Message can't be deleted for everyone"
+
+UNDELETABLE_MESSAGE_TEXT = "Questo <b>messaggio</b> può essere <b>eliminato</b>"
 
 
 def get_bot_token():
@@ -39,7 +43,7 @@ class ChatSyncUpdate(tlg.Update):
         super(ChatSyncUpdate, self).__init__(int(time()))
 
 
-class RemoveChatUpdate(tlg.Update):
+class RemoveChatUpdate(tlg.Update):  # TODO: Consider removing this
     def __init__(self, user_id):
         super(RemoveChatUpdate, self).__init__(user_id)
 
@@ -65,8 +69,9 @@ class Bot(tlg.Bot):
         self._load_handlers()
         self.messages = self._load_messages(var.MESSAGES_DIR)
         self.chats = self._load_chats()
+        self.notif_center = NotificationCenter()
         self.update_queue = self.updater.start_polling()
-        self.last_sync = None
+        self.sync()
         log.info(f"Bot created")
 
     # Handlers
@@ -76,7 +81,7 @@ class Bot(tlg.Bot):
         dispatcher.add_handler(tlg.ext.TypeHandler(ChatSyncUpdate, self._chat_sync_handler))
         dispatcher.add_handler(tlg.ext.TypeHandler(RemoveChatUpdate, self._remove_chat_handler))
         dispatcher.add_handler(tlg.ext.CommandHandler('start', self._start_command_handler))
-        dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._buttons_handler))
+        dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._keyboard_handler))
         dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._answer_handler))
         dispatcher.add_error_handler(self._error_handler)
         # TODO: Add Files Handler
@@ -84,13 +89,12 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        # if isinstance(err, tlg.error.NetworkError):  # TODO: Rewrite with CONNECTION_LOST_ERROR
+        # if err CONNECTION_LOST_ERROR in err.message:  #  TODO: Correct this "AttributeError: 'Error' object has no attribute 'message'"
         #     log.warning("Connection lost!")
-        #     wait_for_internet()  # TODO: Review taking different Threads into account!
-        # else:
+        #     return
         log.error(f"Exception while handling an update: {err}")
         try:
-            chat = self._get_chat(update)
+            chat = self._get_chat_from_update(update)
             chat.reset_session(var.ERROR_MESSAGE_CODE)
             chat.data['error'] = err
             try:
@@ -102,36 +106,37 @@ class Bot(tlg.Bot):
         utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
+        # TODO:  Implement message refreshing every sometime as messages older than two days can't be deleted (PROBLEM: messages can't be sent without push notification, but only without wound)
         for chat in self.chats:
-            update_edit = not chat.sync(update.update_id)
-            if update_edit is not None:
-                self._send_message(chat, edit=update_edit)
+            update_notify = chat.sync(update.update_id)
+            if update_notify is not None:
+                self._send_message(chat, edit=not update_notify)
 
     def _remove_chat_handler(self, update, context):
-        chat = next(filter(lambda x: x.user_id == update.update_id, self.chats))
+        chat = self.get_chat_from_id(update.update_id)
         self.delete_message(chat_id=chat.user_id, message_id=chat.last_message_id)
         self.chats.remove(chat)
         log.info(f"Removed student with user_id {update.update_id}")
 
     def _start_command_handler(self, update, context):
         try:
-            chat = self._get_chat(update)
-            chat.reset_session(var.HOME_MESSAGE_CODE)
+            chat = self._get_chat_from_update(update)
+            chat.reset_session()
         except NewUser as user:
             chat = user.chat
         self._send_message(chat, del_user_msg=update.message.message_id)
 
-    def _buttons_handler(self, update, context):
+    def _keyboard_handler(self, update, context):
         try:
-            chat = self._get_chat(update)
-            chat.reply('BUTTONS', callback=update.callback_query.data)
+            chat = self._get_chat_from_update(update)
+            chat.reply('KEYBOARD', callback=update.callback_query.data)
         except NewUser as user:
             chat = user.chat
         self._send_message(chat, edit=True)
 
     def _answer_handler(self, update, context):
         try:
-            chat = self._get_chat(update)
+            chat = self._get_chat_from_update(update)
             answer = update.message.text
             answer.replace("{", "{{")
             answer.replace("}", "}}")
@@ -165,11 +170,14 @@ class Bot(tlg.Bot):
     def _load_chats(self):
         return set(Chat(self, **s) for s in self.service.send_request(Request('student_databaser', 'get_chats')))
 
-    def _get_chat(self, update):
+    def _get_chat_from_update(self, update):
         try:
-            return next(filter(lambda c: c.user_id == update.effective_user.id, self.chats))
+            return self.get_chat_from_id(update.effective_user.id)
         except StopIteration:
             return self._new_student_signup(update)
+
+    def get_chat_from_id(self, user_id):
+        return next(filter(lambda c: c.user_id == user_id, self.chats))
 
     def _new_student_signup(self, update):
         user_id = update.effective_user.id
@@ -179,6 +187,9 @@ class Bot(tlg.Bot):
         self.chats.add(chat)
         chat.reset_session(var.WELCOME_MESSAGE_CODE)
         raise NewUser(chat)
+
+    def expire_notification(self, user_id):
+        self.get_chat_from_id(user_id).expire_notification()
 
     # Sending & Editing
 
@@ -208,36 +219,37 @@ class Bot(tlg.Bot):
                 raise
 
     def _send_and_delete_message(self, chat, message_content, del_user_msg=None):
-        try:
-            #self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
-            if del_user_msg is not None:
-                pass
-                self.delete_message(chat_id=message_content['chat_id'], message_id=del_user_msg)  # TODO: INSERT THIS AGAIN
-        except telegram.error.BadRequest as e:
-            if e.message == DELETE_MSG_NOT_FOUND_ERROR:
-                log.warning(e.message)
-            else:
-                raise e
-        self._edit_message(chat, message_content)
-        # message_content.pop('message_id')
-        # new_message = self.send_message(**message_content)
-        # new_id = new_message.message_id
-        # self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
-        # chat.set_last_message_id(new_id)
+        for m in (message_content['message_id'],) if del_user_msg is None else (message_content['message_id'], del_user_msg):
+            try:
+                self.delete_message(chat_id=message_content['chat_id'], message_id=m)
+            except telegram.error.BadRequest as e:
+                if e.message == DELETE_MSG_NOT_FOUND_ERROR:
+                    log.warning(e.message)
+                    # self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT)
+                elif e.message == MESSAGE_CANT_BE_DELETED_ERROR:
+                    log.warning(e.message)
+                    self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT, parse_mode=tlg.ParseMode.HTML)
+                else:
+                    raise e
+        message_content.pop('message_id')
+        new_message = self.send_message(**message_content, disable_notification=True)
+        new_id = new_message.message_id
+        self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
+        chat.set_last_message_id(new_id)
 
     # Runtime
 
-    def update(self):
-        if self.last_sync is None or time() > self.last_sync.update_id + var.STUDENT_UPDATE_SECONDS_INTERVAL:
-            self.last_sync = ChatSyncUpdate()
-            self.update_queue.put(self.last_sync)
+    def sync(self):
+        self.update_queue.put(ChatSyncUpdate())
 
     def stop(self):
         for chat in self.chats:
+            chat.stop()
             chat.reset_session(var.SHUTDOWN_MESSAGE_CODE)
             self._send_message(chat, edit=True)
 
     def exit(self):
         log.info("Bot exiting...")
+        self.notif_center.exit()
         self.updater.stop()
         log.info("Bot exited")

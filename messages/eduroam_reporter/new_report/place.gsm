@@ -5,21 +5,15 @@
             "text": "In che stanza o zona del Collegio?",
             "actions": []
         },
-        "BUTTONS": {
-            "buttons": [
+        "KEYBOARD": {
+            "buttons": [],
+            "navigation": [
                 [
-                    {
-                        "text": "↩️ Back",
-                        "callback": "back",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+                    [
+                        "back"
+                    ]
                 ]
-            ],
-            "actions": []
+            ]
         },
         "ANSWER": {
             "ans_data_key": "eduroam_report.place",

@@ -1,8 +1,8 @@
 {
-    "code": "eduroam_reporter.new_report.thank_you",
+    "code": "utility.auth",
     "components": {
         "TEXT": {
-            "text": "Grazie per la segnalazione! 😄",
+            "text": "🛑    <b>Authorization Error</b>    🛑\n\nNon hai le autorizzazioni per accedere a questo messaggio\n<b>message code:</b>  {auth_error[code]}\n\n<i>Se il problema persiste, contattare gli amministratori</i>",
             "actions": []
         },
         "KEYBOARD": {
