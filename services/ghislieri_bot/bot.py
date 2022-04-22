@@ -106,7 +106,6 @@ class Bot(tlg.Bot):
         utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
-        print(f"sync - {update.update_id}")
         # TODO:  Implement message refreshing every sometime as messages older than two days can't be deleted (PROBLEM: messages can't be sent without push notification, but only without wound)
         for chat in self.chats:
             update_notify = chat.sync(update.update_id)

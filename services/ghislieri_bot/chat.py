@@ -75,9 +75,7 @@ class Chat(object):
 
     def sync(self, sync_time):
         if self._is_session_expired(sync_time):
-            print(f"\t{self.user_id} EXP {self.last_interaction}")
             return self.reset_session()
-        print(f"\t{self.user_id} --- {self.last_interaction}\t\t\t{self._get_message().code}")
 
     def _is_session_expired(self, sync_time):
         if isinstance(self.last_interaction, bool):

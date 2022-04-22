@@ -25,7 +25,11 @@
                                     ],
                                     "n_type": "update",
                                     "msg_code": "notifications.update",
-                                    "notify": true
+                                    "notify": true,
+                                    "enabled_time": {
+                                        "days": 1,
+                                        "hours": 12
+                                    }
                                 }
                             ],
                             [
