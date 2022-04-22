@@ -45,7 +45,7 @@ class MealsManagement(BaseService):
 
     def _notify_reservation(self, res):
         notif_data = var.NOTIFICATION_DATA.copy()
-        notif_data["end_time"] = utl.get_str_from_time(res.date + notif_data["end_time"])
+        notif_data["end_time"] = utl.get_str_from_time(dt.datetime.combine(res.date, dt.datetime.min.time()) + notif_data["end_time"])
         notif_data["data"] = {"reservation_day_notif": get_date_str(res.date, False)}
         self.send_request(Request('ghislieri_bot', 'add_notification', **notif_data))
 

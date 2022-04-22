@@ -30,6 +30,6 @@ EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
 EMAIL_SENDING_TIME = "15:25:00"
 
 # Notification
-NOTIFICATION_SENDING_TIME = "15:28:30"
+NOTIFICATION_SENDING_TIME = "18:55:00"
 NOTIFICATION_DAYS_BEFORE = dt.timedelta(days=1)
 NOTIFICATION_DATA = {"groups": ('student',), "n_type": "meals", "msg_code": "meals_management.reservation.reminder", "notify": True, "end_time": TIMELIMIT}

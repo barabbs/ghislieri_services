@@ -19,7 +19,7 @@ EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message conte
 DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
 MESSAGE_CANT_BE_DELETED_ERROR = "Message can't be deleted for everyone"
 
-UNDELETABLE_MESSAGE_TEXT = "Questo messaggio può essere eliminato"
+UNDELETABLE_MESSAGE_TEXT = "Questo <b>messaggio</b> può essere <b>eliminato</b>"
 
 
 def get_bot_token():
@@ -28,7 +28,6 @@ def get_bot_token():
 
 
 def wait_for_internet():
-    return
     log.info(f"Internet Connection - waiting...")
     while True:
         try:

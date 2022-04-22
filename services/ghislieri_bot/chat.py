@@ -87,7 +87,8 @@ class Chat(object):
         return self.last_interaction.expired()
 
     def expire_notification(self):
-        self.last_interaction.expire()
+        if isinstance(self.last_interaction, Notification):
+            self.last_interaction.expire()
 
     # Exiting
 

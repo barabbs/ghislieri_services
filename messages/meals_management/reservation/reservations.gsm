@@ -36,7 +36,8 @@
             "navigation": [
                 [
                     [
-                        "back"
+                        "home",
+                        "OK"
                     ]
                 ]
             ]

@@ -13,12 +13,11 @@ class NotificationCenter(object):
         self.notifications = None
         self._load_notifications_backup()
 
-    def _check_notifications(self):
-        self.notifications = list(filter(None, self.notifications))
+    def _get_active_notifications(self):
+        return list(filter(None, self.notifications))
 
     def get_notification(self, user_id):
-        self._check_notifications()
-        for n in self.notifications:
+        for n in self._get_active_notifications():
             if n.check_user(user_id):
                 return n
 
@@ -28,7 +27,7 @@ class NotificationCenter(object):
 
     def _save_notifications_backup(self):
         with open(var.NOTIFICATIONS_BCKP_FILE, 'w', encoding='UTF-8') as file:
-            json.dump(list(n.to_save() for n in self.notifications), file)
+            json.dump(list(n.to_save() for n in self._get_active_notifications()), file)
 
     def _load_notifications_backup(self):
         try:
