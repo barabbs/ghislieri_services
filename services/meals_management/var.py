@@ -1,10 +1,13 @@
+import sys, os
 import datetime as dt
-import os
+
+DEBUG = "-d" in sys.argv
 
 # Directories
 SERVICE_NAME = "meals_management"
-# DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
-DATA_DIR = os.path.join(os.getcwd(), 'data', SERVICE_NAME)
+DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
+if DEBUG:
+    DATA_DIR = os.path.join(os.getcwd(), 'data', SERVICE_NAME)
 RESERVATIONS_DIR = os.path.join(DATA_DIR, 'reservations')
 RECAPS_DIR = os.path.join(DATA_DIR, 'recaps')
 
@@ -25,7 +28,7 @@ RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
 
 # Emails
 EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
-                  "receivers": ("gesu.barabba.official@gmail.com", "alesosso@gmail.com"),
+                  "receivers": ("portineria@ghislieri.it", "alesosso@gmail.com"),
                   "subject": "Prenotazione pasti {date_str}"}
 EMAIL_SENDING_TIME = "07:00:00"
 
@@ -33,3 +36,8 @@ EMAIL_SENDING_TIME = "07:00:00"
 NOTIFICATION_SENDING_TIME = "19:00:00"
 NOTIFICATION_DAYS_BEFORE = dt.timedelta(days=1)
 NOTIFICATION_DATA = {"groups": ('student',), "n_type": "meals", "msg_code": "meals_management.reservation.reminder", "notify": True, "enabled_time": {"hours": 12}}
+
+if DEBUG:
+    EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
+                      "receivers": ("gesu.barabba.official@gmail.com", "alesosso@gmail.com"),
+                      "subject": "Prenotazione pasti {date_str}"}

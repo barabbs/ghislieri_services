@@ -56,12 +56,12 @@
                 ],
                 [
                     {
-                        "text": "🛑    Shutdown",
-                        "id": "shutdown",
+                        "text": "🧱    Services",
+                        "id": "services",
                         "actions": [
                             [
                                 "NEW",
-                                "admin.shutdown"
+                                "admin.services.menu"
                             ]
                         ]
                     }

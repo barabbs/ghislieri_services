@@ -18,7 +18,7 @@ from modules.ghislieri_services import GhislieriServices
 
 def main():
     try:
-        services = tuple(sys.argv[1:])
+        services = tuple(filter(lambda x: x[0] != '-', sys.argv[1:]))
         gs = GhislieriServices(services)
         gs.run()
     except Exception as e:

@@ -1,11 +1,14 @@
-import os, datetime
+import sys, os, datetime
+
+DEBUG = "-d" in sys.argv
 
 # Version
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 
 # Directories
-# DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services")
-DATA_DIR = os.path.join(os.getcwd(), 'data')
+DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services")
+if DEBUG:
+    DATA_DIR = os.path.join(os.getcwd(), 'data')
 LOGS_DIR = os.path.join(DATA_DIR, 'logs')
 ERRORS_DIR = os.path.join(DATA_DIR, 'errors')
 CHANGELOGS_DIR = os.path.join(DATA_DIR, 'changelogs')

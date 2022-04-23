@@ -1,9 +1,12 @@
-import os, modules, datetime
+import sys, os
+
+DEBUG = "-d" in sys.argv
 
 # Directories
 SERVICE_NAME = "ghislieri_bot"
-# DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
-DATA_DIR = os.path.join(os.getcwd(), 'data', SERVICE_NAME)
+DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
+if DEBUG:
+    DATA_DIR = os.path.join(os.getcwd(), 'data', SERVICE_NAME)
 FEEDBACK_DIR = os.path.join(DATA_DIR, 'feedback')
 NOTIFICATIONS_DIR = os.path.join(DATA_DIR, 'notifications')
 NOTIFICATIONS_BCKP_FILE = os.path.join(NOTIFICATIONS_DIR, 'notifications_bckp.gbnb')
@@ -11,6 +14,8 @@ MESSAGES_DIR = os.path.join(os.getcwd(), 'messages')
 
 # Files
 FILEPATH_BOT_TOKEN = os.path.join(DATA_DIR, 'ghislieri_bot_token.gbtk')
+if DEBUG:
+    FILEPATH_BOT_TOKEN = os.path.join(DATA_DIR, 'ghislieri_bot_token_test.gbtk')
 
 # Bot
 REQUEST_CONNECTION_POOL_SIZE = 8

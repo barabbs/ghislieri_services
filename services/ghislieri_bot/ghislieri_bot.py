@@ -18,6 +18,7 @@ class GhislieriBot(BaseService):
 
     def _load_tasks(self):
         self.scheduler.every(var.BOT_SYNC_SECONDS_INTERVAL).seconds.do(self._task_sync_bot)
+        super(GhislieriBot, self)._load_tasks()
 
     # Requests
 
@@ -42,14 +43,16 @@ class GhislieriBot(BaseService):
         with open(os.path.join(var.FEEDBACK_DIR, f"{user_id} - {time}.gbfb"), 'w', encoding='utf-8') as f:
             f.write(f"{header}\n\n{text}")
 
+    # Tasks
+
+    def _task_sync_bot(self):
+        self.bot.sync()
+
     # Runtime
 
     def run(self):
         self.bot = Bot(self)
         super(GhislieriBot, self).run()
-
-    def _task_sync_bot(self):
-        self.bot.sync()
 
     def _stop(self):
         self.bot.stop()

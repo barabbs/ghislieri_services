@@ -1,0 +1,67 @@
+{
+    "code": "admin.services.menu",
+    "whitelist": [
+        "master"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "🧱    <b>Services</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "student_databaser",
+                        "id": "student_databaser",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "serv_name",
+                                "student_databaser"
+                            ],
+                            [
+                                "NEW",
+                                "admin.services.stats"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "ghislieri_bot",
+                        "id": "ghislieri_bot",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "serv_name",
+                                "ghislieri_bot"
+                            ],
+                            [
+                                "NEW",
+                                "admin.services.stats"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🛑    Shutdown",
+                        "id": "shutdown",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.services.shutdown"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}
