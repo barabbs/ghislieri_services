@@ -1,0 +1,18 @@
+{
+    "code": "admin.services.execs_stats",
+    "components": {
+        "TEXT": {
+            "text": "<b>Service</b> {serv_name}        Executions stats\n<code>{serv_stats[hists][execs]}</code>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

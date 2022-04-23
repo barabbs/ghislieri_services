@@ -48,23 +48,23 @@ def get_action_req(service_name, r_type, send_data=None, recv_data_key=None):
         send_data = dict()
 
     def action(data, service, **kwargs):
-        recv = service.send_request(Request(service_name, r_type, **format_data(send_data, data)))
+        recv = service.send_request(Request(format_data(service_name, data), format_data(r_type, data), **format_data(send_data, data)))
         if recv_data_key is not None:
-            data[recv_data_key] = recv
+            data[format_data(recv_data_key, data)] = recv
 
     return action
 
 
 def get_action_save(data_key, value):
     def action(data, **kwargs):
-        data[format_data(data_key, data)] = value
+        data[format_data(data_key, data)] = format_data(value, data)
 
     return action
 
 
 def get_action_add(data_key, increment):
     def action(data, **kwargs):
-        data[format_data(data_key, data)] += increment
+        data[format_data(data_key, data)] += format_data(increment, data)
 
     return action
 

@@ -55,3 +55,9 @@ def get_month_name(date, abbr=False):
     if abbr:
         return ("gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic")[date.month - 1]
     return ("gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre")[date.month - 1]
+
+
+def get_text_hist(data, data_key, end_str):
+    m = max(d[data_key] for d in data)
+    m = m if m > 0 else 1
+    return "\n".join(tuple(f"{i:02} {'⬛️' * round(10 * d[data_key] / m)}{'⬜️' * (10 - round(10 * d[data_key] / m))} {end_str.format(**d)}" for i, d in enumerate(data)))

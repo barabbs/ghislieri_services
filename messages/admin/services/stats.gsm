@@ -1,0 +1,50 @@
+{
+    "code": "admin.services.stats",
+    "components": {
+        "TEXT": {
+            "text": "<b>Service</b> {serv_name}\n<b>Start time</b> {serv_stats[start_time]}\n<b>Last hour stats</b>\n<code>  execs   n:{serv_stats[execs][num]:6}    mean: {serv_stats[execs][mean_exec_time]:0.3}    long:{serv_stats[execs][long]:3}\n  reqs    n:{serv_stats[reqs][num]:6}    err:{serv_stats[reqs][err]:3}</code>",
+            "actions": [
+                [
+                    "REQ",
+                    "$serv_name",
+                    "get_statistics",
+                    {},
+                    "serv_stats"
+                ]
+            ]
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "Executions stats",
+                        "id": "execs_stats",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.services.execs_stats"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "Requests stats",
+                        "id": "reqs_stats",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.services.reqs_stats"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

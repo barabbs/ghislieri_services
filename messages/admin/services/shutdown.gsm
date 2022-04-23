@@ -1,5 +1,5 @@
 {
-    "code": "admin.shutdown",
+    "code": "admin.services.shutdown",
     "components": {
         "TEXT": {
             "text": "Do you really want to <b>shutdown</b>?",

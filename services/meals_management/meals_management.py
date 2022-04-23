@@ -22,6 +22,7 @@ class MealsManagement(BaseService):
     def _load_tasks(self):
         self.scheduler.every().day.at(var.EMAIL_SENDING_TIME).do(self._task_send_res_recap)
         self.scheduler.every().day.at(var.NOTIFICATION_SENDING_TIME).do(self._task_send_notification)
+        super(MealsManagement, self)._load_tasks()
 
     def _load_reservations(self):
         self.reservations = set()
@@ -73,7 +74,8 @@ class MealsManagement(BaseService):
         res.load_from_file(date_dict["filename"])
         self._send_res_recap(res)
 
-    # Runtime
+    # Tasks
+
     def _task_send_res_recap(self):
         log.info("Sending Res Recap...")
         try:
