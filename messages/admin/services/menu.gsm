@@ -44,6 +44,53 @@
                 ],
                 [
                     {
+                        "text": "email_service",
+                        "id": "email_service",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "serv_name",
+                                "email_service"
+                            ],
+                            [
+                                "NEW",
+                                "admin.services.stats"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "eduroam_reporter",
+                        "id": "eduroam_reporter",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "serv_name",
+                                "eduroam_reporter"
+                            ],
+                            [
+                                "NEW",
+                                "admin.services.stats"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "meals_management",
+                        "id": "meals_management",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "serv_name",
+                                "meals_management"
+                            ],
+                            [
+                                "NEW",
+                                "admin.services.stats"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🛑    Shutdown",
                         "id": "shutdown",
                         "actions": [
