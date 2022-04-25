@@ -43,15 +43,8 @@
                         "id": "restart",
                         "actions": [
                             [
-                                "REQ",
-                                "ghislieri_services",
-                                "restart_service",
-                                {
-                                    "service": "$serv_name"
-                                }
-                            ],
-                            [
-                                "BACK"
+                                "NEW",
+                                "admin.services.restart_service"
                             ]
                         ]
                     }

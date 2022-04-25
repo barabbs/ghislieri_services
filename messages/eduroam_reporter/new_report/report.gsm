@@ -29,6 +29,15 @@
             "navigation": [
                 [
                     [
+                        "arrows",
+                        [
+                            "student_list_page",
+                            "student_list_page_max"
+                        ]
+                    ]
+                ],
+                [
+                    [
                         "back"
                     ]
                 ]

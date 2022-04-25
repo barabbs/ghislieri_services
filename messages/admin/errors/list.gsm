@@ -18,6 +18,14 @@
                 "text": "{filename}",
                 "opt_data_key": "admin.errors_list",
                 "ans_data_key": "admin.selected_error",
+                "page_data_keys": [
+                    "errors_list_page",
+                    "errors_list_page_max"
+                ],
+                "page_shape": [
+                    1,
+                    6
+                ],
                 "actions": [
                     [
                         "NEW",
@@ -27,6 +35,15 @@
             },
             "buttons": [],
             "navigation": [
+                [
+                    [
+                        "arrows",
+                        [
+                            "errors_list_page",
+                            "errors_list_page_max"
+                        ]
+                    ]
+                ],
                 [
                     [
                         "back"

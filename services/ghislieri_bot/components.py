@@ -4,6 +4,7 @@ from time import time
 import telegram as tlg
 from collections.abc import Iterable
 import logging
+from math import ceil
 
 log = logging.getLogger(__name__)
 
@@ -62,14 +63,14 @@ def get_action_save(data_key, value):
     return action
 
 
-def get_action_add(data_key, increment):
+def get_action_page(data_keys, increment):
     def action(data, **kwargs):
-        data[format_data(data_key, data)] += format_data(increment, data)
+        data[format_data(data_keys[0], data)] = ((data[format_data(data_keys[0], data)] + format_data(increment, data) - 1) % data[format_data(data_keys[1], data)]) +1
 
     return action
 
 
-ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'REQ': get_action_req, 'SAVE': get_action_save, 'ADD': get_action_add}
+ACTION_DECORATORS = {'NEW': get_action_new, 'BACK': get_action_back, 'HOME': get_action_home, 'REQ': get_action_req, 'SAVE': get_action_save, 'PAGE': get_action_page}
 
 
 # Components
@@ -187,21 +188,27 @@ class Options(Buttons, Answer):
 
     def __init__(self, raw):
         self.text, self.opt_data_key = raw['text'], raw['opt_data_key']
-        self.page_data_key = raw['page_data_key'] if 'page_data_key' in raw else None
+        self.page_data_keys = raw['page_data_keys'] if 'page_data_keys' in raw else None
         self.page_shape = raw['page_shape'] if 'page_shape' in raw else var.DEFAULT_PAGE_SHAPE
         super(Buttons, self).__init__(raw)
 
     def _get_page(self, data):
         w, h = self.page_shape
         try:
-            return w, h, data[self.page_data_key] if self.page_data_key is not None else 0  # TODO: Add control for page range (not too big, not negative ?)
+            if self.page_data_keys is not None:
+                page = data[self.page_data_keys[0]]
+                return w, h, page - 1
+            return w, h, 0
         except KeyError:
-            data[self.page_data_key] = 0
+            data[self.page_data_keys[0]] = 1
             return w, h, 0
 
     def get_keys(self, data, **kwargs):
+        all_options = data[format_data(self.opt_data_key, data)]
         w, h, page = self._get_page(data)
-        options, opt_data, keys = list(enumerate(data[format_data(self.opt_data_key, data)][page * h * w:(page + 1) * h * w])), data.copy(), list()
+        if self.page_data_keys is not None:
+            data[self.page_data_keys[1]] = ceil(len(all_options) / (w * h))
+        options, opt_data, keys = list(enumerate(all_options[page * h * w:(page + 1) * h * w])), data.copy(), list()
         shaped_options = [options[i:i + w] for i in range(0, min(len(options), w * h), w)]
         for row in shaped_options:
             keys.append(list())
@@ -217,7 +224,9 @@ class Options(Buttons, Answer):
 
 get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)
 get_raw_home_nav = lambda text='🏠 Home': ({'text': text, 'id': 'home', 'actions': [['HOME']]},)
-get_raw_arrows_nav = lambda page_data_key: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['ADD', page_data_key, -1]]}, {'text': '▶️', 'id': 'arrow_r', 'actions': [['ADD', page_data_key, 1]]})
+get_raw_arrows_nav = lambda page_data_keys: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['PAGE', page_data_keys, -1]]},
+                                             {'text': f'{{{page_data_keys[0]}}}️ / {{{page_data_keys[1]}}}', 'id': 'page_counter', 'actions': [['SAVE', page_data_keys[0], 1]]},
+                                             {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
 
 NAVIGATION_RAW_GENERATORS = {'back': get_raw_back_nav, 'home': get_raw_home_nav, 'arrows': get_raw_arrows_nav}
 

@@ -2,7 +2,7 @@
     "code": "admin.services.shutdown",
     "components": {
         "TEXT": {
-            "text": "Do you really want to <b>shutdown</b>?",
+            "text": "❗️  Do you really want to <b>shutdown</b>?",
             "actions": []
         },
         "KEYBOARD": {
