@@ -78,3 +78,6 @@ class StudentDatabaser(BaseService):
         self.connection.commit()
         self.cursor.close()
         self.connection.close()
+
+
+SERVICE_CLASS = StudentDatabaser

@@ -1,5 +1,5 @@
 {
-    "code": "admin.services.stats",
+    "code": "admin.services.options",
     "components": {
         "TEXT": {
             "text": "<b>Service</b> {serv_name}\n<b>Start time</b> {serv_stats[start_time]}\n\n<b>Stats</b>\n<code>{serv_stats[data]}</code>",
@@ -33,6 +33,25 @@
                             [
                                 "NEW",
                                 "admin.services.reqs_stats"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔄    Restart {serv_name}",
+                        "id": "restart",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_services",
+                                "restart_service",
+                                {
+                                    "service": "$serv_name"
+                                }
+                            ],
+                            [
+                                "BACK"
                             ]
                         ]
                     }

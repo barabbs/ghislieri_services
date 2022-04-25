@@ -12,6 +12,9 @@ log = logging.getLogger(__name__)
 class StopService(Exception):
     pass
 
+class NoResultRequest(Exception):
+    pass
+
 
 _EMPTY_EXECS_STATS = {"time": 0., "num": 0, "long": 0}
 _EMPTY_REQS_STATS = {"num": 0, "err": 0}
@@ -82,6 +85,8 @@ class BaseService(Process):
                 self.pipe.send_back_result(res)
             except StopService:
                 raise
+            except NoResultRequest:
+                log.debug(f"Request {req.r_type} got no results back!")
             except Exception as err:
                 log.error(f"Error while processing request {req.r_type} with args {req.args} and kwargs {req.kwargs}")
                 self.statistics["reqs"]["err"] += 1

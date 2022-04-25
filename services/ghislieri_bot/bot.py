@@ -253,6 +253,7 @@ class Bot(tlg.Bot):
     # Runtime
 
     def sync(self):
+        print("syncing")
         self.update_queue.put(ChatSyncUpdate())
 
     def stop(self):

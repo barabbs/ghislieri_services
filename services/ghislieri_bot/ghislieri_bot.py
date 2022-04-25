@@ -45,7 +45,7 @@ class GhislieriBot(BaseService):
 
     # Tasks
 
-    def _task_sync_bot(self):
+    def _task_sync_bot(self):  # TODO: Is this still used?
         self.bot.sync()
 
     # Statistics
@@ -67,3 +67,6 @@ class GhislieriBot(BaseService):
 
     def _exit(self):
         self.bot.exit()
+
+
+SERVICE_CLASS = GhislieriBot

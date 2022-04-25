@@ -43,3 +43,6 @@ class EmailService(BaseService):
             utl.log_error(err)
         finally:
             server.quit()
+
+
+SERVICE_CLASS = EmailService
