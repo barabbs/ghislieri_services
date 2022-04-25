@@ -110,7 +110,7 @@ class BaseService(Process):
         return {"execs": f"{execs['num']:6} | avg {execs['avg_exec_time']:.3f} | long {execs['long']:3}",
                 "reqs ": f"n°{reqs['num']:4} | errs {reqs['err']:3}", }
 
-        # Runtime
+    # Runtime
 
     def run(self):
         log.info(f"{self.SERVICE_NAME} started")

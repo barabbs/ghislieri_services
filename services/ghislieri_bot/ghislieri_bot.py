@@ -48,6 +48,14 @@ class GhislieriBot(BaseService):
     def _task_sync_bot(self):
         self.bot.sync()
 
+    # Statistics
+
+    def _get_statistics(self):
+        stats = super(GhislieriBot, self)._get_statistics()
+        chats = self.bot.get_chats_stats()
+        stats["chats"] = f"up {chats['active']:3} | notif {chats['notif']:3} | {chats['home']:3}/{chats['block']:3}"
+        return stats
+
     # Runtime
 
     def run(self):
