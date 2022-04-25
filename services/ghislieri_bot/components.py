@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 def format_data(raw, data):
     if isinstance(raw, str):
         if raw[0] == var.DATA_FORMATTING_HEAD:
-            return data[raw[1:].format(**data)]
+            return format_data(data[raw[1:].format(**data)], data)
         return raw.format(**data)
     if isinstance(raw, dict):
         return dict({format_data(k, data): format_data(v, data) for k, v in raw.items()})
@@ -94,7 +94,7 @@ class Text(BaseComponent):
 
     def get_content(self, data, **kwargs):
         self.act(data=data, **kwargs)
-        return {'text': self.text.format(**data)}
+        return {'text': format_data(self.text, data)}
 
 
 class Answer(BaseComponent):

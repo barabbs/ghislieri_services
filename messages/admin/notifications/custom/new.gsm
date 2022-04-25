@@ -1,0 +1,145 @@
+{
+    "code": "admin.notifications.custom.new",
+    "whitelist": [
+        "master"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "<b>New custom Notification</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "Text:   {custom_notification[text]}",
+                        "id": "text",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "to_edit",
+                                "text"
+                            ],
+                            [
+                                "NEW",
+                                "admin.notifications.custom.insert_text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "User id:   {custom_notification[users]}",
+                        "id": "users",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "to_edit",
+                                "users"
+                            ],
+                            [
+                                "NEW",
+                                "admin.notifications.custom.insert_receiver"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "Group:   {custom_notification[groups]}",
+                        "id": "groups",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "to_edit",
+                                "groups"
+                            ],
+                            [
+                                "NEW",
+                                "admin.notifications.custom.insert_receiver"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Notification type:   {custom_notification[n_type]}",
+                        "id": "n_type",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "to_edit",
+                                "n_type"
+                            ],
+                            [
+                                "NEW",
+                                "admin.notifications.custom.insert_text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Notify:   {custom_notification[notify]}",
+                        "id": "notify",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.notifications.custom.insert_notify"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Start time:   {custom_notification[start_time]}",
+                        "id": "start_time",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "to_edit",
+                                "start_time"
+                            ],
+                            [
+                                "NEW",
+                                "admin.notifications.custom.insert_time"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "End time:   {custom_notification[end_time]}",
+                        "id": "end_time",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "to_edit",
+                                "end_time"
+                            ],
+                            [
+                                "NEW",
+                                "admin.notifications.custom.insert_time"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🖼  PREVIEW",
+                        "id": "preview",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.notifications.custom.preview"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

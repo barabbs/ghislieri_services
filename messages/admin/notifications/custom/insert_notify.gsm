@@ -1,0 +1,50 @@
+{
+    "code": "admin.notifications.custom.insert_notify",
+    "components": {
+        "TEXT": {
+            "text": "✏️ Notify?",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "True",
+                        "id": "true",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "custom_notification.insert_notify",
+                                true
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "False",
+                        "id": "false",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "custom_notification.insert_notify",
+                                false
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

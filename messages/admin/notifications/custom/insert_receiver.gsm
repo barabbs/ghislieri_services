@@ -1,0 +1,33 @@
+{
+    "code": "admin.notifications.custom.insert_receiver",
+    "components": {
+        "TEXT": {
+            "text": "✏️ Insert receiver: {to_edit}",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "ANSWER": {
+            "ans_data_key": "temp_ans",
+            "actions": [
+                [
+                    "SAVE",
+                    "custom_notification.{to_edit}",
+                    [
+                        "$temp_ans"
+                    ]
+                ],
+                [
+                    "BACK"
+                ]
+            ]
+        }
+    }
+}

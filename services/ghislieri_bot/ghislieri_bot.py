@@ -24,7 +24,7 @@ class GhislieriBot(BaseService):
 
     def _request_add_notification(self, users=None, groups=None, **kwargs):
         if groups is not None:
-            users = sum((list(c['user_id'] for c in self.send_request(Request("student_databaser", "get_chats", group=g))) for g in groups), start=list() if users is None else users)
+            users = sum((list(c['user_id'] for c in self.send_request(Request("student_databaser", "get_chats", group=g))) for g in groups), start=list() if users is None else list(users))
         self.bot.notif_center.add_notification(users=users, **kwargs)
 
     def _request_expire_notification(self, user_id):

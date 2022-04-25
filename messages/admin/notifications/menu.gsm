@@ -57,6 +57,31 @@
                             ]
                         ]
                     }
+                ],
+                [
+                    {
+                        "text": "Custom Notification",
+                        "id": "custom",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "custom_notification",
+                                {
+                                    "users": [],
+                                    "groups": [],
+                                    "n_type": "____",
+                                    "text": "____",
+                                    "notify": true,
+                                    "start_time": null,
+                                    "end_time": null
+                                }
+                            ],
+                            [
+                                "NEW",
+                                "admin.notifications.custom.new"
+                            ]
+                        ]
+                    }
                 ]
             ],
             "navigation": [

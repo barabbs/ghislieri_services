@@ -44,11 +44,11 @@ class NotificationCenter(object):
 
 
 class Notification(object):
-    def __init__(self, users, n_type, msg_code, notify, data=None, start_time=None, end_time=False, enabled_time=None, **kwargs):
+    def __init__(self, users, n_type, msg_code, notify, data=None, start_time=None, end_time=None, enabled_time={"hours": 12}, **kwargs):
         # TODO: Consider removing "notify" and use only default notify status for n_type on notification preferences implementation
         self.users, self.n_type, self.msg_code, self.notify, self.data = set(users), n_type, msg_code, notify, dict() if data is None else data
         self.start_time = dt.datetime.now() if start_time is None else utl.get_time_from_str(start_time)
-        if enabled_time is not None:
+        if end_time is None:
             self.end_time = self.start_time + dt.timedelta(**enabled_time)
         else:
             self.end_time = end_time if isinstance(end_time, bool) else utl.get_time_from_str(end_time)
