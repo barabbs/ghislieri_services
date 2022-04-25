@@ -61,7 +61,7 @@ class GhislieriServices(BaseService):
         with open(os.path.join(var.LOGS_DIR, filename)) as file:
             raw = file.readlines()
             return {"max_pages": ceil(len(raw) / var.MAX_LOGS_PER_PAGE),
-                    "page": "".join("  ".join((l[0], l[1][5:19], f"{l[3]:18}", l[4])) for l in (k.split(";") for k in raw[(page - 1) * var.MAX_LOGS_PER_PAGE:page * var.MAX_LOGS_PER_PAGE]))}
+                    "page": "".join(f"{l[0][:4]}  {l[1][5:19]}  {l[3].split('-')[0]:16} {l[4]}" for l in (k.split(";") for k in raw[(page - 1) * var.MAX_LOGS_PER_PAGE:page * var.MAX_LOGS_PER_PAGE]))}
 
     def _request_get_version(self):
         with open(os.path.join(var.CHANGELOGS_DIR, var.CHANGELOGS_FILENAME)) as file:
