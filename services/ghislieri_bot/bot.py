@@ -19,7 +19,7 @@ EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message conte
 DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
 MESSAGE_CANT_BE_DELETED_ERROR = "Message can't be deleted for everyone"
 
-UNDELETABLE_MESSAGE_TEXT = "Questo <b>messaggio</b> può essere <b>eliminato</b>"
+UNDELETABLE_MESSAGE_TEXT = "Puoi <b>eliminare</b> questo <b>messaggio</b>"
 
 
 def get_bot_token():
@@ -137,9 +137,7 @@ class Bot(tlg.Bot):
     def _answer_handler(self, update, context):
         try:
             chat = self._get_chat_from_update(update)
-            answer = update.message.text
-            answer.replace("{", "{{")
-            answer.replace("}", "}}")
+            answer = update.message.text_html  # TODO: Do better sanification of answer
             chat.reply('ANSWER', answer=answer)
         except NewUser as user:
             chat = user.chat

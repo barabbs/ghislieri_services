@@ -191,12 +191,16 @@ class Options(Buttons, Answer):
         self.page_shape = raw['page_shape'] if 'page_shape' in raw else var.DEFAULT_PAGE_SHAPE
         super(Buttons, self).__init__(raw)
 
-    def get_keys(self, data, **kwargs):
+    def _get_page(self, data):
         w, h = self.page_shape
         try:
-            page = data[self.page_data_key] if self.page_data_key is not None else 0  # TODO: Add control for page range (not too big, not negative ?)
+            return w, h, data[self.page_data_key] if self.page_data_key is not None else 0  # TODO: Add control for page range (not too big, not negative ?)
         except KeyError:
-            data[self.page_data_key], page = 0, 0
+            data[self.page_data_key] = 0
+            return w, h, 0
+
+    def get_keys(self, data, **kwargs):
+        w, h, page = self._get_page(data)
         options, opt_data, keys = list(enumerate(data[format_data(self.opt_data_key, data)][page * h * w:(page + 1) * h * w])), data.copy(), list()
         shaped_options = [options[i:i + w] for i in range(0, min(len(options), w * h), w)]
         for row in shaped_options:
@@ -207,7 +211,8 @@ class Options(Buttons, Answer):
         return keys
 
     def act(self, key_id, data, **kwargs):
-        super(Buttons, self).act(answer=data[format_data(self.opt_data_key, data)][int(key_id)], data=data, **kwargs)
+        w, h, page = self._get_page(data)
+        super(Buttons, self).act(answer=data[format_data(self.opt_data_key, data)][page * h * w + int(key_id)], data=data, **kwargs)
 
 
 get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)
