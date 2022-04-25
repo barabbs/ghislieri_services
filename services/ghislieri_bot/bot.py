@@ -22,6 +22,15 @@ MESSAGE_CANT_BE_DELETED_ERROR = "Message can't be deleted for everyone"
 UNDELETABLE_MESSAGE_TEXT = "Puoi <b>eliminare</b> questo <b>messaggio</b>"
 
 
+class NoNetworkErrorsUpdater(logging.Filter):
+    def filter(self, record):
+        return CONNECTION_LOST_ERROR not in record.getMessage()
+
+
+logging.getLogger("telegram.ext.updater").addFilter(NoNetworkErrorsUpdater())
+logging.getLogger("telegram.vendor.ptb_urllib3.urllib3.connectionpool").setLevel(logging.ERROR)
+
+
 def get_bot_token():
     with open(var.FILEPATH_BOT_TOKEN, 'r') as token_file:
         return token_file.readline()
@@ -89,9 +98,9 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
-        # if err CONNECTION_LOST_ERROR in err.message:  #  TODO: Correct this "AttributeError: 'Error' object has no attribute 'message'"
-        #     log.warning("Connection lost!")
-        #     return
+        if CONNECTION_LOST_ERROR in getattr(err, "message", ""):
+            log.warning(f"Connection lost!")
+            return
         log.error(f"Exception while handling an update: {err}")
         try:
             chat = self._get_chat_from_update(update)
@@ -200,7 +209,6 @@ class Bot(tlg.Bot):
             else:
                 stats["notif"] += 1
         return stats
-
 
     # Sending & Editing
 
