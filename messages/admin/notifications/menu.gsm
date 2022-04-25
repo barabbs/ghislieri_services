@@ -17,6 +17,13 @@
                         "actions": [
                             [
                                 "REQ",
+                                "ghislieri_services",
+                                "get_version",
+                                {},
+                                "update_version"
+                            ],
+                            [
+                                "REQ",
                                 "ghislieri_bot",
                                 "add_notification",
                                 {
@@ -26,6 +33,9 @@
                                     "n_type": "update",
                                     "msg_code": "notifications.update",
                                     "notify": true,
+                                    "data": {
+                                        "update_version": "$update_version"
+                                    },
                                     "enabled_time": {
                                         "days": 1,
                                         "hours": 12
