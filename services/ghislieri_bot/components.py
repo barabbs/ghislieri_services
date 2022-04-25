@@ -155,7 +155,7 @@ class Key(BaseComponent):
 
     def get_key(self, data, permissions=None, **kwargs):
         if permissions is None or self._check_permission(permissions):
-            return tlg.InlineKeyboardButton(str(self.text).format(**data), callback_data=self._get_callback(**kwargs) if self.url is None else None, url=self.url)
+            return tlg.InlineKeyboardButton(format_data(str(self.text), data), callback_data=self._get_callback(**kwargs) if self.url is None else None, url=format_data(self.url, data))
 
 
 class Buttons(BaseComponent):

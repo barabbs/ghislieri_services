@@ -1,0 +1,49 @@
+{
+    "code": "admin.services.restart_service",
+    "components": {
+        "TEXT": {
+            "text": "❗️  Do you really want to <b>restart</b> the service <b>{serv_name}</b>?",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "✔️",
+                        "id": "yes",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_services",
+                                "restart_service",
+                                {
+                                    "service": "$serv_name"
+                                }
+                            ],
+                            [
+                                "BACK",
+                                2
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "❌",
+                        "id": "no",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

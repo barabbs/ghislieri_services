@@ -36,6 +36,16 @@
                                 "BACK"
                             ]
                         ]
+                    },
+                    {
+                        "text": "📣    New channel message",
+                        "id": "new_channel_message",
+                        "actions": [
+                            [
+                                "NEW",
+                                "admin.notifications.channel_select"
+                            ]
+                        ]
                     }
                 ]
             ],
