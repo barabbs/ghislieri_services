@@ -22,7 +22,7 @@
                             ],
                             [
                                 "NEW",
-                                "admin.services.stats"
+                                "admin.services.options"
                             ]
                         ]
                     },
@@ -37,7 +37,7 @@
                             ],
                             [
                                 "NEW",
-                                "admin.services.stats"
+                                "admin.services.options"
                             ]
                         ]
                     }
@@ -54,7 +54,7 @@
                             ],
                             [
                                 "NEW",
-                                "admin.services.stats"
+                                "admin.services.options"
                             ]
                         ]
                     },
@@ -69,7 +69,7 @@
                             ],
                             [
                                 "NEW",
-                                "admin.services.stats"
+                                "admin.services.options"
                             ]
                         ]
                     },
@@ -84,7 +84,7 @@
                             ],
                             [
                                 "NEW",
-                                "admin.services.stats"
+                                "admin.services.options"
                             ]
                         ]
                     }

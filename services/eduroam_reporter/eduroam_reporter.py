@@ -24,3 +24,6 @@ class EduroamReporter(BaseService):
         header = f"name={student_infos['name']}\nsurname={student_infos['surname']}\nuser_id={user_id}\ntime={time}"
         with open(os.path.join(var.REPORTS_DIR, f"{user_id} - {time}.errp"), 'w', encoding='utf-8') as f:
             f.write(f"{header}\n\nPLACE:\t {place}\nREPORT:\t {report}\nNOTE:\t {note}")
+
+
+SERVICE_CLASS = EduroamReporter

@@ -1,8 +1,8 @@
 {
-    "code": "admin.services.stats",
+    "code": "admin.services.options",
     "components": {
         "TEXT": {
-            "text": "<b>Service</b> {serv_name}\n<b>Start time</b> {serv_stats[start_time]}\n<b>Last hour stats</b>\n<code>  execs   n:{serv_stats[execs][num]:6}    mean: {serv_stats[execs][mean_exec_time]:0.3}    long:{serv_stats[execs][long]:3}\n  reqs    n:{serv_stats[reqs][num]:6}    err:{serv_stats[reqs][err]:3}</code>",
+            "text": "<b>Service</b> {serv_name}\n<b>Start time</b> {serv_stats[start_time]}\n\n<b>Stats</b>\n<code>{serv_stats[data]}</code>",
             "actions": [
                 [
                     "REQ",
@@ -33,6 +33,25 @@
                             [
                                 "NEW",
                                 "admin.services.reqs_stats"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔄    Restart {serv_name}",
+                        "id": "restart",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_services",
+                                "restart_service",
+                                {
+                                    "service": "$serv_name"
+                                }
+                            ],
+                            [
+                                "BACK"
                             ]
                         ]
                     }

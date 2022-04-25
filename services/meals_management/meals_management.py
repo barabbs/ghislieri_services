@@ -91,3 +91,6 @@ class MealsManagement(BaseService):
             log.info(f"Notification for today+{var.NOTIFICATION_DAYS_BEFORE} sent")
         except StopIteration:
             pass
+
+
+SERVICE_CLASS = MealsManagement

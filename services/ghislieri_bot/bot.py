@@ -191,6 +191,19 @@ class Bot(tlg.Bot):
     def expire_notification(self, user_id):
         self.get_chat_from_id(user_id).expire_notification()
 
+    def get_chats_stats(self):
+        stats = {"active": 0, "home": 0, "block": 0, "notif": 0}
+        for c in self.chats:
+            last_int = c.last_interaction
+            if isinstance(last_int, bool):
+                stats["home" if last_int else "block"] += 1
+            elif isinstance(last_int, int):
+                stats["active"] += 1
+            else:
+                stats["notif"] += 1
+        return stats
+
+
     # Sending & Editing
 
     def _send_message(self, chat, edit=False, del_user_msg=None):
@@ -240,6 +253,7 @@ class Bot(tlg.Bot):
     # Runtime
 
     def sync(self):
+        print("syncing")
         self.update_queue.put(ChatSyncUpdate())
 
     def stop(self):

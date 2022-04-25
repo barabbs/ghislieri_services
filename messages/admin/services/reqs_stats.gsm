@@ -2,7 +2,7 @@
     "code": "admin.services.reqs_stats",
     "components": {
         "TEXT": {
-            "text": "<b>Service</b> {serv_name}        Requests stats\n<code>{serv_stats[hists][reqs]}</code>",
+            "text": "<b>Service</b> {serv_name}\n\n<b>Requests stats</b>        (number - errors)\n\n\n<code>{serv_stats[hists][reqs]}</code>",
             "actions": []
         },
         "KEYBOARD": {
