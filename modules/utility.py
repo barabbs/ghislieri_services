@@ -60,4 +60,4 @@ def get_month_name(date, abbr=False):
 def get_text_hist(data, data_key, end_str):
     m = max(d[data_key] for d in data)
     m = m if m > 0 else 1
-    return "\n".join(tuple(f"{i:02} {'⬛️' * round(10 * d[data_key] / m)}{'⬜️' * (10 - round(10 * d[data_key] / m))} {end_str.format(**d)}" for i, d in enumerate(data)))
+    return "\n".join(tuple(f"{i:02} {'█' * round(20 * d[data_key] / m)}{'░' * (20 - round(20 * d[data_key] / m))} {end_str.format(**d)}" for i, d in enumerate(data)))

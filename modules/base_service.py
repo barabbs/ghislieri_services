@@ -29,16 +29,17 @@ class BaseService(Process):
         """
         log.info(f"Service {self.SERVICE_NAME} initializing...")
         super(BaseService, self).__init__()
-        self.services_pipes = services_pipes
-        self.stop_event = stop_event
+        self.services_pipes, self.stop_event = services_pipes, stop_event
         self.pipe = self.services_pipes[self.SERVICE_NAME]
         self.scheduler = sch.Scheduler()
-        self.statistics = self._load_statistics()
+        self.statistics = None
+        self._load_statistics()
         self._load_tasks()
 
     def _load_statistics(self):
         execs, reqs = _EMPTY_EXECS_STATS.copy(), _EMPTY_REQS_STATS.copy()
-        return {"start_time": dt.datetime.now(), "execs": execs, "reqs": reqs, "history": {"execs": [execs, ] * 24, "reqs": [reqs, ] * 24, }}
+        self.statistics = {"start_time": dt.datetime.now(), "execs": execs, "reqs": reqs, "history": {"execs": [execs, ] * 24, "reqs": [reqs, ] * 24, }}
+        self._task_update_statistics()
 
     def _load_tasks(self):
         self.scheduler.every().hours.at(":00").do(self._task_update_statistics)
@@ -60,7 +61,14 @@ class BaseService(Process):
         raise StopService
 
     def _request_get_statistics(self):
-        return self._get_statistics()
+        self.statistics["reqs"]["num"] -= 1
+        for e in self.statistics["history"]["execs"]:
+            e["avg_exec_time"] = 1000 * e["time"] / max(1, e["num"])
+        stats = {"start_time": self.statistics["start_time"].strftime(var.DATETIME_FORMAT)}
+        stats["hists"] = {"execs": utl.get_text_hist(self.statistics["history"]["execs"], "avg_exec_time", "{avg_exec_time:.3f} {long:3}"),
+                          "reqs": utl.get_text_hist(self.statistics["history"]["reqs"], "num", "{num:4} {err:3}")}
+        stats["data"] = "\n".join(f"  {k.upper():6}  {v}" for k, v in self._get_statistics().items())
+        return stats
 
     def _handle_requests(self):
         while True:
@@ -98,13 +106,9 @@ class BaseService(Process):
         self.statistics["execs"]["long"] += 0 if exec_time < var.SERVICE_UPDATE_INTERVAL else 1
 
     def _get_statistics(self):
-        for e in self.statistics["history"]["execs"]:
-            e["mean_exec_time"] = e["time"] / max(1, e["num"])
-        stats = self.statistics.copy()
-        stats["start_time"] = stats["start_time"].strftime(var.DATETIME_FORMAT)
-        stats["hists"] = {"execs": utl.get_text_hist(self.statistics["history"]["execs"], "mean_exec_time", "{mean_exec_time:0.3}    long {long}"),
-                          "reqs": utl.get_text_hist(self.statistics["history"]["reqs"], "num", "{num:7}    err: {err}")}
-        return stats
+        execs, reqs = self.statistics["execs"], self.statistics["reqs"]
+        return {"execs": f"{execs['num']:6} | avg {execs['avg_exec_time']:.3f} | long {execs['long']:3}",
+                "reqs ": f"n°{reqs['num']:4} | errs {reqs['err']:3}", }
 
         # Runtime
 

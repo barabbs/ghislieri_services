@@ -2,7 +2,7 @@
     "code": "admin.services.execs_stats",
     "components": {
         "TEXT": {
-            "text": "<b>Service</b> {serv_name}        Executions stats\n<code>{serv_stats[hists][execs]}</code>",
+            "text": "<b>Service</b> {serv_name}\n\n<b>Executions stats</b>        (avg time [msec] - long)\n\n\n<code>{serv_stats[hists][execs]}</code>",
             "actions": []
         },
         "KEYBOARD": {
