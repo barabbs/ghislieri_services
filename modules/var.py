@@ -18,5 +18,8 @@ DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILEPATH_LOG = os.path.join(LOGS_DIR, f'ghislieri_services {datetime.datetime.now().strftime(DATETIME_FORMAT)}.log')
 CHANGELOGS_FILENAME = f"changelog_{'.'.join(VERSION.split('.')[0:2])}.gscl"
 
+# Requests
+MAX_LOGS_PER_PAGE = 32
+
 # Services
 SERVICE_UPDATE_INTERVAL = 0.0625

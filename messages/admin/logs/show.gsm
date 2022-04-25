@@ -2,22 +2,37 @@
     "code": "admin.logs.show",
     "components": {
         "TEXT": {
-            "text": "<code>{admin[selected_log][text]}</code>",
+            "text": "<code>{admin[showed_log][page]}</code>",
             "actions": [
                 [
                     "REQ",
                     "ghislieri_services",
                     "get_log",
                     {
-                        "filename": "$admin.selected_log.filename"
+                        "filename": "$admin.selected_log.filename",
+                        "page": "$logs_page"
                     },
-                    "admin.selected_log.text"
+                    "admin.showed_log"
+                ],
+                [
+                    "SAVE",
+                    "logs_page_max",
+                    "$admin.showed_log.max_pages"
                 ]
             ]
         },
         "KEYBOARD": {
             "buttons": [],
             "navigation": [
+                [
+                    [
+                        "arrows",
+                        [
+                            "logs_page",
+                            "logs_page_max"
+                        ]
+                    ]
+                ],
                 [
                     [
                         "back"

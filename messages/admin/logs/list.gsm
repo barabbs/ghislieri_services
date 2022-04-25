@@ -28,12 +28,16 @@
                 ],
                 "actions": [
                     [
+                        "SAVE",
+                        "logs_page",
+                        1
+                    ],
+                    [
                         "NEW",
                         "admin.logs.show"
                     ]
                 ]
             },
-            "buttons": [],
             "navigation": [
                 [
                     [

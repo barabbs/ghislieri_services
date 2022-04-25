@@ -2,8 +2,10 @@ from . import var
 from modules.service_pipe import ServicePipe, Request
 from modules.base_service import BaseService, StopService, NoResultRequest
 from multiprocessing import Event
+import html
 import importlib
 import logging, os
+from math import ceil
 
 log = logging.getLogger(__name__)
 
@@ -53,11 +55,13 @@ class GhislieriServices(BaseService):
 
     def _request_get_error(self, filename):
         with open(os.path.join(var.ERRORS_DIR, filename)) as file:
-            return file.read()
+            return html.escape(file.read())
 
-    def _request_get_log(self, filename):
+    def _request_get_log(self, filename, page):
         with open(os.path.join(var.LOGS_DIR, filename)) as file:
-            return file.read()
+            raw = file.readlines()
+            return {"max_pages": ceil(len(raw) / var.MAX_LOGS_PER_PAGE),
+                    "page": "".join("  ".join((l[0], l[1][5:19], f"{l[3]:18}", l[4])) for l in (k.split(";") for k in raw[(page - 1) * var.MAX_LOGS_PER_PAGE:page * var.MAX_LOGS_PER_PAGE]))}
 
     def _request_get_version(self):
         with open(os.path.join(var.CHANGELOGS_DIR, var.CHANGELOGS_FILENAME)) as file:
