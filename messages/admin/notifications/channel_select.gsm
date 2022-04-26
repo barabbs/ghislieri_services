@@ -1,0 +1,193 @@
+{
+    "code": "admin.notifications.channel_select",
+    "whitelist": [
+        "master"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "Seleziona il Canale <b>Notifications</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "🟥🟨  Collegio Ghislieri - Alunni  🟨🟥",
+                        "id": "college",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {
+                                    "groups": [
+                                        "student"
+                                    ],
+                                    "n_type": "channels",
+                                    "msg_code": "notifications.new_channel_message",
+                                    "notify": true,
+                                    "data": {
+                                        "channel": {
+                                            "name": "Alunni",
+                                            "button": "🟥🟨  Collegio Ghislieri - Alunni  🟨🟥",
+                                            "url": "https://t.me/+iikDkY01v8IzZTU0"
+                                        }
+                                    },
+                                    "enabled_time": {
+                                        "days": 1
+                                    }
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "📑    Comunicazioni Rettorato",
+                        "id": "rettorato",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {
+                                    "groups": [
+                                        "student"
+                                    ],
+                                    "n_type": "channels",
+                                    "msg_code": "notifications.new_channel_message",
+                                    "notify": true,
+                                    "data": {
+                                        "channel": {
+                                            "name": "Comunicazioni Rettorato",
+                                            "button": "📑    Comunicazioni Rettorato",
+                                            "url": "https://t.me/+o8cd9I-LD80xODZk"
+                                        }
+                                    },
+                                    "enabled_time": {
+                                        "days": 1
+                                    }
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🧬    Ghislieri Scienza",
+                        "id": "gs",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {
+                                    "groups": [
+                                        "student"
+                                    ],
+                                    "n_type": "channels",
+                                    "msg_code": "notifications.new_channel_message",
+                                    "notify": true,
+                                    "data": {
+                                        "channel": {
+                                            "name": "Ghislieri Scienza",
+                                            "button": "🧬    Ghislieri Scienza",
+                                            "url": "https://t.me/+HPp6RHiNbsYxZTE0"
+                                        }
+                                    },
+                                    "enabled_time": {
+                                        "days": 1
+                                    }
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🏛    Philosophicum Ghislieri",
+                        "id": "phg",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {
+                                    "groups": [
+                                        "student"
+                                    ],
+                                    "n_type": "channels",
+                                    "msg_code": "notifications.new_channel_message",
+                                    "notify": true,
+                                    "data": {
+                                        "channel": {
+                                            "name": "Philosophicum Ghislieri",
+                                            "button": "🏛    Philosophicum Ghislieri",
+                                            "url": "https://t.me/+yK29NfmXbdwyMGI0"
+                                        }
+                                    },
+                                    "enabled_time": {
+                                        "days": 1
+                                    }
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🎻    Bardi Ghisleriani",
+                        "id": "bardi",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {
+                                    "groups": [
+                                        "student"
+                                    ],
+                                    "n_type": "channels",
+                                    "msg_code": "notifications.new_channel_message",
+                                    "notify": true,
+                                    "data": {
+                                        "channel": {
+                                            "name": "Bardi Ghisleriani",
+                                            "button": "🎻    Bardi Ghisleriani",
+                                            "url": "https://t.me/+lic4qD4Za5hjZjVk"
+                                        }
+                                    },
+                                    "enabled_time": {
+                                        "days": 1
+                                    }
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

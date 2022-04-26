@@ -4,13 +4,14 @@ import datetime as dt
 from multiprocessing import Process
 import schedule as sch
 from time import sleep, time
-import logging
+import os, logging, json
 
 log = logging.getLogger(__name__)
 
 
 class StopService(Exception):
     pass
+
 
 class NoResultRequest(Exception):
     pass
@@ -40,8 +41,15 @@ class BaseService(Process):
         self._load_tasks()
 
     def _load_statistics(self):
-        execs, reqs = _EMPTY_EXECS_STATS.copy(), _EMPTY_REQS_STATS.copy()
-        self.statistics = {"start_time": dt.datetime.now(), "execs": execs, "reqs": reqs, "history": {"execs": [execs, ] * 24, "reqs": [reqs, ] * 24, }}
+        try:
+            filepath = os.path.join(var.STATISTICS_DIR, self.SERVICE_NAME + var.STATISTICS_EXT)
+            with open(filepath) as file:
+                self.statistics = json.load(file)
+            os.remove(filepath)
+        except FileNotFoundError:
+            execs, reqs = _EMPTY_EXECS_STATS.copy(), _EMPTY_REQS_STATS.copy()
+            self.statistics = {"execs": execs, "reqs": reqs, "history": {"execs": [execs, ] * 24, "reqs": [reqs, ] * 24, }}
+        self.statistics["start_time"] = dt.datetime.now()
         self._task_update_statistics()
 
     def _load_tasks(self):
@@ -115,6 +123,15 @@ class BaseService(Process):
         return {"execs": f"{execs['num']:6} | avg {execs['avg_exec_time']:.3f} | long {execs['long']:3}",
                 "reqs ": f"n°{reqs['num']:4} | errs {reqs['err']:3}", }
 
+    def _save_statistics(self):
+        try:
+            filepath = os.path.join(var.STATISTICS_DIR, self.SERVICE_NAME + var.STATISTICS_EXT)
+            self.statistics.pop("start_time")
+            with open(filepath, 'w', encoding='UTF-8') as file:
+                json.dump(self.statistics, file)
+        except TypeError:
+            log.warning(f"Couldn't save statistics for service {self.SERVICE_NAME}")
+
     # Runtime
 
     def run(self):
@@ -141,4 +158,4 @@ class BaseService(Process):
         pass
 
     def _exit(self):
-        pass
+        self._save_statistics()

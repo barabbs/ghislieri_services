@@ -1,8 +1,8 @@
 {
-    "code": "admin.services.shutdown",
+    "code": "admin.services.restart_service",
     "components": {
         "TEXT": {
-            "text": "❗️  Do you really want to <b>shutdown</b>?",
+            "text": "❗️  Do you really want to <b>restart</b> the service <b>{serv_name}</b>?",
             "actions": []
         },
         "KEYBOARD": {
@@ -15,7 +15,14 @@
                             [
                                 "REQ",
                                 "ghislieri_services",
-                                "shutdown"
+                                "restart_service",
+                                {
+                                    "service": "$serv_name"
+                                }
+                            ],
+                            [
+                                "BACK",
+                                2
                             ]
                         ]
                     },

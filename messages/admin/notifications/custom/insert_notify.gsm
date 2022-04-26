@@ -1,28 +1,36 @@
 {
-    "code": "admin.services.shutdown",
+    "code": "admin.notifications.custom.insert_notify",
     "components": {
         "TEXT": {
-            "text": "❗️  Do you really want to <b>shutdown</b>?",
+            "text": "✏️ Notify?",
             "actions": []
         },
         "KEYBOARD": {
             "buttons": [
                 [
                     {
-                        "text": "✔️",
-                        "id": "yes",
+                        "text": "True",
+                        "id": "true",
                         "actions": [
                             [
-                                "REQ",
-                                "ghislieri_services",
-                                "shutdown"
+                                "SAVE",
+                                "custom_notification.notify",
+                                true
+                            ],
+                            [
+                                "BACK"
                             ]
                         ]
                     },
                     {
-                        "text": "❌",
-                        "id": "no",
+                        "text": "False",
+                        "id": "false",
                         "actions": [
+                            [
+                                "SAVE",
+                                "custom_notification.notify",
+                                false
+                            ],
                             [
                                 "BACK"
                             ]

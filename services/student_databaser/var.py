@@ -10,6 +10,7 @@ if DEBUG:
 
 # Files
 FILEPATH_DATABASE = os.path.join(DATA_DIR, 'database.gsdb')
+FILEPATH_GROUPS_LIST = os.path.join(DATA_DIR, 'groups.gsgr')
 
 # Database
 DATABASE_STUDENTS_TABLE = "students"

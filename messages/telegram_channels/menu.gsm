@@ -9,9 +9,17 @@
             "buttons": [
                 [
                     {
-                        "text": "🟥    Collegio Ghislieri - Alunni    🟨",
+                        "text": "🟥🟨  Collegio Ghislieri - Alunni  🟨🟥",
                         "id": "college",
                         "url": "https://t.me/+iikDkY01v8IzZTU0",
+                        "actions": []
+                    }
+                ],
+                [
+                    {
+                        "text": "📑    Comunicazioni Rettorato",
+                        "id": "rettorato",
+                        "url": "https://t.me/+o8cd9I-LD80xODZk",
                         "actions": []
                     }
                 ],

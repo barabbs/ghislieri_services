@@ -1,0 +1,48 @@
+{
+    "code": "admin.notifications.custom.preview",
+    "components": {
+        "TEXT": {
+            "text": "{custom_notification[text]}\n---- END NOTIFICATION ---\n\nusers: {custom_notification[users]}    -    groups: {custom_notification[groups]}\nn_type: {custom_notification[n_type]}    -    notify: {custom_notification[notify]}\nstart_time: {custom_notification[start_time]}    -    end_time: {custom_notification[end_time]}",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "🖼  SEND",
+                        "id": "send",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {
+                                    "msg_code": "notifications.custom",
+                                    "users": "$custom_notification.users",
+                                    "groups": "$custom_notification.groups",
+                                    "n_type": "$custom_notification.n_type",
+                                    "notify": "$custom_notification.notify",
+                                    "start_time": "$custom_notification.start_time",
+                                    "end_time": "$custom_notification.end_time",
+                                    "data": {
+                                        "notification_text": "{custom_notification[text]}"
+                                    }
+                                }
+                            ],
+                            [
+                                "HOME"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

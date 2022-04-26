@@ -1,0 +1,19 @@
+{
+    "code": "notifications.custom",
+    "components": {
+        "TEXT": {
+            "text": "$notification_text",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

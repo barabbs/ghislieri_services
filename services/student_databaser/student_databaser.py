@@ -55,6 +55,10 @@ class StudentDatabaser(BaseService):
     def _request_edit_student_info(self, user_id, info, value):
         self._edit_database(user_id, info, value)
 
+    def _request_get_groups(self):
+        with open(var.FILEPATH_GROUPS_LIST) as file:
+            return tuple({"group": i} for i in file.read().split("\n"))
+
     def _request_edit_group(self, user_id, group, edit):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
         groups = get_chat_dict(self.cursor.fetchone())['groups']
@@ -78,6 +82,7 @@ class StudentDatabaser(BaseService):
         self.connection.commit()
         self.cursor.close()
         self.connection.close()
+        super(StudentDatabaser, self)._exit()
 
 
 SERVICE_CLASS = StudentDatabaser

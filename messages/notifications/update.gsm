@@ -2,16 +2,8 @@
     "code": "notifications.update",
     "components": {
         "TEXT": {
-            "text": "🎉    <b>Nuovo Aggiornamento!</b>    🎉\n\nversione {about[version_data][version]}",
-            "actions": [
-                [
-                    "REQ",
-                    "ghislieri_services",
-                    "get_version",
-                    {},
-                    "about.version_data"
-                ]
-            ]
+            "text": "🎉    <b>Nuovo Aggiornamento!</b>    🎉\n\nversione {update_version[version]}",
+            "actions": []
         },
         "KEYBOARD": {
             "buttons": [

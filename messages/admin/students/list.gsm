@@ -20,7 +20,10 @@
                 "text": "{student_infos[surname]} {student_infos[name]}",
                 "opt_data_key": "admin.students_list",
                 "ans_data_key": "admin.selected_student",
-                "page_data_key": "student_list_page",
+                "page_data_keys": [
+                    "student_list_page",
+                    "student_list_page_max"
+                ],
                 "page_shape": [
                     2,
                     8
@@ -32,12 +35,14 @@
                     ]
                 ]
             },
-            "buttons": [],
             "navigation": [
                 [
                     [
                         "arrows",
-                        "student_list_page"
+                        [
+                            "student_list_page",
+                            "student_list_page_max"
+                        ]
                     ]
                 ],
                 [

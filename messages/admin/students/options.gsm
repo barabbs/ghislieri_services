@@ -9,7 +9,7 @@
             "buttons": [
                 [
                     {
-                        "text": "Remove",
+                        "text": "❌  Remove student",
                         "id": "remove",
                         "actions": [
                             [
@@ -28,34 +28,32 @@
                 ],
                 [
                     {
-                        "text": "Add permissions",
-                        "id": "add_perm",
+                        "text": "👥  Add group",
+                        "id": "add_group",
                         "actions": [
                             [
                                 "SAVE",
-                                "admin.permission.edit_type",
+                                "admin.student.group_edit",
                                 "add"
                             ],
                             [
                                 "NEW",
-                                "admin.students.edit_permissions"
+                                "admin.students.edit_group"
                             ]
                         ]
-                    }
-                ],
-                [
+                    },
                     {
-                        "text": "Remove permissions",
-                        "id": "rm_perm",
+                        "text": "👥  Remove group",
+                        "id": "rm_group",
                         "actions": [
                             [
                                 "SAVE",
-                                "admin.permission.edit_type",
+                                "admin.student.group_edit",
                                 "rm"
                             ],
                             [
                                 "NEW",
-                                "admin.students.edit_permissions"
+                                "admin.students.edit_group"
                             ]
                         ]
                     }

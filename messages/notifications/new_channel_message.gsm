@@ -1,0 +1,29 @@
+{
+    "code": "notifications.new_channel_message",
+    "components": {
+        "TEXT": {
+            "text": "📣    <b>Nuovo messaggio</b> sul canale <b>{channel[name]}!    📣</b>\n\nSegui il canale per non perderti gli <i>aggiornamenti</i>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "$channel.button",
+                        "id": "channel",
+                        "url": "$channel.url",
+                        "actions": []
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

@@ -12,13 +12,13 @@
             "buttons": [
                 [
                     {
-                        "text": "student_databaser",
-                        "id": "student_databaser",
+                        "text": "ghislieri_services",
+                        "id": "ghislieri_services",
                         "actions": [
                             [
                                 "SAVE",
                                 "serv_name",
-                                "student_databaser"
+                                "ghislieri_services"
                             ],
                             [
                                 "NEW",
@@ -44,13 +44,13 @@
                 ],
                 [
                     {
-                        "text": "email_service",
-                        "id": "email_service",
+                        "text": "student_databaser",
+                        "id": "student_databaser",
                         "actions": [
                             [
                                 "SAVE",
                                 "serv_name",
-                                "email_service"
+                                "student_databaser"
                             ],
                             [
                                 "NEW",
@@ -58,6 +58,23 @@
                             ]
                         ]
                     },
+                    {
+                        "text": "meals_management",
+                        "id": "meals_management",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "serv_name",
+                                "meals_management"
+                            ],
+                            [
+                                "NEW",
+                                "admin.services.options"
+                            ]
+                        ]
+                    }
+                ],
+                [
                     {
                         "text": "eduroam_reporter",
                         "id": "eduroam_reporter",
@@ -74,13 +91,13 @@
                         ]
                     },
                     {
-                        "text": "meals_management",
-                        "id": "meals_management",
+                        "text": "email_service",
+                        "id": "email_service",
                         "actions": [
                             [
                                 "SAVE",
                                 "serv_name",
-                                "meals_management"
+                                "email_service"
                             ],
                             [
                                 "NEW",

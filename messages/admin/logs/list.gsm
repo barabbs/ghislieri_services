@@ -18,15 +18,36 @@
                 "text": "{filename}",
                 "opt_data_key": "admin.logs_list",
                 "ans_data_key": "admin.selected_log",
+                "page_data_keys": [
+                    "logs_list_page",
+                    "logs_list_page_max"
+                ],
+                "page_shape": [
+                    1,
+                    6
+                ],
                 "actions": [
+                    [
+                        "SAVE",
+                        "logs_page",
+                        1
+                    ],
                     [
                         "NEW",
                         "admin.logs.show"
                     ]
                 ]
             },
-            "buttons": [],
             "navigation": [
+                [
+                    [
+                        "arrows",
+                        [
+                            "logs_list_page",
+                            "logs_list_page_max"
+                        ]
+                    ]
+                ],
                 [
                     [
                         "back"

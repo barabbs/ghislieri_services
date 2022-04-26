@@ -1,0 +1,27 @@
+{
+    "code": "admin.notifications.custom.insert_time",
+    "components": {
+        "TEXT": {
+            "text": "✏️ Insert {to_edit} (YYYY-MM-DD HH:MM:SS)",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "ANSWER": {
+            "ans_data_key": "custom_notification.{to_edit}",
+            "actions": [
+                [
+                    "BACK"
+                ]
+            ]
+        }
+    }
+}

@@ -1,0 +1,64 @@
+{
+    "code": "admin.students.edit_group",
+    "components": {
+        "TEXT": {
+            "text": "👥    Select <b>group</b>",
+            "actions": [
+                [
+                    "REQ",
+                    "student_databaser",
+                    "get_groups",
+                    {},
+                    "admin.groups_list"
+                ]
+            ]
+        },
+        "KEYBOARD": {
+            "options": {
+                "text": "{group}",
+                "opt_data_key": "admin.groups_list",
+                "ans_data_key": "admin.selected_group",
+                "page_data_keys": [
+                    "group_list_page",
+                    "group_list_page_max"
+                ],
+                "page_shape": [
+                    2,
+                    8
+                ],
+                "actions": [
+                    [
+                        "REQ",
+                        "student_databaser",
+                        "edit_group",
+                        {
+                            "user_id": "$admin.selected_student.user_id",
+                            "group": "$admin.selected_group.group",
+                            "edit": "$admin.student.group_edit"
+                        }
+                    ],
+                    [
+                        "BACK",
+                        2
+                    ]
+                ]
+            },
+            "navigation": [
+                [
+                    [
+                        "arrows",
+                        [
+                            "group_list_page",
+                            "group_list_page_max"
+                        ]
+                    ]
+                ],
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}
