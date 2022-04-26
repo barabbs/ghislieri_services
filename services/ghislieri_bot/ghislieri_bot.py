@@ -64,9 +64,11 @@ class GhislieriBot(BaseService):
 
     def _stop(self):
         self.bot.stop()
+        super(GhislieriBot, self)._stop()
 
     def _exit(self):
         self.bot.exit()
+        super(GhislieriBot, self)._exit()
 
 
 SERVICE_CLASS = GhislieriBot

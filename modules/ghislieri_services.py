@@ -94,3 +94,4 @@ class GhislieriServices(BaseService):
         for service in self.services.values():
             service.join()
             log.debug(f"Process of {service} service terminated")
+        super(GhislieriServices, self)._exit()

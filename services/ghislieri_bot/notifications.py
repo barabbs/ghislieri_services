@@ -34,6 +34,7 @@ class NotificationCenter(object):
             with open(var.NOTIFICATIONS_BCKP_FILE, encoding='UTF-8') as file:
                 self.notifications = list(Notification(**kwargs) for kwargs in json.load(file))
             os.remove(var.NOTIFICATIONS_BCKP_FILE)
+            log.info(f"Loaded {len(self.notifications)} pending notifications")
         except FileNotFoundError:
             self.notifications = list()
 
