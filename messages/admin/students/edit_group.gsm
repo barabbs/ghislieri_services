@@ -18,7 +18,10 @@
                 "text": "{group}",
                 "opt_data_key": "admin.groups_list",
                 "ans_data_key": "admin.selected_group",
-                "page_data_key": "group_list_page",
+                "page_data_keys": [
+                    "group_list_page",
+                    "group_list_page_max"
+                ],
                 "page_shape": [
                     2,
                     8
@@ -40,12 +43,14 @@
                     ]
                 ]
             },
-            "buttons": [],
             "navigation": [
                 [
                     [
                         "arrows",
-                        "group_list_page"
+                        [
+                            "group_list_page",
+                            "group_list_page_max"
+                        ]
                     ]
                 ],
                 [
