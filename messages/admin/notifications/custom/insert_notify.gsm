@@ -14,7 +14,7 @@
                         "actions": [
                             [
                                 "SAVE",
-                                "custom_notification.insert_notify",
+                                "custom_notification.notify",
                                 true
                             ],
                             [
@@ -28,7 +28,7 @@
                         "actions": [
                             [
                                 "SAVE",
-                                "custom_notification.insert_notify",
+                                "custom_notification.notify",
                                 false
                             ],
                             [
