@@ -3,7 +3,7 @@ import sys, os, datetime
 DEBUG = "-d" in sys.argv
 
 # Version
-VERSION = "0.2.2a"
+VERSION = "0.2.3"
 
 # Directories
 DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services")
