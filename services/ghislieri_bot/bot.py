@@ -165,7 +165,7 @@ class Bot(tlg.Bot):
                     try:
                         messages[filename.split('.')[0]] = Message(json.load(file))
                     except json.decoder.JSONDecodeError as err:
-                        log.error(f"JSON error in file {filepath}")
+                        log.error(f"JSON error {err} in file {filepath}")
                         utl.log_error(err)
         return messages
 
