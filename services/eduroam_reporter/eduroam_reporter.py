@@ -1,4 +1,5 @@
 from modules.base_service import BaseService
+from modules.service_pipe import Request
 from modules import utility as utl
 from . import var
 from datetime import datetime
@@ -24,6 +25,9 @@ class EduroamReporter(BaseService):
         header = f"name={student_infos['name']}\nsurname={student_infos['surname']}\nuser_id={user_id}\ntime={time}"
         with open(os.path.join(var.REPORTS_DIR, f"{user_id} - {time}.errp"), 'w', encoding='utf-8') as f:
             f.write(f"{header}\n\nPLACE:\t {place}\nREPORT:\t {report}\nNOTE:\t {note}")
+        notif_data = var.NEW_REPORT_NOTIFICATION_DATA.copy()
+        notif_data["data"] = {"report": {"time": time, "user": student_infos, "report": report, "place": place, "note": note}}
+        self.send_request(Request('ghislieri_bot', 'add_notification', **notif_data))
 
 
 SERVICE_CLASS = EduroamReporter

@@ -11,3 +11,6 @@ REPORTS_DIR = os.path.join(DATA_DIR, 'reports')
 
 # Files
 DEFAULT_REPORTS_FILE = os.path.join(DATA_DIR, 'default_reports.erdr')
+
+# Notifications
+NEW_REPORT_NOTIFICATION_DATA = {"groups": ('master',), "n_type": "eduroam_reporter", "msg_code": "notifications.admin.new_eduroam_report", "notify": True, "end_time": False}
