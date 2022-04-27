@@ -15,6 +15,7 @@
                         "n_type": "admin",
                         "msg_code": "notifications.admin.check_subscription",
                         "notify": true,
+                        "end_time": false,
                         "data": {
                             "new_sub": {
                                 "user_id": "$user_id",

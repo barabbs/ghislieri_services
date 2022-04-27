@@ -19,6 +19,7 @@ RECAP_EXT = ".html"
 
 # Reservations
 MEALS = ("Pranzo", "Cena")
+GENDERS = ("M", "F")
 POSSIBLE_RESERVATIONS = (True, False)
 TIMELIMIT = dt.timedelta(hours=7, minutes=0)
 

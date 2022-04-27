@@ -10,9 +10,12 @@ log = logging.getLogger(__name__)
 
 
 def format_data(raw, data):
-    if isinstance(raw, str):
-        if raw[0] == var.DATA_FORMATTING_HEAD:
-            return format_data(data[raw[1:].format(**data)], data)
+    if isinstance(raw, str):  # TODO: Use a JSONDecoder to create a different class for "data_keys"?????
+        try:
+            if raw[0] == var.DATA_FORMATTING_HEAD:
+                return format_data(data[raw[1:].format(**data)], data)
+        except IndexError:
+            pass
         return raw.format(**data)
     if isinstance(raw, dict):
         return dict({format_data(k, data): format_data(v, data) for k, v in raw.items()})

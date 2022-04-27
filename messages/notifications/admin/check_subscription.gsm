@@ -5,7 +5,7 @@
     ],
     "components": {
         "TEXT": {
-            "text": "🆕    <b>Nuova Iscrizione</b>\n\nNome: <i>{new_sub[infos][name]}</i>\nCognome: <i>{new_sub[infos][surname]}</i>\nuser_id: <i>{new_sub[user_id]}</i>",
+            "text": "🆕    <b>Nuova Iscrizione</b>\n\n<code>Nome    </code><b>{new_sub[infos][name]}</b>\n<code>Cognome </code><b>{new_sub[infos][surname]}</b>\n\n<code>user_id </code><i>{new_sub[user_id]}</i>",
             "actions": []
         },
         "KEYBOARD": {
@@ -16,38 +16,8 @@
                         "id": "yes",
                         "actions": [
                             [
-                                "REQ",
-                                "student_databaser",
-                                "edit_group",
-                                {
-                                    "user_id": "$new_sub.user_id",
-                                    "group": "student",
-                                    "edit": "add"
-                                }
-                            ],
-                            [
-                                "REQ",
-                                "ghislieri_bot",
-                                "add_notification",
-                                {
-                                    "users": [
-                                        "$new_sub.user_id"
-                                    ],
-                                    "n_type": "sub_accept",
-                                    "msg_code": "welcome.thank_you",
-                                    "notify": true
-                                }
-                            ],
-                            [
-                                "REQ",
-                                "ghislieri_bot",
-                                "expire_notification",
-                                {
-                                    "user_id": "$new_sub.user_id"
-                                }
-                            ],
-                            [
-                                "HOME"
+                                "NEW",
+                                "notifications.admin.set_gender"
                             ]
                         ]
                     },
@@ -55,6 +25,14 @@
                         "text": "❌",
                         "id": "no",
                         "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "remove_chat",
+                                {
+                                    "user_id": "$new_sub.user_id"
+                                }
+                            ],
                             [
                                 "HOME"
                             ]

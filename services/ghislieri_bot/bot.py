@@ -8,7 +8,7 @@ from . import var
 import telegram as tlg
 import telegram.ext, telegram.utils.request
 from time import sleep, time
-import logging, os, requests, json
+import logging, os, requests, json, sys
 
 log = logging.getLogger(__name__)
 
@@ -165,7 +165,7 @@ class Bot(tlg.Bot):
                     try:
                         messages[filename.split('.')[0]] = Message(json.load(file))
                     except json.decoder.JSONDecodeError as err:
-                        log.error(f"JSON error in file {filepath}")
+                        log.error(f"JSON error {err} in file {filepath}")
                         utl.log_error(err)
         return messages
 
@@ -259,7 +259,8 @@ class Bot(tlg.Bot):
     # Runtime
 
     def sync(self):
-        self.update_queue.put(ChatSyncUpdate())
+        if "--no_sync" not in sys.argv:
+            self.update_queue.put(ChatSyncUpdate())
 
     def stop(self):
         for chat in self.chats:

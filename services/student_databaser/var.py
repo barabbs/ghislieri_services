@@ -10,8 +10,10 @@ if DEBUG:
 
 # Files
 FILEPATH_DATABASE = os.path.join(DATA_DIR, 'database.gsdb')
+if "--no_sync" in sys.argv:
+    FILEPATH_DATABASE = os.path.join(DATA_DIR, 'database_all_users.gsdb')
 FILEPATH_GROUPS_LIST = os.path.join(DATA_DIR, 'groups.gsgr')
 
 # Database
 DATABASE_STUDENTS_TABLE = "students"
-STUDENT_INFOS = ('name', 'surname', 'email')
+STUDENT_INFOS = ('name', 'surname', 'gender', 'email')

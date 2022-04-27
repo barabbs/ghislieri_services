@@ -63,13 +63,21 @@ class Reservation(object):
             templ = jinja2.Template(templ_file.read())
         filepath = os.path.join(var.RECAPS_DIR, f"Recap_{self.date.strftime(var.DATE_FORMAT)}")
         with open(filepath + ".html", "w") as file:
-            res = list(service.send_request(Request('student_databaser', 'get_chats', group="student", sort=True)))
-            for u in res:
-                u['meals'] = tuple(var.RECAP_RESERVATION_INDICATOR[self._get_user_meal_res(u['user_id'], m)] for m in var.MEALS)
-            n, w = len(res), (len(res) + 2) // 3
-            res = tuple(res[i:i + w] for i in range(0, n, w))
-            file.write(templ.render(date_str=get_date_str(self.date, False), reservations=res,
-                                    total={m: sum(1 for i in filter(lambda x: x, self.meals_res[m].values())) for m in self.meals_res.keys()}))
+            students = list(service.send_request(Request('student_databaser', 'get_chats', group="student", sort=True)))
+            for s in students:
+                s['meals'] = tuple(self._get_user_meal_res(s['user_id'], m) for m in var.MEALS)
+                s['indic'] = tuple(var.RECAP_RESERVATION_INDICATOR[i] for i in s['meals'])
+            res = list()
+            totals = {m: list() for m in var.MEALS}
+            for g in var.GENDERS:
+                by_gender = tuple(filter(lambda s: s['student_infos']['gender'] == g, students))
+                for i, m in enumerate(var.MEALS):
+                    totals[m].append(sum(1 for t in filter(lambda x: x['meals'][i], by_gender)))
+                n, w = len(by_gender), (len(by_gender) + 1) // 2
+                res.append(tuple(by_gender[i:i + w] for i in range(0, n, w)))
+            for m in var.MEALS:
+                totals[m].append(sum(totals[m]))
+            file.write(templ.render(date_str=get_date_str(self.date, False), reservations=res, totals=totals))
         pdfkit.from_file(filepath + '.html', filepath + '.pdf')
         return filepath
 

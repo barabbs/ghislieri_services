@@ -2,7 +2,7 @@
     "code": "admin.students.options",
     "components": {
         "TEXT": {
-            "text": "Nome <b>{admin[selected_student][student_infos][name]}</b>\nCognome <b>{admin[selected_student][student_infos][surname]}</b>\n\nuser_id {admin[selected_student][user_id]} - last_message_id {admin[selected_student][last_message_id]}\n\nGroups <i>{admin[selected_student][groups]}</i>",
+            "text": "<code>Nome    </code><b>{admin[selected_student][student_infos][name]}</b>\n<code>Cognome </code><b>{admin[selected_student][student_infos][surname]}</b>\n<code>Gender  </code><b>{admin[selected_student][student_infos][gender]}</b>\n<code>Email   </code><b>{admin[selected_student][student_infos][email]}</b>\n\n<code>user_id </code>{admin[selected_student][user_id]}<code>    last_message_id </code>{admin[selected_student][last_message_id]}\n\n<code>Groups  </code><i>{admin[selected_student][groups]}</i>",
             "actions": []
         },
         "KEYBOARD": {
