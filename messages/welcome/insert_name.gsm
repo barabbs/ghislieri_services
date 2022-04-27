@@ -38,7 +38,8 @@
                         ],
                         "n_type": "new_sub",
                         "msg_code": "welcome.checking",
-                        "notify": false
+                        "notify": false,
+                        "end_time": false
                     }
                 ],
                 [

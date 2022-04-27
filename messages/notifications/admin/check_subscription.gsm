@@ -26,6 +26,14 @@
                         "id": "no",
                         "actions": [
                             [
+                                "REQ",
+                                "ghislieri_bot",
+                                "remove_chat",
+                                {
+                                    "user_id": "$new_sub.user_id"
+                                }
+                            ],
+                            [
                                 "HOME"
                             ]
                         ]

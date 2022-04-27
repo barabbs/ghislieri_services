@@ -5,7 +5,7 @@
     ],
     "components": {
         "TEXT": {
-            "text": "🆕    <b>Nuova Iscrizione</b>\n\nNome: <i>{new_sub[infos][name]}</i>\nCognome: <i>{new_sub[infos][surname]}</i>\nuser_id: <i>{new_sub[user_id]}</i>",
+            "text": "Seleziona il gender per <i>{new_sub[infos][name]} {new_sub[infos][surname]}</i>",
             "actions": []
         },
         "KEYBOARD": {
