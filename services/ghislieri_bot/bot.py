@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 # Telegram errors
 CONNECTION_LOST_ERROR = "urllib3 HTTPError HTTPSConnectionPool"
+EDIT_MSG_NOT_TEXT = "There is no text in the message to edit"
 EDIT_MSG_NOT_FOUND_ERROR = "Message to edit not found"
 EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
 DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
@@ -63,6 +64,10 @@ class NewUser(Exception):
         super(NewUser, self).__init__(*args)
 
 
+class MessageNotEdited(Exception):
+    pass
+
+
 class Bot(tlg.Bot):
     def __init__(self, service):
         """
@@ -107,9 +112,9 @@ class Bot(tlg.Bot):
             chat.reset_session(var.ERROR_MESSAGE_CODE)
             chat.data['error'] = err
             try:
-                self._send_message(chat, del_user_msg=update.message.message_id)
+                self._dispatch_message(chat, del_user_msg=update.message.message_id)
             except AttributeError:
-                self._send_message(chat, edit=True)
+                self._dispatch_message(chat, edit=True)
         except Exception:
             chat = None
         utl.log_error(err, chat=chat)
@@ -119,7 +124,7 @@ class Bot(tlg.Bot):
         for chat in self.chats:
             update_notify = chat.sync(update.update_id)
             if update_notify is not None:
-                self._send_message(chat, edit=not update_notify)
+                self._dispatch_message(chat, edit=not update_notify)
 
     def _remove_chat_handler(self, update, context):
         chat = self.get_chat_from_id(update.update_id)
@@ -133,7 +138,7 @@ class Bot(tlg.Bot):
             chat.reset_session()
         except NewUser as user:
             chat = user.chat
-        self._send_message(chat, del_user_msg=update.message.message_id)
+        self._dispatch_message(chat, del_user_msg=update.message.message_id)
 
     def _keyboard_handler(self, update, context):
         try:
@@ -141,7 +146,7 @@ class Bot(tlg.Bot):
             chat.reply('KEYBOARD', callback=update.callback_query.data)
         except NewUser as user:
             chat = user.chat
-        self._send_message(chat, edit=True)
+        self._dispatch_message(chat, edit=True)
 
     def _answer_handler(self, update, context):
         try:
@@ -150,7 +155,7 @@ class Bot(tlg.Bot):
             chat.reply('ANSWER', answer=answer)
         except NewUser as user:
             chat = user.chat
-        self._send_message(chat, del_user_msg=update.message.message_id)
+        self._dispatch_message(chat, del_user_msg=update.message.message_id)
 
     # Messages
 
@@ -212,46 +217,60 @@ class Bot(tlg.Bot):
 
     # Sending & Editing
 
-    def _send_message(self, chat, edit=False, del_user_msg=None):
+    def _dispatch_message(self, chat, edit=False, del_user_msg=None, disable_notification=False):
         try:
             chat.check_auth()
         except MessageAuthorizationError as err:
             chat.reset_session(var.AUTH_ERROR_MESSAGE_CODE)
             chat.data['auth_error.code'] = err.msg_code
             utl.log_error(err, chat=chat, msg_code=err.msg_code)
+
         message_content = chat.get_message_content()
-        if edit:
-            self._edit_message(chat, message_content)
-        else:
-            self._send_and_delete_message(chat, message_content, del_user_msg)
+        msg_type = message_content.pop('type')
+        if edit and msg_type == "text":
+            try:
+                self._edit_message(chat, message_content)
+            except MessageNotEdited:
+                disable_notification = True
+            else:
+                return
+        self._delete_message(chat, message_content, del_user_msg)
+        self._send_message(chat, msg_type, message_content, disable_notification)
 
     def _edit_message(self, chat, message_content):
         try:
             self.edit_message_text(**message_content)
         except telegram.error.BadRequest as e:
+            if e.message == EDIT_MSG_NOT_TEXT:
+                raise MessageNotEdited
             if e.message == EDIT_MSG_NOT_FOUND_ERROR:
                 log.warning(e.message)
-                self._send_and_delete_message(chat, message_content)
+                raise MessageNotEdited
             elif e.message == EDIT_MSG_IDENTICAL_ERROR:
                 log.warning(e.message)
             else:
                 raise
 
-    def _send_and_delete_message(self, chat, message_content, del_user_msg=None):
+    def _delete_message(self, chat, message_content, del_user_msg=None):
         for m in (message_content['message_id'],) if del_user_msg is None else (message_content['message_id'], del_user_msg):
             try:
                 self.delete_message(chat_id=message_content['chat_id'], message_id=m)
             except telegram.error.BadRequest as e:
                 if e.message == DELETE_MSG_NOT_FOUND_ERROR:
                     log.warning(e.message)
-                    # self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT)
                 elif e.message == MESSAGE_CANT_BE_DELETED_ERROR:
                     log.warning(e.message)
                     self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT, parse_mode=tlg.ParseMode.HTML)
                 else:
                     raise e
-        message_content.pop('message_id')
-        new_message = self.send_message(**message_content, disable_notification=True)
+
+    def _send_message(self, chat, msg_type, message_content, disable_notification):
+        message_content.pop('message_id', None)
+        if msg_type == "text":
+            new_message = self.send_message(**message_content, disable_notification=disable_notification)
+        elif msg_type == "photo":
+            with open(message_content.pop("filepath"), "rb") as f:
+                new_message = self.send_photo(photo=f, **message_content, disable_notification=disable_notification)
         new_id = new_message.message_id
         self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
         chat.set_last_message_id(new_id)
@@ -266,7 +285,7 @@ class Bot(tlg.Bot):
         for chat in self.chats:
             chat.stop()
             chat.reset_session(var.SHUTDOWN_MESSAGE_CODE)
-            self._send_message(chat, edit=True)
+            self._dispatch_message(chat, edit=True)
 
     def exit(self):
         log.info("Bot exiting...")
