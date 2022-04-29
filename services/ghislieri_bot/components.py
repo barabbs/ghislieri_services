@@ -68,7 +68,7 @@ def get_action_save(data_key, value):
 
 def get_action_page(data_keys, increment):
     def action(data, **kwargs):
-        data[format_data(data_keys[0], data)] = ((data[format_data(data_keys[0], data)] + format_data(increment, data) - 1) % data[format_data(data_keys[1], data)]) +1
+        data[format_data(data_keys[0], data)] = ((data[format_data(data_keys[0], data)] + format_data(increment, data) - 1) % data[format_data(data_keys[1], data)]) + 1
 
     return action
 
@@ -97,7 +97,17 @@ class Text(BaseComponent):
 
     def get_content(self, data, **kwargs):
         self.act(data=data, **kwargs)
-        return {'text': format_data(self.text, data)}
+        return {'type': 'text', 'text': format_data(self.text, data)}
+
+
+class Photo(BaseComponent):
+    def __init__(self, raw):
+        self.filepath, self.caption = raw['filepath'],  raw['caption']
+        super(Photo, self).__init__(raw)
+
+    def get_content(self, data, **kwargs):
+        self.act(data=data, **kwargs)
+        return {'type': 'photo', 'caption': format_data(self.caption, data), 'filepath': format_data(self.filepath, data)}
 
 
 class Answer(BaseComponent):
@@ -243,4 +253,4 @@ class Navigation(Buttons):
 
 KEYBOARD_PARTE_CLASSES = {'options': Options, 'buttons': Buttons, 'navigation': Navigation}
 
-COMPONENTS_CLASSES = {'TEXT': Text, 'KEYBOARD': Keyboard, 'ANSWER': Answer}
+COMPONENTS_CLASSES = {'TEXT': Text, 'KEYBOARD': Keyboard, 'ANSWER': Answer, 'PHOTO': Photo}

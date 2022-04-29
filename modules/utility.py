@@ -1,6 +1,16 @@
 import os, traceback
 import datetime as dt
+import subprocess
+import re
 from . import var
+
+def get_unused_filepath(filepath, sep="_"):
+    i = 0
+    base, ext = os.path.splitext(filepath)
+    while os.path.exists(filepath):
+        i += 1
+        filepath = f"{base}{sep}{i}{ext}"
+    return filepath
 
 
 def log_error(error, severity="error", **kwargs):
@@ -9,7 +19,7 @@ def log_error(error, severity="error", **kwargs):
     for k in kwargs:
         header += f"\n{k}={kwargs[k]}"
     error_str = ''.join(traceback.format_exception(None, error, error.__traceback__))
-    with open(os.path.join(var.ERRORS_DIR, f"{severity}_{time}.gser"), 'w', encoding='utf-8') as f:
+    with open(get_unused_filepath(os.path.join(var.ERRORS_DIR, f"{severity}_{time}.gser"), sep="-"), 'w', encoding='utf-8') as f:
         f.write(f"{header}\n--------------------------------\n{error_str}")
 
 
@@ -37,8 +47,8 @@ class dotdict(dict):
             d.__setitem__(r, value)
 
 
-def get_str_from_time(dtime=None):
-    return (dt.datetime.now() if dtime is None else dtime).strftime(var.DATETIME_FORMAT)
+def get_str_from_time(dtime=None, date=False):
+    return (dt.datetime.now() if dtime is None else dtime).strftime(var.DATE_FORMAT if date else var.DATETIME_FORMAT)
 
 
 def get_time_from_str(t_str=None):
@@ -61,3 +71,10 @@ def get_text_hist(data, data_key, end_str):
     m = max(d[data_key] for d in data)
     m = m if m > 0 else 1
     return "\n".join(tuple(f"{i:02} {'█' * round(20 * d[data_key] / m)}{'░' * (20 - round(20 * d[data_key] / m))} {end_str.format(**d)}" for i, d in enumerate(data)))
+
+
+def convert_docx_to_pdf(source, timeout=None):
+    directory, filename = os.path.dirname(source), os.path.basename(source)
+    args = ['libreoffice', '--headless', '--convert-to', 'pdf', filename]
+    subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=directory)
+    return os.path.join(directory, os.path.splitext(filename)[0] + ".pdf")

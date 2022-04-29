@@ -10,6 +10,7 @@ if DEBUG:
     DATA_DIR = os.path.join(os.getcwd(), 'data', SERVICE_NAME)
 RESERVATIONS_DIR = os.path.join(DATA_DIR, 'reservations')
 RECAPS_DIR = os.path.join(DATA_DIR, 'recaps')
+MENUS_DIR = os.path.join(DATA_DIR, 'menus')
 
 # Files
 RECAP_HTML_TEMPLATE = os.path.join(DATA_DIR, 'recap_html_template.mrtm')
@@ -37,6 +38,12 @@ EMAIL_SENDING_TIME = "07:00:00"
 NOTIFICATION_SENDING_TIME = "19:00:00"
 NOTIFICATION_DAYS_BEFORE = dt.timedelta(days=1)
 NOTIFICATION_DATA = {"groups": ('student',), "n_type": "meals", "msg_code": "meals_management.reservation.reminder", "notify": True, "enabled_time": {"hours": 12}}
+
+# Menu
+MENU_MAILBOX = "Meals/menu"
+MENU_PNG_DPI = 150
+MENU_PDF_FILENAME_REGEX = r"\D+(\d+)-(\d+)\D+"
+MENU_FILENAME = "Menu_{date}.png"
 
 if DEBUG:
     EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",

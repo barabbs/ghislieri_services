@@ -1,0 +1,20 @@
+{
+    "code": "meals_management.todays_menu.show",
+    "components": {
+        "PHOTO": {
+            "caption": "📒    Menù di <b>{todays_menu[date_str]}</b>",
+            "filepath": "$todays_menu.filepath",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

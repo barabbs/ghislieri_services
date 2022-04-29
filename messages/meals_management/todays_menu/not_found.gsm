@@ -1,0 +1,18 @@
+{
+    "code": "meals_management.todays_menu.not_found",
+    "components": {
+        "TEXT": {
+            "text": "☹️    Menù di <b>{todays_menu[date_str]}</b> non ancora caricato",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}
