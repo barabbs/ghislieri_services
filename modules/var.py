@@ -3,7 +3,8 @@ import sys, os, datetime
 DEBUG = "-d" in sys.argv
 
 # Version
-VERSION = "0.2.4"
+VERSION = "0.3.0-pre1"
+CHANGELOG_VERSION = "0.2"
 
 # Directories
 DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services")
@@ -18,7 +19,7 @@ STATISTICS_DIR = os.path.join(DATA_DIR, 'statistics')
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 DATE_FORMAT = '%Y-%m-%d'
 FILEPATH_LOG = os.path.join(LOGS_DIR, f'ghislieri_services {datetime.datetime.now().strftime(DATETIME_FORMAT)}.log')
-CHANGELOGS_FILENAME = f"changelog_{'.'.join(VERSION.split('.')[0:2])}.gscl"
+CHANGELOGS_FILENAME = f"changelog_{CHANGELOG_VERSION}.gscl"
 STATISTICS_EXT = ".gsst"
 
 # Requests
