@@ -19,6 +19,7 @@ EDIT_MSG_NOT_FOUND_ERROR = "Message to edit not found"
 EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
 DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
 MESSAGE_CANT_BE_DELETED_ERROR = "Message can't be deleted for everyone"
+BOT_BLOCKED_BY_USER = "Forbidden: bot was blocked by the user"
 
 UNDELETABLE_MESSAGE_TEXT = "Puoi <b>eliminare</b> questo <b>messaggio</b>"
 
@@ -275,9 +276,12 @@ class Bot(tlg.Bot):
             new_id = new_message.message_id
             self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
             chat.set_last_message_id(new_id)
-        except tlg.error.Unauthorized:
-            log.warning(f"Got Unauthorized error for user {chat}, removing...")
-            self.update_queue.put(RemoveChatUpdate(chat.user_id))
+        except tlg.error.Unauthorized as e:
+            if e.message == BOT_BLOCKED_BY_USER:
+                log.warning(f"Got Unauthorized error for user {chat}, removing...")
+                self.update_queue.put(RemoveChatUpdate(chat.user_id))
+            else:
+                raise
 
 
     # Runtime
