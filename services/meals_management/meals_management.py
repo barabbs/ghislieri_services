@@ -4,7 +4,7 @@ from . import var
 from .reservation import Reservation, get_date_str
 from modules.service_pipe import Request
 import datetime as dt
-import os
+import os, re, pdf2image
 import logging
 
 log = logging.getLogger(__name__)
@@ -22,6 +22,8 @@ class MealsManagement(BaseService):
     def _load_tasks(self):
         self.scheduler.every().day.at(var.EMAIL_SENDING_TIME).do(self._task_send_res_recap)
         self.scheduler.every().day.at(var.NOTIFICATION_SENDING_TIME).do(self._task_send_notification)
+        # self.scheduler.every().hour.at("00:00").do(self._task_update_download_attachments)
+        self.scheduler.every().minute.at(":00").do(self._task_update_download_attachments)
         super(MealsManagement, self)._load_tasks()
 
     def _load_reservations(self):
@@ -64,6 +66,13 @@ class MealsManagement(BaseService):
             dates.append({"filename": f, "date_str": get_date_str(d)})
         return dates
 
+    def _request_get_all_res_dates(self):
+        dates = list()
+        for f in sorted(os.listdir(var.RESERVATIONS_DIR)):
+            d = dt.datetime.strptime(f, f"Reservations_{var.DATE_FORMAT}{var.RESERVATIONS_EXT}")
+            dates.append({"filename": f, "date_str": get_date_str(d)})
+        return dates
+
     def _request_create_recap(self, date_dict):
         res = Reservation()
         res.load_from_file(date_dict["filename"])
@@ -73,6 +82,11 @@ class MealsManagement(BaseService):
         res = Reservation()
         res.load_from_file(date_dict["filename"])
         self._send_res_recap(res)
+
+    def _request_get_todays_menu(self):
+        today = dt.date.today()
+        filename = os.path.join(var.MENUS_DIR, var.MENU_FILENAME.format(date=utl.get_str_from_time(today, date=True)))
+        return {"exists": os.path.exists(filename), "date_str": get_date_str(today, False), "filepath": filename}
 
     # Tasks
 
@@ -91,6 +105,18 @@ class MealsManagement(BaseService):
             log.info(f"Notification for today+{var.NOTIFICATION_DAYS_BEFORE} sent")
         except StopIteration:
             pass
+
+    def _task_update_download_attachments(self):
+        docx_files = self.send_request(Request('email_service', 'download_attachments', mailbox=var.MENU_MAILBOX))
+        pdf_files = list(utl.convert_docx_to_pdf(f, timeout=15) for f in docx_files)
+        img_files = ((os.path.basename(f), pdf2image.convert_from_path(f, dpi=var.MENU_PNG_DPI)[0]) for f in pdf_files)
+        for img in img_files:
+            regex = re.search(var.MENU_PDF_FILENAME_REGEX, img[0])
+            date = utl.get_str_from_time(dt.date(year=dt.date.today().year, month=int(regex.group(2)), day=int(regex.group(1))), date=True)
+            img[1].save(os.path.join(var.MENUS_DIR, var.MENU_FILENAME.format(date=date)), "PNG")
+            log.info(f"got new menu for {date}")
+        for fn in docx_files + pdf_files:
+            os.remove(fn)
 
 
 SERVICE_CLASS = MealsManagement

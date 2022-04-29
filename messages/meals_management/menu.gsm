@@ -21,6 +21,31 @@
                 ],
                 [
                     {
+                        "text": "📒    Menù del giorno",
+                        "id": "menu",
+                        "whitelist": [
+                            "master",
+                            "tester"
+                        ],
+                        "actions": [
+                            [
+                                "REQ",
+                                "meals_management",
+                                "get_todays_menu",
+                                {},
+                                "todays_menu"
+                            ],
+                            [
+                                "NEW",
+                                "meals_management.todays_menu.show",
+                                "todays_menu.exists",
+                                "meals_management.todays_menu.not_found"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🔓    Admin",
                         "id": "meals_admin",
                         "whitelist": [

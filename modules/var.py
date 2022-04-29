@@ -16,6 +16,7 @@ STATISTICS_DIR = os.path.join(DATA_DIR, 'statistics')
 
 # Files
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+DATE_FORMAT = '%Y-%m-%d'
 FILEPATH_LOG = os.path.join(LOGS_DIR, f'ghislieri_services {datetime.datetime.now().strftime(DATETIME_FORMAT)}.log')
 CHANGELOGS_FILENAME = f"changelog_{'.'.join(VERSION.split('.')[0:2])}.gscl"
 STATISTICS_EXT = ".gsst"

@@ -72,21 +72,6 @@
                             ]
                         ]
                     }
-                ],
-                [
-                    {
-                        "text": "Test",
-                        "id": "test",
-                        "whitelist": [
-                            "master"
-                        ],
-                        "actions": [
-                            [
-                                "NEW",
-                                "test"
-                            ]
-                        ]
-                    }
                 ]
             ]
         }
