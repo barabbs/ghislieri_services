@@ -266,14 +266,19 @@ class Bot(tlg.Bot):
 
     def _send_message(self, chat, msg_type, message_content, disable_notification):
         message_content.pop('message_id', None)
-        if msg_type == "text":
-            new_message = self.send_message(**message_content, disable_notification=disable_notification)
-        elif msg_type == "photo":
-            with open(message_content.pop("filepath"), "rb") as f:
-                new_message = self.send_photo(photo=f, **message_content, disable_notification=disable_notification)
-        new_id = new_message.message_id
-        self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
-        chat.set_last_message_id(new_id)
+        try:
+            if msg_type == "text":
+                new_message = self.send_message(**message_content, disable_notification=disable_notification)
+            elif msg_type == "photo":
+                with open(message_content.pop("filepath"), "rb") as f:
+                    new_message = self.send_photo(photo=f, **message_content, disable_notification=disable_notification)
+            new_id = new_message.message_id
+            self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
+            chat.set_last_message_id(new_id)
+        except tlg.error.Unauthorized:
+            log.warning(f"Got Unauthorized error for user {chat}, removing...")
+            self.update_queue.put(RemoveChatUpdate(chat.user_id))
+
 
     # Runtime
 
