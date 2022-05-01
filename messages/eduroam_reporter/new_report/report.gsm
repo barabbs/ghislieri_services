@@ -2,7 +2,7 @@
     "code": "eduroam_reporter.new_report.report",
     "components": {
         "TEXT": {
-            "text": "Seleziona una <b>segnalazione</b> o inviane una nuova",
+            "text": "Seleziona una <b>segnalazione</b> o <u>inviane una nuova</u>",
             "actions": [
                 [
                     "REQ",
