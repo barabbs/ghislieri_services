@@ -8,8 +8,8 @@ log = logging.getLogger(__name__)
 
 
 class MessageAuthorizationError(Exception):
-    def __init__(self, msg_code):
-        self.msg_code = msg_code
+    def __init__(self, msg_code, msg_content):
+        self.msg_code, self.msg_content = msg_code, msg_content
         super(MessageAuthorizationError, self).__init__(f"Authorisation error for message {msg_code}")
 
 
@@ -18,18 +18,27 @@ class Chat(object):
         self.bot, self.user_id, self.last_message_id = bot, user_id, last_message_id
         self.data = dotdict({'user_id': self.user_id, 'infos': student_infos})
         self.session, self.last_interaction = list(), 0
+        self.msg_to_delete = list()
         self.groups = groups
 
     def check_auth(self):
         msg = self._get_message()
         if not msg.check_permission(self.groups):
-            raise MessageAuthorizationError(msg.code)
+            self.reset_session(var.AUTH_ERROR_MESSAGE_CODE)
+            self.data['auth_error.code'] = msg.code
+            raise MessageAuthorizationError(msg.code, self.get_message_content())
 
     def get_info(self, info):
         return self.data['infos'][info]
 
     def set_last_message_id(self, new_message_id):
         self.last_message_id = new_message_id
+
+    def add_msg_to_delete(self, msg_id):
+        self.msg_to_delete.append(msg_id)
+
+    def set_msg_to_delete(self, next_del):
+        self.msg_to_delete = next_del
 
     def set_groups(self, groups):
         self.groups = groups
@@ -50,9 +59,8 @@ class Chat(object):
             self._get_message().act(component, **self._get_component_args(), **kwargs)
 
     def get_message_content(self, **kwargs):
-        content = {'chat_id': self.user_id, 'message_id': self.last_message_id}
-        content.update(self._get_message().get_content(**self._get_component_args(), **kwargs))
-        return content
+        self.check_auth()
+        return self._get_message().get_content(**self._get_component_args(), **kwargs)
 
     # Resetting session
 

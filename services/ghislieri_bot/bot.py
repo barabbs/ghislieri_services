@@ -65,10 +65,6 @@ class NewUser(Exception):
         super(NewUser, self).__init__(*args)
 
 
-class MessageNotEdited(Exception):
-    pass
-
-
 class Bot(tlg.Bot):
     def __init__(self, service):
         """
@@ -107,17 +103,19 @@ class Bot(tlg.Bot):
         if CONNECTION_LOST_ERROR in getattr(err, "message", ""):
             log.warning(f"Connection lost!")
             return
-        log.error(f"Exception while handling an update: {err}")
         try:
-            chat = self._get_chat_from_update(update)
+            chat = self.get_chat_from_id(update.effective_user.id)
+        except StopIteration:
+            chat = None
+        else:
+            if BOT_BLOCKED_BY_USER in getattr(err, "message", ""):
+                log.warning(f"Got Unauthorized error for user {chat}, removing...")
+                self._remove_chat(chat)
             chat.reset_session(var.ERROR_MESSAGE_CODE)
             chat.data['error'] = err
-            try:
-                self._dispatch_message(chat, del_user_msg=update.message.message_id)
-            except AttributeError:
-                self._dispatch_message(chat, edit=True)
-        except Exception:
-            chat = None
+            self._dispatch_message(chat)
+
+        log.error(f"Exception while handling an update: {err}")
         utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
@@ -128,10 +126,7 @@ class Bot(tlg.Bot):
                 self._dispatch_message(chat, edit=not update_notify)
 
     def _remove_chat_handler(self, update, context):
-        chat = self.get_chat_from_id(update.update_id)
-        self.delete_message(chat_id=chat.user_id, message_id=chat.last_message_id)
-        self.chats.remove(chat)
-        log.info(f"Removed student with user_id {update.update_id}")
+        self._remove_chat(self.get_chat_from_id(update.update_id))
 
     def _start_command_handler(self, update, context):
         try:
@@ -139,7 +134,8 @@ class Bot(tlg.Bot):
             chat.reset_session()
         except NewUser as user:
             chat = user.chat
-        self._dispatch_message(chat, del_user_msg=update.message.message_id)
+        chat.add_msg_to_delete(update.message.message_id)
+        self._dispatch_message(chat, edit=False)
 
     def _keyboard_handler(self, update, context):
         try:
@@ -147,7 +143,7 @@ class Bot(tlg.Bot):
             chat.reply('KEYBOARD', callback=update.callback_query.data)
         except NewUser as user:
             chat = user.chat
-        self._dispatch_message(chat, edit=True)
+        self._dispatch_message(chat)
 
     def _answer_handler(self, update, context):
         try:
@@ -156,7 +152,8 @@ class Bot(tlg.Bot):
             chat.reply('ANSWER', answer=answer)
         except NewUser as user:
             chat = user.chat
-        self._dispatch_message(chat, del_user_msg=update.message.message_id)
+        chat.add_msg_to_delete(update.message.message_id)
+        self._dispatch_message(chat)
 
     # Messages
 
@@ -216,73 +213,69 @@ class Bot(tlg.Bot):
                 stats["notif"] += 1
         return stats
 
+    def _remove_chat(self, chat):
+        self.delete_message(chat_id=chat.user_id, message_id=chat.last_message_id)
+        self.chats.remove(chat)
+        log.info(f"Removed student with user_id {chat.user_id}")
+
     # Sending & Editing
 
-    def _dispatch_message(self, chat, edit=False, del_user_msg=None, disable_notification=False):
+    def _dispatch_message(self, chat, edit=True):
         try:
-            chat.check_auth()
+            message_content = chat.get_message_content()
         except MessageAuthorizationError as err:
-            chat.reset_session(var.AUTH_ERROR_MESSAGE_CODE)
-            chat.data['auth_error.code'] = err.msg_code
+            log.error(f"User {chat} hasn't got the auth to access msg {err.msg_code}")
             utl.log_error(err, chat=chat, msg_code=err.msg_code)
+            message_content = err.msg_content
+        next_msg_to_del = list()
+        photo = self._send_photo(chat, message_content, next_msg_to_del)
+        if edit and not photo:
+            self._edit_message(chat, message_content)
+        else:
+            self._send_message(chat, message_content)
+        self._delete_message(chat)
+        chat.set_msg_to_delete(next_msg_to_del)
 
-        message_content = chat.get_message_content()
-        msg_type = message_content.pop('type')
-        if edit and msg_type == "text":
+    def _delete_message(self, chat):
+        for m in chat.msg_to_delete:
             try:
-                self._edit_message(chat, message_content)
-            except MessageNotEdited:
-                disable_notification = True
-            else:
-                return
-        self._delete_message(chat, message_content, del_user_msg)
-        self._send_message(chat, msg_type, message_content, disable_notification)
+                self.delete_message(chat_id=chat.user_id, message_id=m)
+            except telegram.error.BadRequest as err:
+                if err.message == DELETE_MSG_NOT_FOUND_ERROR:
+                    log.warning(err.message)
+                elif err.message == MESSAGE_CANT_BE_DELETED_ERROR:
+                    log.warning(err.message)
+                    self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT, parse_mode=tlg.ParseMode.HTML)
+                else:
+                    log.error(f"Exception while deleting a message: {err}")
+                    utl.log_error(err, chat=chat)
+
+    def _send_photo(self, chat, message_content, next_msg_to_del):
+        photo_content = message_content.pop('photo', None)
+        if photo_content is not None:
+            with open(photo_content.pop("filepath"), "rb") as f:
+                photo_msg = self.send_photo(chat_id=chat.user_id, photo=f, **photo_content)
+            next_msg_to_del.append(photo_msg.message_id)
+            return True
+        return False
 
     def _edit_message(self, chat, message_content):
         try:
-            self.edit_message_text(**message_content)
+            self.edit_message_text(chat_id=chat.user_id, message_id=chat.last_message_id, **message_content)
         except telegram.error.BadRequest as e:
-            if e.message == EDIT_MSG_NOT_TEXT:
-                raise MessageNotEdited
             if e.message == EDIT_MSG_NOT_FOUND_ERROR:
                 log.warning(e.message)
-                raise MessageNotEdited
             elif e.message == EDIT_MSG_IDENTICAL_ERROR:
                 log.warning(e.message)
             else:
                 raise
 
-    def _delete_message(self, chat, message_content, del_user_msg=None):
-        for m in (message_content['message_id'],) if del_user_msg is None else (message_content['message_id'], del_user_msg):
-            try:
-                self.delete_message(chat_id=message_content['chat_id'], message_id=m)
-            except telegram.error.BadRequest as e:
-                if e.message == DELETE_MSG_NOT_FOUND_ERROR:
-                    log.warning(e.message)
-                elif e.message == MESSAGE_CANT_BE_DELETED_ERROR:
-                    log.warning(e.message)
-                    self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT, parse_mode=tlg.ParseMode.HTML)
-                else:
-                    raise e
-
-    def _send_message(self, chat, msg_type, message_content, disable_notification):
-        message_content.pop('message_id', None)
-        try:
-            if msg_type == "text":
-                new_message = self.send_message(**message_content, disable_notification=disable_notification)
-            elif msg_type == "photo":
-                with open(message_content.pop("filepath"), "rb") as f:
-                    new_message = self.send_photo(photo=f, **message_content, disable_notification=disable_notification)
-            new_id = new_message.message_id
-            self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
-            chat.set_last_message_id(new_id)
-        except tlg.error.Unauthorized as e:
-            if e.message == BOT_BLOCKED_BY_USER:
-                log.warning(f"Got Unauthorized error for user {chat}, removing...")
-                self.update_queue.put(RemoveChatUpdate(chat.user_id))
-            else:
-                raise
-
+    def _send_message(self, chat, message_content):
+        chat.add_msg_to_delete(chat.last_message_id)
+        new_message = self.send_message(chat_id=chat.user_id, **message_content, disable_notification=False)  # TODO: utilise "disable_notification"
+        new_id = new_message.message_id
+        self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
+        chat.set_last_message_id(new_id)
 
     # Runtime
 

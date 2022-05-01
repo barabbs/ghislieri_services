@@ -2,7 +2,6 @@ from modules.service_pipe import Request
 from . import var
 from time import time
 import telegram as tlg
-from collections.abc import Iterable
 import logging
 from math import ceil
 
@@ -97,17 +96,17 @@ class Text(BaseComponent):
 
     def get_content(self, data, **kwargs):
         self.act(data=data, **kwargs)
-        return {'type': 'text', 'text': format_data(self.text, data)}
+        return {'text': format_data(self.text, data)}
 
 
 class Photo(BaseComponent):
     def __init__(self, raw):
-        self.filepath, self.caption = raw['filepath'],  raw['caption']
+        self.filepath, self.caption = raw['filepath'],  raw['caption'] if 'caption' in raw else None
         super(Photo, self).__init__(raw)
 
     def get_content(self, data, **kwargs):
         self.act(data=data, **kwargs)
-        return {'type': 'photo', 'caption': format_data(self.caption, data), 'filepath': format_data(self.filepath, data)}
+        return {'photo': {'caption': format_data(self.caption, data), 'filepath': format_data(self.filepath, data)}}
 
 
 class Answer(BaseComponent):
