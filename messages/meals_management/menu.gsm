@@ -17,16 +17,10 @@
                                 "meals_management.reservation.reservations"
                             ]
                         ]
-                    }
-                ],
-                [
+                    },
                     {
-                        "text": "📒    Menù del giorno",
+                        "text": "📒    Menù",
                         "id": "menu",
-                        "whitelist": [
-                            "master",
-                            "tester"
-                        ],
                         "actions": [
                             [
                                 "REQ",
@@ -40,6 +34,18 @@
                                 "meals_management.todays_menu.show",
                                 "todays_menu.exists",
                                 "meals_management.todays_menu.not_found"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "📩    Invia Segnalazione",
+                        "id": "report",
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_management.report.report"
                             ]
                         ]
                     }

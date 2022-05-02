@@ -130,12 +130,8 @@ class PhotoAns(BaseComponent):
     def act(self, photo, data, **kwargs):
         data.update({"date": utl.get_str_from_time(date=True)})
         path = photo.get_file().download(utl.get_unused_filepath(os.path.join(DATA_DIR, *format_data(self.photo_filepath, data))))
-        print(path)
         if self.photos_paths_data_key is not None:
-            try:
-                data[format_data(self.photos_paths_data_key, data)].append(path)
-            except AttributeError:
-                data[format_data(self.photos_paths_data_key, data)] = [path, ]
+            data[format_data(self.photos_paths_data_key, data)] += (path,)
         super(PhotoAns, self).act(photo=photo, data=data, **kwargs)
 
 

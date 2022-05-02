@@ -1,0 +1,19 @@
+{
+    "code": "meals_management.report.thank_you",
+    "components": {
+        "TEXT": {
+            "text": "Grazie per la segnalazione! 😄",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

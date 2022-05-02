@@ -28,24 +28,36 @@ TIMELIMIT = dt.timedelta(hours=7, minutes=0)
 BUTTON_RESERVATION_INDICATOR = {True: "🟢", False: "🔴", None: "❔"}
 RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
 
-# Emails
-EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
-                  "receivers": ("portineria@ghislieri.it", "alesosso@gmail.com"),
-                  "subject": "Prenotazione pasti {date_str}"}
-EMAIL_SENDING_TIME = "07:00:00"
-
-# Notification
-NOTIFICATION_SENDING_TIME = "19:00:00"
-NOTIFICATION_DAYS_BEFORE = dt.timedelta(days=1)
-NOTIFICATION_DATA = {"groups": ('student',), "n_type": "meals", "msg_code": "meals_management.reservation.reminder", "notify": True, "enabled_time": {"hours": 12}}
-
 # Menu
 MENU_MAILBOX = "Meals/menu"
 MENU_PNG_DPI = 150
 MENU_PDF_FILENAME_REGEX = r"\D+(\d+)-(\d+)\D+"
 MENU_FILENAME = "Menu_{date}.png"
 
+# ----- RESERVATIONS
+
+# Emails
+RESERV_EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
+                         "groups": ("master",),
+                         "receivers": ("portineria@ghislieri.it",),
+                         "subject": "Prenotazione pasti {date_str}"}
+RESERV_EMAIL_SENDING_TIME = "07:00:00"
+
+# Notification
+RESERV_NOTIFICATION_SENDING_TIME = "19:00:00"
+RESERV_NOTIFICATION_DAYS_BEFORE = dt.timedelta(days=1)
+RESERV_NOTIFICATION_DATA = {"groups": ('student',), "n_type": "meals", "msg_code": "meals_management.reservation.reminder", "notify": True, "enabled_time": {"hours": 12}}
+
+# ----- REPORTS
+
+REPORT_NOTIFICATION_DATA = {"groups": ('master', 'representative'), "n_type": "meal_report", "msg_code": "notifications.admin.new_meal_report", "notify": True}
+REPORT_EMAIL_METADATA = {"sender": "Servizio Segnalazioni Mensa",
+                         "groups": ("master", "representative"),
+                         "subject": "Segnalazione Mensa di {user[name]} {user[surname]}",
+                         "text": "Nuova segnalazione mensa di {user[name]} {user[surname]} in data {date}\n\n{report}\n\nn° {n_photos} foto allegate"}
+
 if DEBUG:
-    EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
-                      "receivers": ("gesu.barabba.official@gmail.com", "alesosso@gmail.com"),
-                      "subject": "Prenotazione pasti {date_str}"}
+    RESERV_EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
+                             "groups": ("master",),
+                             "receivers": ("gesu.barabba.official@gmail.com",),
+                             "subject": "TEST Prenotazione pasti {date_str}"}

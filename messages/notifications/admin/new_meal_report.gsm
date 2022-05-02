@@ -1,0 +1,23 @@
+{
+    "code": "notifications.admin.new_meal_report",
+    "whitelist": [
+        "master",
+        "representative"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "‼️    <b>Nuova Segnalazione Mensa</b>\n\n<code>Data     </code>{report[date]}\n<code>Studente </code>{report[user][name]} {report[user][surname]}\n\n<code>Report   </code><b>{report[report]}</b>\n\n<code>N° Foto  </code><i>{report[n_photos]}</i>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

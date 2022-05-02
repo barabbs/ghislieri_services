@@ -20,8 +20,8 @@ class MealsManagement(BaseService):
         self.last_update = (dt.datetime.now() - var.TIMELIMIT).replace(hour=0, minute=0, second=0, microsecond=0)
 
     def _load_tasks(self):
-        self.scheduler.every().day.at(var.EMAIL_SENDING_TIME).do(self._task_send_res_recap)
-        self.scheduler.every().day.at(var.NOTIFICATION_SENDING_TIME).do(self._task_send_notification)
+        self.scheduler.every().day.at(var.RESERV_EMAIL_SENDING_TIME).do(self._task_send_res_recap)
+        self.scheduler.every().day.at(var.RESERV_NOTIFICATION_SENDING_TIME).do(self._task_send_notification)
         self.scheduler.every().hour.at("00:00").do(self._task_update_download_attachments)
         super(MealsManagement, self)._load_tasks()
 
@@ -41,12 +41,12 @@ class MealsManagement(BaseService):
 
     def _send_res_recap(self, res):
         filepath = self._create_res_recap(res) + ".pdf"
-        metadata = var.EMAIL_METADATA.copy()
+        metadata = var.RESERV_EMAIL_METADATA.copy()
         metadata["subject"] = metadata["subject"].format(date_str=get_date_str(res.date, False))
         self.send_request(Request('email_service', 'send_email', **metadata, text="", attachments=(filepath,)))
 
     def _notify_reservation(self, res):
-        notif_data = var.NOTIFICATION_DATA.copy()
+        notif_data = var.RESERV_NOTIFICATION_DATA.copy()
         notif_data["data"] = {"reservation_day_notif": get_date_str(res.date, False)}
         self.send_request(Request('ghislieri_bot', 'add_notification', **notif_data))
 
@@ -87,6 +87,16 @@ class MealsManagement(BaseService):
         filename = os.path.join(var.MENUS_DIR, var.MENU_FILENAME.format(date=utl.get_str_from_time(today, date=True)))
         return {"exists": os.path.exists(filename), "date_str": get_date_str(today, False), "filepath": filename}
 
+    def _request_new_report(self, user_id, student_infos, report, photos):
+        date, n_photos = utl.get_str_from_time(date=True), len(photos)
+        metadata = var.REPORT_EMAIL_METADATA.copy()
+        metadata["subject"] = metadata["subject"].format(user=student_infos)
+        metadata["text"] = metadata["text"].format(user=student_infos, date=date, report=report, n_photos=n_photos)
+        self.send_request(Request('email_service', 'send_email', **metadata, attachments=photos))
+        notif_data = var.REPORT_NOTIFICATION_DATA.copy()
+        notif_data["data"] = {"report": {"date": date, "user": student_infos, "report": report, "n_photos": n_photos}}
+        self.send_request(Request('ghislieri_bot', 'add_notification', **notif_data))
+
     # Tasks
 
     def _task_send_res_recap(self):
@@ -100,8 +110,8 @@ class MealsManagement(BaseService):
 
     def _task_send_notification(self):
         try:
-            self._notify_reservation(self._get_reservation(var.NOTIFICATION_DAYS_BEFORE))
-            log.info(f"Notification for today+{var.NOTIFICATION_DAYS_BEFORE} sent")
+            self._notify_reservation(self._get_reservation(var.RESERV_NOTIFICATION_DAYS_BEFORE))
+            log.info(f"Notification for today+{var.RESERV_NOTIFICATION_DAYS_BEFORE} sent")
         except StopIteration:
             pass
 

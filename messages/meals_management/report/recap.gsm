@@ -1,0 +1,53 @@
+{
+    "code": "meals_management.report.recap",
+    "components": {
+        "TEXT": {
+            "text": "{meal_report[report]}\n\n\n✉️  Inviare la segnalazione?",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "✔️",
+                        "id": "yes",
+                        "actions": [
+                            [
+                                "REQ",
+                                "meals_management",
+                                "new_report",
+                                {
+                                    "user_id": "$user_id",
+                                    "student_infos": "$infos",
+                                    "report": "$meal_report.report",
+                                    "photos": "$meal_report.photos"
+                                }
+                            ],
+                            [
+                                "NEW",
+                                "meals_management.report.thank_you"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "❌",
+                        "id": "no",
+                        "actions": [
+                            [
+                                "BACK",
+                                4
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

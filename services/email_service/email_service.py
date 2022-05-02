@@ -1,4 +1,5 @@
 from modules.base_service import BaseService
+from modules.service_pipe import Request
 from . import var
 from modules import utility as utl
 import smtplib, imaplib, email
@@ -16,6 +17,21 @@ def get_email_credentials():
         return cred_file.readline().split(",")
 
 
+def _create_message(sender, receivers, subject, text, attachments=None):
+    message = MIMEMultipart()
+    message["From"] = sender
+    message["To"] = ",".join(receivers)
+    message["Subject"] = subject
+    message.attach(MIMEText(text, "plain"))
+    if attachments is not None:
+        for filepath in attachments:
+            with open(filepath, "rb") as attachment:
+                p = MIMEApplication(attachment.read(), _subtype=filepath.split('.')[-1])
+                p.add_header('Content-Disposition', "attachment; filename={name}".format(name=filepath.split('/')[-1]))
+                message.attach(p)
+    return message
+
+
 class EmailService(BaseService):
     SERVICE_NAME = var.SERVICE_NAME
 
@@ -23,7 +39,8 @@ class EmailService(BaseService):
         super(EmailService, self).__init__(*args, **kwargs)
         self.credentials = get_email_credentials()
 
-    def _send_email(self, sender, receivers, message):
+    def _send_email(self, sender, receivers, **kwargs):
+        message = _create_message(sender, receivers, **kwargs)
         try:
             smtp_server = smtplib.SMTP_SSL(host=var.SMTP_HOST)
             smtp_server.login(*self.credentials)
@@ -35,20 +52,12 @@ class EmailService(BaseService):
         finally:
             smtp_server.quit()
 
-    def _request_send_email(self, sender, receivers, subject, text, attachments=None):
-        message = MIMEMultipart()
-        message["From"] = sender
-        message["To"] = ",".join(receivers)
-        message["Subject"] = subject
-        message.attach(MIMEText(text, "plain"))
-        if attachments is not None:
-            for filepath in attachments:
-                with open(filepath, "rb") as attachment:
-                    p = MIMEApplication(attachment.read(), _subtype=filepath.split('.')[-1])
-                    p.add_header('Content-Disposition', "attachment; filename={name}".format(name=filepath.split('/')[-1]))
-                    message.attach(p)
+    # Requests
 
-        self._send_email(sender, receivers, message)
+    def _request_send_email(self, sender, receivers=None, groups=None, **kwargs):
+        if groups is not None:
+            receivers = sum((list(filter(lambda x: x is not None, (c['student_infos']['email'] for c in self.send_request(Request("student_databaser", "get_chats", group=g))))) for g in groups), start=list() if receivers is None else list(receivers))
+        self._send_email(sender, receivers, **kwargs)
 
     def _request_download_attachments(self, mailbox="INBOX"):
         files = list()
