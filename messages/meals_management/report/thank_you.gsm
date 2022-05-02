@@ -1,11 +1,9 @@
 {
-    "code": "meals_management.todays_menu.show",
+    "code": "meals_management.report.thank_you",
     "components": {
-        "PHOTO": {
-            "filepath": "$todays_menu.filepath"
-        },
-        "TEXT":{
-            "text": "📒    Menù di <b>{todays_menu[date_str]}</b>"
+        "TEXT": {
+            "text": "Grazie per la segnalazione! 😄",
+            "actions": []
         },
         "KEYBOARD": {
             "navigation": [

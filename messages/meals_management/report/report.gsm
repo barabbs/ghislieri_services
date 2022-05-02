@@ -1,0 +1,26 @@
+{
+    "code": "meals_management.report.report",
+    "components": {
+        "TEXT": {
+            "text": "Scrivi la <b>segnalazione</b>"
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "ANSWER": {
+            "ans_data_key": "meal_report.report",
+            "actions": [
+                [
+                    "NEW",
+                    "meals_management.report.photo"
+                ]
+            ]
+        }
+    }
+}

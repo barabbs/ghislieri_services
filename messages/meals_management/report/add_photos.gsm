@@ -1,0 +1,43 @@
+{
+    "code": "meals_management.report.add_photos",
+    "components": {
+        "TEXT": {
+            "text": "📸    Invia altre <b>immagini</b> della segnalazione\n\n<i>Premi <u>Termina</u> quando finito</i>."
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "Termina",
+                        "id": "finish",
+                        "actions": [
+                            [
+                                "NEW",
+                                "meals_management.report.recap"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🗑    Elimina le foto",
+                        "id": "delete",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        },
+        "PHOTO_ANS": {
+            "photo_filepath": [
+                "meals_management",
+                "reports",
+                "Meal_Report_{user_id}_{date}.jpg"
+            ],
+            "photos_paths_data_key": "meal_report.photos"
+        }
+    }
+}

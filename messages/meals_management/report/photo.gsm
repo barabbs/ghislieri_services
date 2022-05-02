@@ -1,0 +1,38 @@
+{
+    "code": "meals_management.report.photo",
+    "components": {
+        "TEXT": {
+            "text": "📸    Invia un'<b>immagine</b> della segnalazione",
+            "actions": [
+                [
+                    "SAVE",
+                    "meal_report.photos",
+                    []
+                ]
+            ]
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "PHOTO_ANS": {
+            "photo_filepath": [
+                "meals_management",
+                "reports",
+                "Meal_Report_{user_id}_{date}.jpg"
+            ],
+            "photos_paths_data_key": "meal_report.photos",
+            "actions": [
+                [
+                    "NEW",
+                    "meals_management.report.add_photos"
+                ]
+            ]
+        }
+    }
+}

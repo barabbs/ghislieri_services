@@ -9,7 +9,7 @@
             "buttons": [
                 [
                     {
-                        "text": "📩    Nuova Segnalazione",
+                        "text": "📩    Invia Segnalazione",
                         "id": "new_report",
                         "actions": [
                             [
