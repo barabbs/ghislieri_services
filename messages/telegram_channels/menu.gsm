@@ -2,7 +2,7 @@
     "code": "telegram_channels.menu",
     "components": {
         "TEXT": {
-            "text": "📣    <b>Canali Telegram del Collegio</b>",
+            "text": "📯    <b>Canali Telegram del Collegio</b>",
             "actions": []
         },
         "KEYBOARD": {

@@ -5,7 +5,7 @@
     ],
     "components": {
         "TEXT": {
-            "text": "‼️    <b>Nuova Segnalazione Eduroam</b>\n\n<code>Time    </code>{report[time]}\n<code>Student </code>{report[user][name]} {report[user][surname]}\n\n<code>Report  </code><b>{report[report]}</b>\n<code>Place   </code><b>{report[place]}</b>\n<code>Note    </code><b>{report[note]}</b>",
+            "text": "📶    <b>Nuova Segnalazione Eduroam</b>\n\n<code>Time    </code>{report[time]}\n<code>Student </code>{report[user][name]} {report[user][surname]}\n\n<code>Report  </code><b>{report[report]}</b>\n<code>Place   </code><b>{report[place]}</b>\n<code>Note    </code><b>{report[note]}</b>",
             "actions": []
         },
         "KEYBOARD": {

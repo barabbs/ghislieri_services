@@ -1,0 +1,23 @@
+{
+    "code": "notifications.admin.new_social_submission",
+    "whitelist": [
+        "master",
+        "social_rep"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "📣    <b>Nuove Foto per Socials</b>\n\n<code>Data     </code>{submission[date]}\n<code>Studente </code>{submission[user][name]} {submission[user][surname]}\n\n<code>Descriz. </code><b>{submission[description]}</b>\n\n<code>N° Foto  </code><i>{submission[n_photos]}</i>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

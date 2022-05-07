@@ -1,0 +1,19 @@
+{
+    "code": "content_submitter.socials.thank_you",
+    "components": {
+        "TEXT": {
+            "text": "Grazie per il materiale! 😄",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

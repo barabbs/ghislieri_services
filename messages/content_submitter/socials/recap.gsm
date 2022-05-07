@@ -1,8 +1,8 @@
 {
-    "code": "eduroam_reporter.new_report.recap",
+    "code": "content_submitter.socials.recap",
     "components": {
         "TEXT": {
-            "text": "{eduroam_report[report]}\n\n<code>Luogo </code>{eduroam_report[place]}\n<code>Note  </code>{eduroam_report[note]}\n\n\n✉️  Inviare la segnalazione?",
+            "text": "{social_submission[description]}\n\n\n✉️  Inviare le foto?",
             "actions": []
         },
         "KEYBOARD": {
@@ -14,19 +14,18 @@
                         "actions": [
                             [
                                 "REQ",
-                                "eduroam_reporter",
-                                "new_report",
+                                "content_submitter",
+                                "new_socials_submission",
                                 {
                                     "user_id": "$user_id",
                                     "student_infos": "$infos",
-                                    "report": "$eduroam_report.report",
-                                    "place": "$eduroam_report.place",
-                                    "note": "$eduroam_report.note"
+                                    "description": "$social_submission.description",
+                                    "photos": "$social_submission.photos"
                                 }
                             ],
                             [
                                 "NEW",
-                                "eduroam_reporter.new_report.thank_you"
+                                "content_submitter.socials.thank_you"
                             ]
                         ]
                     },

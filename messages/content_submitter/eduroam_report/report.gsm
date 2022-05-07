@@ -1,13 +1,13 @@
 {
-    "code": "eduroam_reporter.new_report.report",
+    "code": "content_submitter.eduroam_report.report",
     "components": {
         "TEXT": {
             "text": "Seleziona una <b>segnalazione</b> o <u>inviane una nuova</u>",
             "actions": [
                 [
                     "REQ",
-                    "eduroam_reporter",
-                    "get_default_reports",
+                    "content_submitter",
+                    "get_default_eduroam_reports",
                     {},
                     "default_eduroam_reports"
                 ]
@@ -21,7 +21,7 @@
                 "actions": [
                     [
                         "NEW",
-                        "eduroam_reporter.new_report.place"
+                        "content_submitter.eduroam_report.place"
                     ]
                 ]
             },
@@ -39,7 +39,7 @@
             "actions": [
                 [
                     "NEW",
-                    "eduroam_reporter.new_report.place"
+                    "content_submitter.eduroam_report.place"
                 ]
             ]
         }

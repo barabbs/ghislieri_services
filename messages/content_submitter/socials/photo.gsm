@@ -1,0 +1,38 @@
+{
+    "code": "content_submitter.socials.photo",
+    "components": {
+        "TEXT": {
+            "text": "📸    Invia la <b>foto</b>",
+            "actions": [
+                [
+                    "SAVE",
+                    "social_submission.photos",
+                    []
+                ]
+            ]
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "PHOTO_ANS": {
+            "photo_filepath": [
+                "content_submitter",
+                "socials_submissions",
+                "Social_Submission_{user_id}_{date}.jpg"
+            ],
+            "photos_paths_data_key": "social_submission.photos",
+            "actions": [
+                [
+                    "NEW",
+                    "content_submitter.socials.add_photos"
+                ]
+            ]
+        }
+    }
+}

@@ -1,5 +1,5 @@
 {
-    "code": "eduroam_reporter.new_report.place",
+    "code": "content_submitter.eduroam_report.place",
     "components": {
         "TEXT": {
             "text": "In che stanza o zona del Collegio?",
@@ -20,7 +20,7 @@
             "actions": [
                 [
                     "NEW",
-                    "eduroam_reporter.new_report.notes"
+                    "content_submitter.eduroam_report.notes"
                 ]
             ]
         }
