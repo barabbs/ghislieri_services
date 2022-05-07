@@ -1,5 +1,5 @@
 {
-    "code": "eduroam_reporter.new_report.notes",
+    "code": "content_submitter.eduroam_report.notes",
     "components": {
         "TEXT": {
             "text": "Note eventuali",
@@ -19,7 +19,7 @@
                             ],
                             [
                                 "NEW",
-                                "eduroam_reporter.new_report.recap"
+                                "content_submitter.eduroam_report.recap"
                             ]
                         ]
                     }
@@ -38,7 +38,7 @@
             "actions": [
                 [
                     "NEW",
-                    "eduroam_reporter.new_report.recap"
+                    "content_submitter.eduroam_report.recap"
                 ]
             ]
         }

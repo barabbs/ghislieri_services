@@ -65,13 +65,6 @@ class MealsManagement(BaseService):
             dates.append({"filename": f, "date_str": get_date_str(d)})
         return dates
 
-    def _request_get_all_res_dates(self):
-        dates = list()
-        for f in sorted(os.listdir(var.RESERVATIONS_DIR)):
-            d = dt.datetime.strptime(f, f"Reservations_{var.DATE_FORMAT}{var.RESERVATIONS_EXT}")
-            dates.append({"filename": f, "date_str": get_date_str(d)})
-        return dates
-
     def _request_create_recap(self, date_dict):
         res = Reservation()
         res.load_from_file(date_dict["filename"])

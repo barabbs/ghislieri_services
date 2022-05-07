@@ -1,0 +1,44 @@
+{
+    "code": "content_submitter.menu",
+    "components": {
+        "TEXT": {
+            "text": "📩    <b>Invia segnalazioni e materiali</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "📣    Foto per Socials",
+                        "id": "socials_submission",
+                        "actions": [
+                            [
+                                "NEW",
+                                "content_submitter.socials.photo"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "📶    Segnalazione Eduroam",
+                        "id": "eduroam_report",
+                        "actions": [
+                            [
+                                "NEW",
+                                "content_submitter.eduroam_report.report"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

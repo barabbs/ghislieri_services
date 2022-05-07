@@ -24,19 +24,19 @@
                 ],
                 [
                     {
-                        "text": "‼️    Segnalazioni Eduroam",
-                        "id": "eduroam_reporter",
+                        "text": "📩    Invia contenuti",
+                        "id": "content_submitter",
                         "actions": [
                             [
                                 "NEW",
-                                "eduroam_reporter.menu"
+                                "content_submitter.menu"
                             ]
                         ]
                     }
                 ],
                 [
                     {
-                        "text": "📣    Canali Telegram",
+                        "text": "📯    Canali Telegram",
                         "id": "telegram_channels",
                         "actions": [
                             [

@@ -3,8 +3,8 @@ import sys, os, datetime
 DEBUG = "-d" in sys.argv
 
 # Version
-VERSION = "0.3.0"
-CHANGELOG_VERSION = "0.3"
+VERSION = "0.3.1"
+CHANGELOG_VERSION = "0.3.1"
 
 # Directories
 DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services")
@@ -23,7 +23,7 @@ CHANGELOGS_FILENAME = f"changelog_{CHANGELOG_VERSION}.gscl"
 STATISTICS_EXT = ".gsst"
 
 # Requests
-MAX_LOGS_PER_PAGE = 24
+MAX_LOGS_PER_PAGE = 16
 
 # Services
 SERVICE_UPDATE_INTERVAL = 0.0625

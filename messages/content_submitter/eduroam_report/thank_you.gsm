@@ -1,5 +1,5 @@
 {
-    "code": "eduroam_reporter.new_report.thank_you",
+    "code": "content_submitter.eduroam_report.thank_you",
     "components": {
         "TEXT": {
             "text": "Grazie per la segnalazione! 😄",

@@ -1,0 +1,26 @@
+{
+    "code": "content_submitter.socials.description",
+    "components": {
+        "TEXT": {
+            "text": "<u>Invia</u> una <b>descrizione</b> delle foto"
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "ANSWER": {
+            "ans_data_key": "social_submission.description",
+            "actions": [
+                [
+                    "NEW",
+                    "content_submitter.socials.recap"
+                ]
+            ]
+        }
+    }
+}

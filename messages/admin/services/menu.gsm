@@ -76,13 +76,13 @@
                 ],
                 [
                     {
-                        "text": "eduroam_reporter",
-                        "id": "eduroam_reporter",
+                        "text": "content_submitter",
+                        "id": "content_submitter",
                         "actions": [
                             [
                                 "SAVE",
                                 "serv_name",
-                                "eduroam_reporter"
+                                "content_submitter"
                             ],
                             [
                                 "NEW",

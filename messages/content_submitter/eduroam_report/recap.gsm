@@ -1,0 +1,54 @@
+{
+    "code": "content_submitter.eduroam_report.recap",
+    "components": {
+        "TEXT": {
+            "text": "{eduroam_report[report]}\n\n<code>Luogo </code>{eduroam_report[place]}\n<code>Note  </code>{eduroam_report[note]}\n\n\n✉️  Inviare la segnalazione?",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "✔️",
+                        "id": "yes",
+                        "actions": [
+                            [
+                                "REQ",
+                                "content_submitter",
+                                "new_eduroam_report",
+                                {
+                                    "user_id": "$user_id",
+                                    "student_infos": "$infos",
+                                    "report": "$eduroam_report.report",
+                                    "place": "$eduroam_report.place",
+                                    "note": "$eduroam_report.note"
+                                }
+                            ],
+                            [
+                                "NEW",
+                                "content_submitter.eduroam_report.thank_you"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "❌",
+                        "id": "no",
+                        "actions": [
+                            [
+                                "BACK",
+                                4
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}
