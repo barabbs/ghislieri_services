@@ -1,0 +1,29 @@
+{
+    "code": "notifications.supersega_season",
+    "components": {
+        "TEXT": {
+            "text": "⚽⚽⚽    <b>SuperSega</b>    ⚽⚽⚽\n\n🎊    Inizia una <b>nuova stagione</b>!!!    🎊\n\nPer <u>tutti gli aggiornamenti</u> segui il canale <i>SuperSega Live</i>!",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "⚽️    SuperSega Live",
+                        "id": "supersega",
+                        "url": "https://t.me/+5f5d1aHWstBjMjY0",
+                        "actions": []
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

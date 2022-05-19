@@ -24,7 +24,19 @@
                 ],
                 [
                     {
-                        "text": "📩    Invia contenuti",
+                        "text": "📆    Prenota Servizi",
+                        "id": "services_reservation",
+                        "actions": [
+                            [
+                                "NEW",
+                                "services_reservation.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "📩    Invia Contenuti",
                         "id": "content_submitter",
                         "actions": [
                             [
