@@ -1,0 +1,28 @@
+{
+    "code": "services_reservation.menu",
+    "components": {
+        "TEXT": {
+            "text": "📆    <b>Prenota Servizi</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "⚽️    Campetto    🎾",
+                        "id": "stadium",
+                        "url": "https://docs.google.com/spreadsheets/d/1RYa6c-XFP4OnfNmixJt9J0aVFMm2-F3debBzjVxFPHU/edit?usp=sharing",
+                        "actions": []
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

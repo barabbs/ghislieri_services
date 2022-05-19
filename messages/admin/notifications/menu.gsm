@@ -46,7 +46,9 @@
                                 "BACK"
                             ]
                         ]
-                    },
+                    }
+                ],
+                [
                     {
                         "text": "📣    New channel message",
                         "id": "new_channel_message",
@@ -54,6 +56,32 @@
                             [
                                 "NEW",
                                 "admin.notifications.channel_select"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "⚽️    New SuperSega",
+                        "id": "supersega_season",
+                        "actions": [
+                            [
+                                "REQ",
+                                "ghislieri_bot",
+                                "add_notification",
+                                {
+                                    "groups": [
+                                        "student"
+                                    ],
+                                    "n_type": "supersega",
+                                    "msg_code": "notifications.supersega_season",
+                                    "notify": true,
+                                    "enabled_time": {
+                                        "days": 1,
+                                        "hours": 12
+                                    }
+                                }
+                            ],
+                            [
+                                "BACK"
                             ]
                         ]
                     }
