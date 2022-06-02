@@ -2,7 +2,7 @@
     "code": "telegram_channels.menu",
     "components": {
         "TEXT": {
-            "text": "📯    <b>Canali Telegram del Collegio</b>",
+            "text": "📯    <b>Canali</b> e <b>Gruppi</b> Telegram del <b>Collegio</b>",
             "actions": []
         },
         "KEYBOARD": {
@@ -25,30 +25,26 @@
                 ],
                 [
                     {
-                        "text": "🧬    Ghislieri Scienza",
-                        "id": "gs",
-                        "url": "https://t.me/+HPp6RHiNbsYxZTE0",
-                        "actions": []
-                    },
-                    {
-                        "text": "🏛    Philosophicum Ghislieri",
-                        "id": "phg",
-                        "url": "https://t.me/+yK29NfmXbdwyMGI0",
-                        "actions": []
+                        "text": "🏛    Associazioni Studentesche    🧬",
+                        "id": "associations",
+                        "actions": [
+                            [
+                                "NEW",
+                                "telegram_channels.student_associations"
+                            ]
+                        ]
                     }
                 ],
                 [
                     {
-                        "text": "🎻    Bardi Ghisleriani",
-                        "id": "bardi",
-                        "url": "https://t.me/+lic4qD4Za5hjZjVk",
-                        "actions": []
-                    },
-                    {
-                        "text": "⚽️    SuperSega",
-                        "id": "supersega",
-                        "url": "https://t.me/+5f5d1aHWstBjMjY0",
-                        "actions": []
+                        "text": "⚽    Attività Sportive    🏀",
+                        "id": "sports",
+                        "actions": [
+                            [
+                                "NEW",
+                                "telegram_channels.sports"
+                            ]
+                        ]
                     }
                 ]
             ],
