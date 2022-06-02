@@ -13,7 +13,7 @@ EDUROAM_REPORTS_DIR = os.path.join(DATA_DIR, 'eduroam_reports')
 DEFAULT_EDUROAM_REPORTS_FILE = os.path.join(DATA_DIR, 'default_eduroam_reports.erdr')
 
 # Notifications
-EDUROAM_REPORT_NOTIFICATION_DATA = {"groups": ('master',), "n_type": "content_submitter", "msg_code": "notifications.admin.new_eduroam_submission", "notify": True, "end_time": False}
+EDUROAM_REPORT_NOTIFICATION_DATA = {"groups": ('master',), "n_type": "content_submitter", "msg_code": "notifications.admin.new_eduroam_report", "notify": True, "end_time": False}
 
 
 SOCIAL_SUBMISSION_NOTIFICATION_DATA = {"groups": ('master', 'socials_rep'), "n_type": "social_submission", "msg_code": "notifications.admin.new_social_submission", "notify": True}
