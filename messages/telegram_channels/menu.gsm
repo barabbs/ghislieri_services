@@ -2,14 +2,14 @@
     "code": "telegram_channels.menu",
     "components": {
         "TEXT": {
-            "text": "📯    <b>Canali Telegram del Collegio</b>",
+            "text": "📯    <b>Canali</b> e <b>Gruppi</b> Telegram del <b>Collegio</b>",
             "actions": []
         },
         "KEYBOARD": {
             "buttons": [
                 [
                     {
-                        "text": "🟥🟨  Collegio Ghislieri - Alunni  🟨🟥",
+                        "text": "🟥🟨  Canale Alunni  🟨🟥",
                         "id": "college",
                         "url": "https://t.me/+iikDkY01v8IzZTU0",
                         "actions": []
@@ -17,38 +17,70 @@
                 ],
                 [
                     {
-                        "text": "📑    Comunicazioni Rettorato",
+                        "text": "📑    Rettorato",
                         "id": "rettorato",
                         "url": "https://t.me/+o8cd9I-LD80xODZk",
                         "actions": []
+                    },
+                    {
+                        "text": "👥    CTS",
+                        "id": "cts_sci_tech",
+                        "whitelist": [
+                            "sci_tech"
+                        ],
+                        "url": "https://t.me/+aEzuMNgySDlhNjk8",
+                        "actions": []
+                    },
+                    {
+                        "text": "👥    CTS",
+                        "id": "cts_biomed",
+                        "whitelist": [
+                            "biomed"
+                        ],
+                        "url": "https://t.me/+d_NmzD2DdIw2MTU0",
+                        "actions": []
+                    },
+                    {
+                        "text": "👥    CTS",
+                        "id": "cts_social_sci",
+                        "whitelist": [
+                            "social_sci"
+                        ],
+                        "url": "https://t.me/+HRcLbDbnzqo0ZjVk",
+                        "actions": []
+                    },
+                    {
+                        "text": "👥    CTS",
+                        "id": "cts_human_sci",
+                        "whitelist": [
+                            "human_sci"
+                        ],
+                        "url": "https://t.me/+6E9rpbpdEv0xYmQ0",
+                        "actions": []
                     }
                 ],
                 [
                     {
-                        "text": "🧬    Ghislieri Scienza",
-                        "id": "gs",
-                        "url": "https://t.me/+HPp6RHiNbsYxZTE0",
-                        "actions": []
-                    },
-                    {
-                        "text": "🏛    Philosophicum Ghislieri",
-                        "id": "phg",
-                        "url": "https://t.me/+yK29NfmXbdwyMGI0",
-                        "actions": []
+                        "text": "🏛    Associazioni Studentesche    🧬",
+                        "id": "associations",
+                        "actions": [
+                            [
+                                "NEW",
+                                "telegram_channels.student_associations"
+                            ]
+                        ]
                     }
                 ],
                 [
                     {
-                        "text": "🎻    Bardi Ghisleriani",
-                        "id": "bardi",
-                        "url": "https://t.me/+lic4qD4Za5hjZjVk",
-                        "actions": []
-                    },
-                    {
-                        "text": "⚽️    SuperSega",
-                        "id": "supersega",
-                        "url": "https://t.me/+5f5d1aHWstBjMjY0",
-                        "actions": []
+                        "text": "⚽    Attività Sportive    🏀",
+                        "id": "sports",
+                        "actions": [
+                            [
+                                "NEW",
+                                "telegram_channels.sports"
+                            ]
+                        ]
                     }
                 ]
             ],

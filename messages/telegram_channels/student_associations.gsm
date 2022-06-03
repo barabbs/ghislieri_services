@@ -1,0 +1,44 @@
+{
+    "code": "telegram_channels.student_associations",
+    "components": {
+        "TEXT": {
+            "text": "📯    <b>Canali</b> delle <b>Associazioni Studentesche</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "🧬    Ghislieri Scienza",
+                        "id": "gs",
+                        "url": "https://t.me/+HPp6RHiNbsYxZTE0",
+                        "actions": []
+                    }
+                ],
+                [
+                    {
+                        "text": "🏛    Philosophicum Ghislieri",
+                        "id": "phg",
+                        "url": "https://t.me/+yK29NfmXbdwyMGI0",
+                        "actions": []
+                    }
+                ],
+                [
+                    {
+                        "text": "🎻    Bardi Ghisleriani",
+                        "id": "bardi",
+                        "url": "https://t.me/+lic4qD4Za5hjZjVk",
+                        "actions": []
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}
