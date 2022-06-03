@@ -50,7 +50,10 @@ class EmailService(BaseService):
             log.error(f"Exception while sending email: {err}")
             utl.log_error(err)
         finally:
-            smtp_server.quit()
+            try:
+                smtp_server.quit()
+            except UnboundLocalError:
+                pass
 
     # Requests
 
@@ -85,8 +88,11 @@ class EmailService(BaseService):
             log.error(f"Exception while sending email: {err}")
             utl.log_error(err)
         finally:
-            imap_server.close()
-            imap_server.logout()
+            try:
+                imap_server.close()
+                imap_server.logout()
+            except UnboundLocalError:
+                pass
         return files
 
 

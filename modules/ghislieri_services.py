@@ -29,6 +29,11 @@ class GhislieriServices(BaseService):
         self.service_modules[service] = importlib.import_module(f"services.{service}.{service}")
         self.services[service] = self.service_modules[service].SERVICE_CLASS(self.services_pipes, self.stop_event)
 
+
+    def _load_tasks(self):
+        self.scheduler.every(5).minutes.at(":00").do(self._task_check_services)
+        super(GhislieriServices, self)._load_tasks()
+
     # Requests
 
     def _request_shutdown(self):
@@ -69,6 +74,15 @@ class GhislieriServices(BaseService):
 
     def _request_test(self, **kwargs):
         print(kwargs)
+
+    # Tasks
+
+    def _task_check_services(self):
+        for s in self.services:
+            if not self.services[s].is_alive():
+                log.error(f"!!! Service {s} is dead, restarting it...")
+                self.services[s] = self.service_modules[s].SERVICE_CLASS(self.services_pipes, self.stop_event)
+                self.services[s].start()
 
     # Runtime
 

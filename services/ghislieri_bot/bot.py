@@ -13,7 +13,9 @@ import logging, os, requests, json, sys
 log = logging.getLogger(__name__)
 
 # Telegram errors
+TIMED_OUT_ERROR = "Timed out"
 CONNECTION_LOST_ERROR = "urllib3 HTTPError HTTPSConnectionPool"
+
 EDIT_MSG_NOT_TEXT = "There is no text in the message to edit"
 EDIT_MSG_NOT_FOUND_ERROR = "Message to edit not found"
 EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
@@ -102,12 +104,16 @@ class Bot(tlg.Bot):
 
     def _error_handler(self, update, context):
         err = context.error
+        if TIMED_OUT_ERROR in getattr(err, "message", ""):
+            log.warning(f"Connection timed out!")
+            wait_for_internet()
+            return
         if CONNECTION_LOST_ERROR in getattr(err, "message", ""):
             log.warning(f"Connection lost!")
             return
         try:
             chat = self.get_chat_from_id(update.effective_user.id)
-        except StopIteration:
+        except (StopIteration, AttributeError):
             chat = None
         else:
             if BOT_BLOCKED_BY_USER in getattr(err, "message", ""):
@@ -261,10 +267,13 @@ class Bot(tlg.Bot):
                 self.delete_message(chat_id=chat.user_id, message_id=m)
             except telegram.error.BadRequest as err:
                 if err.message == DELETE_MSG_NOT_FOUND_ERROR:
-                    log.warning(err.message)
+                    log.warning(f"{chat} - {err.message}")
                 elif err.message == MESSAGE_CANT_BE_DELETED_ERROR:
-                    log.warning(err.message)
-                    self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT, parse_mode=tlg.ParseMode.HTML)
+                    log.warning(f"{chat} - {err.message}")
+                    try:
+                        self.edit_message_text(chat_id=chat.user_id, message_id=m, text=UNDELETABLE_MESSAGE_TEXT, parse_mode=tlg.ParseMode.HTML)
+                    except telegram.error.BadRequest:
+                        pass
                 else:
                     log.error(f"Exception while deleting a message: {err}")
                     utl.log_error(err, chat=chat)
