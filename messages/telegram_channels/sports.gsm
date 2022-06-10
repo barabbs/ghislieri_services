@@ -9,13 +9,13 @@
             "buttons": [
                 [
                     {
-                        "text": "⚽️    Calcio M",
+                        "text": "⚽️    Calcio  (M)",
                         "id": "calcio_m",
                         "url": "https://t.me/+T1pjLkISM7MzOWVk",
                         "actions": []
                     },
                     {
-                        "text": "🏀    Basket M",
+                        "text": "🏀    Basket  (M)",
                         "id": "basket_m",
                         "url": "https://t.me/+6ExwzX_OQkIzZWU8",
                         "actions": []
@@ -23,15 +23,15 @@
                 ],
                 [
                     {
-                        "text": "🎾️    Tennis",
-                        "id": "tennis",
-                        "url": "https://t.me/+pPtgf4w2EGcyMWQ0",
+                        "text": "🏐️    Pallavolo",
+                        "id": "pallavolo",
+                        "url": "https://t.me/+boGtEJbvmWwyOGQ0",
                         "actions": []
                     },
                     {
-                        "text": "🏐️    Pallavolo M",
-                        "id": "pallavolo_m",
-                        "url": "https://t.me/+boGtEJbvmWwyOGQ0",
+                        "text": "🎾️    Tennis",
+                        "id": "tennis",
+                        "url": "https://t.me/+pPtgf4w2EGcyMWQ0",
                         "actions": []
                     }
                 ],
