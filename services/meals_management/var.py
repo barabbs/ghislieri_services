@@ -31,7 +31,6 @@ RECAP_RESERVATION_INDICATOR = {True: "X", False: "", None: ""}
 # Menu
 MENU_MAILBOX = "Meals/menu"
 MENU_PNG_DPI = 150
-MENU_PDF_FILENAME_REGEX = r"\D+(\d+)-(\d+)\D+"
 MENU_FILENAME = "Menu_{date}.png"
 
 # ----- RESERVATIONS

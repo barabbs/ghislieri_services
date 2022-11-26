@@ -55,16 +55,22 @@ def get_time_from_str(t_str=None):
     return dt.datetime.now() if t_str is None else dt.datetime.strptime(t_str, var.DATETIME_FORMAT)
 
 
+WEEKDAYS = ("lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica")
+WEEKDAYS_ABBR = ("lun", "mar", "mer", "gio", "ven", "sab", "dom")
+
 def get_weekday_name(date, abbr=False):
     if abbr:
-        return ("lun", "mar", "mer", "gio", "ven", "sab", "dom")[date.weekday()]
-    return ("lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica")[date.weekday()]
+        return WEEKDAYS_ABBR[date.weekday()]
+    return WEEKDAYS[date.weekday()]
 
+
+MONTHS = ("gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre")
+MONTHS_ABBR = ("gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic")
 
 def get_month_name(date, abbr=False):
     if abbr:
-        return ("gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic")[date.month - 1]
-    return ("gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre")[date.month - 1]
+        return MONTHS_ABBR[date.month - 1]
+    return MONTHS[date.month - 1]
 
 
 def get_text_hist(data, data_key, end_str):
