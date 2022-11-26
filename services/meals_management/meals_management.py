@@ -112,11 +112,20 @@ class MealsManagement(BaseService):
         docx_files = self.send_request(Request('email_service', 'download_attachments', mailbox=var.MENU_MAILBOX))
         pdf_files = list(utl.convert_docx_to_pdf(f, timeout=15) for f in docx_files)
         img_files = ((os.path.basename(f), pdf2image.convert_from_path(f, dpi=var.MENU_PNG_DPI)[0]) for f in pdf_files)
-        for img in img_files:
-            regex = re.search(var.MENU_PDF_FILENAME_REGEX, img[0])
-            date = utl.get_str_from_time(dt.date(year=dt.date.today().year, month=int(regex.group(2)), day=int(regex.group(1))), date=True)
-            img[1].save(os.path.join(var.MENUS_DIR, var.MENU_FILENAME.format(date=date)), "PNG")
-            log.info(f"got new menu for {date}")
+        for name, img in img_files:
+            try:
+                regex = re.search(r"\D+(\d+)(.*)", name)
+                day, month = int(regex.group(1)), regex.group(2)
+                for n, m in enumerate(utl.MONTHS_ABBR):
+                    if m in month:
+                        month = month.replace(month, f" {n + 1} ")
+                        break
+                month = int(re.search(r"\D+(\d+).*", month).group(1))
+                date = utl.get_str_from_time(dt.date(year=dt.date.today().year, month=month, day=day), date=True)
+                img.save(os.path.join(var.MENUS_DIR, var.MENU_FILENAME.format(date=date)), "PNG")
+                log.info(f"got new menu for {date}")
+            except AttributeError:
+                log.error(f"error in menu date recognition for file {name}")
         for fn in docx_files + pdf_files:
             os.remove(fn)
 
