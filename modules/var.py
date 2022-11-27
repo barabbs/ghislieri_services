@@ -10,6 +10,7 @@ CHANGELOG_VERSION = "0.3.3"
 DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services")
 if DEBUG:
     DATA_DIR = os.path.join(os.getcwd(), 'data')
+TMP_DIR = os.path.join('/tmp', "ghislieri_services")
 LOGS_DIR = os.path.join(DATA_DIR, 'logs')
 ERRORS_DIR = os.path.join(DATA_DIR, 'errors')
 CHANGELOGS_DIR = os.path.join(DATA_DIR, 'changelogs')
