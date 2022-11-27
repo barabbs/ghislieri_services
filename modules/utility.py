@@ -4,6 +4,10 @@ import subprocess
 import re, sys
 from . import var
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 def get_unused_filepath(filepath, sep="_"):
     i = 0
@@ -84,6 +88,9 @@ def get_text_hist(data, data_key, end_str):
 
 def convert_docx_to_pdf(source, timeout=None):
     directory, filename = os.path.dirname(source), os.path.basename(source)
-    args = ['abiword', '--to=pdf', filename]
-    subprocess.run(args, stdout=sys.stdout, stderr=sys.stdout, timeout=timeout, cwd=directory, shell=True)
+    my_env = os.environ.copy()
+    my_env["HOME"] = var.TMP_DIR
+    log.info(my_env)
+    args = ['libreoffice', '--headless', '--convert-to', 'pdf', filename]
+    subprocess.run(args, stdout=sys.stdout, stderr=sys.stdout, timeout=timeout, cwd=directory, shell=True, env=my_env)
     return os.path.join(directory, os.path.splitext(filename)[0] + ".pdf")
