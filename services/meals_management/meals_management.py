@@ -22,7 +22,7 @@ class MealsManagement(BaseService):
     def _load_tasks(self):
         self.scheduler.every().day.at(var.RESERV_EMAIL_SENDING_TIME).do(self._task_send_res_recap)
         self.scheduler.every().day.at(var.RESERV_NOTIFICATION_SENDING_TIME).do(self._task_send_notification)
-        self.scheduler.every().hour.at("00:00").do(self._task_update_download_attachments)
+        self.scheduler.every().minute.at(":00").do(self._task_download_menu)
         super(MealsManagement, self)._load_tasks()
 
     def _load_reservations(self):
@@ -108,7 +108,7 @@ class MealsManagement(BaseService):
         except StopIteration:
             pass
 
-    def _task_update_download_attachments(self):
+    def _task_download_menu(self):
         docx_files = self.send_request(Request('email_service', 'download_attachments', mailbox=var.MENU_MAILBOX))
         pdf_files = list(utl.convert_docx_to_pdf(f, timeout=15) for f in docx_files)
         img_files = ((os.path.basename(f), pdf2image.convert_from_path(f, dpi=var.MENU_PNG_DPI)[0]) for f in pdf_files)
