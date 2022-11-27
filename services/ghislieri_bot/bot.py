@@ -21,7 +21,6 @@ EDIT_MSG_NOT_FOUND_ERROR = "Message to edit not found"
 EDIT_MSG_IDENTICAL_ERROR = "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
 DELETE_MSG_NOT_FOUND_ERROR = "Message to delete not found"
 MESSAGE_CANT_BE_DELETED_ERROR = "Message can't be deleted for everyone"
-BOT_BLOCKED_BY_USER = "Forbidden: bot was blocked by the user"
 
 UNDELETABLE_MESSAGE_TEXT = "Puoi <b>eliminare</b> questo <b>messaggio</b>"
 
@@ -115,20 +114,13 @@ class Bot(tlg.Bot):
             chat = self.get_chat_from_id(update.effective_user.id)
         except (StopIteration, AttributeError):
             chat = None
-        else:
-            if BOT_BLOCKED_BY_USER in getattr(err, "message", ""):
-                log.warning(f"Got Unauthorized error for user {chat}, removing...")
-                self._remove_chat(chat)
-            chat.reset_session(var.ERROR_MESSAGE_CODE)
-            chat.data['error'] = err
-            self._dispatch_message(chat)
 
         log.error(f"Exception while handling an update: {err}")
         utl.log_error(err, chat=chat)
 
     def _chat_sync_handler(self, update, context):
         # TODO:  Implement message refreshing every sometime as messages older than two days can't be deleted (PROBLEM: messages can't be sent without push notification, but only without wound)
-        for chat in self.chats:
+        for chat in self.chats.copy():
             update_notify = chat.sync(update.update_id)
             if update_notify is not None:
                 self._dispatch_message(chat, edit=not update_notify)
@@ -238,8 +230,9 @@ class Bot(tlg.Bot):
                 stats["notif"] += 1
         return stats
 
-    def _remove_chat(self, chat):
-        self.delete_message(chat_id=chat.user_id, message_id=chat.last_message_id)
+    def _remove_chat(self, chat, delete=True):
+        if delete:
+            self.delete_message(chat_id=chat.user_id, message_id=chat.last_message_id)
         self.chats.remove(chat)
         log.info(f"Removed student with user_id {chat.user_id}")
 
@@ -252,14 +245,18 @@ class Bot(tlg.Bot):
             log.error(f"User {chat} hasn't got the auth to access msg {err.msg_code}")
             utl.log_error(err, chat=chat, msg_code=err.msg_code)
             message_content = err.msg_content
-        next_msg_to_del = list()
-        photo = self._send_photo(chat, message_content, next_msg_to_del)
-        if edit and not photo:
-            self._edit_message(chat, message_content)
-        else:
-            self._send_message(chat, message_content)
-        self._delete_message(chat)
-        chat.set_msg_to_delete(next_msg_to_del)
+        try:
+            next_msg_to_del = list()
+            photo = self._send_photo(chat, message_content, next_msg_to_del)
+            if edit and not photo:
+                self._edit_message(chat, message_content)
+            else:
+                self._send_message(chat, message_content)
+            self._delete_message(chat)
+            chat.set_msg_to_delete(next_msg_to_del)
+        except telegram.error.Unauthorized as err:
+            log.warning(f"Got Unauthorized error [{getattr(err, 'message', '')}] for user {chat}, removing...")
+            self._remove_chat(chat, delete=False)
 
     def _delete_message(self, chat):
         for m in chat.msg_to_delete:
@@ -290,11 +287,11 @@ class Bot(tlg.Bot):
     def _edit_message(self, chat, message_content):
         try:
             self.edit_message_text(chat_id=chat.user_id, message_id=chat.last_message_id, **message_content)
-        except telegram.error.BadRequest as e:
-            if e.message == EDIT_MSG_NOT_FOUND_ERROR:
-                log.warning(e.message)
-            elif e.message == EDIT_MSG_IDENTICAL_ERROR:
-                log.warning(e.message)
+        except telegram.error.BadRequest as err:
+            if err.message == EDIT_MSG_NOT_FOUND_ERROR:
+                log.warning(f"{chat} - {err.message}")
+            elif err.message == EDIT_MSG_IDENTICAL_ERROR:
+                log.warning(f"{chat} - {err.message}")
             else:
                 raise
 
@@ -312,7 +309,7 @@ class Bot(tlg.Bot):
             self.update_queue.put(ChatSyncUpdate())
 
     def stop(self):
-        for chat in self.chats:
+        for chat in self.chats.copy():
             chat.stop()
             chat.reset_session(var.SHUTDOWN_MESSAGE_CODE)
             self._dispatch_message(chat, edit=True)
