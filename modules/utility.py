@@ -4,6 +4,7 @@ import subprocess
 import re, sys
 from . import var
 
+
 def get_unused_filepath(filepath, sep="_"):
     i = 0
     base, ext = os.path.splitext(filepath)
@@ -58,6 +59,7 @@ def get_time_from_str(t_str=None):
 WEEKDAYS = ("lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica")
 WEEKDAYS_ABBR = ("lun", "mar", "mer", "gio", "ven", "sab", "dom")
 
+
 def get_weekday_name(date, abbr=False):
     if abbr:
         return WEEKDAYS_ABBR[date.weekday()]
@@ -66,6 +68,7 @@ def get_weekday_name(date, abbr=False):
 
 MONTHS = ("gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre")
 MONTHS_ABBR = ("gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic")
+
 
 def get_month_name(date, abbr=False):
     if abbr:
@@ -81,8 +84,8 @@ def get_text_hist(data, data_key, end_str):
 
 def convert_docx_to_pdf(source, timeout=None):
     directory, filename = os.path.dirname(source), os.path.basename(source)
-    args = ['export', f'HOME={var.TMP_DIR}']
-    subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    my_env = os.environ.copy()
+    my_env["HOME"] = var.TMP_DIR
     args = ['soffice', '--headless', '--convert-to', 'pdf', filename]
-    subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=directory, shell=True)
+    subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=directory, shell=True, env=my_env)
     return os.path.join(directory, os.path.splitext(filename)[0] + ".pdf")
