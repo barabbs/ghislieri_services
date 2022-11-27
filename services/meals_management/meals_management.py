@@ -22,7 +22,7 @@ class MealsManagement(BaseService):
     def _load_tasks(self):
         self.scheduler.every().day.at(var.RESERV_EMAIL_SENDING_TIME).do(self._task_send_res_recap)
         self.scheduler.every().day.at(var.RESERV_NOTIFICATION_SENDING_TIME).do(self._task_send_notification)
-        self.scheduler.every().hour.at("00:00").do(self._task_update_download_attachments)
+        self.scheduler.every().minute.at(":00").do(self._task_update_download_attachments)
         super(MealsManagement, self)._load_tasks()
 
     def _load_reservations(self):
