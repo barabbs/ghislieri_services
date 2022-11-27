@@ -39,6 +39,25 @@
                             ]
                         ]
                     }
+                ],
+                [
+                    {
+                        "text": "Download Menu",
+                        "id": "download_menu",
+                        "whitelist": [
+                            "master"
+                        ],
+                        "actions": [
+                            [
+                                "REQ",
+                                "meals_management",
+                                "download_menu"
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
                 ]
             ],
             "navigation": [

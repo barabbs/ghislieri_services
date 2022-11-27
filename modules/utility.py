@@ -81,8 +81,8 @@ def get_text_hist(data, data_key, end_str):
 
 def convert_docx_to_pdf(source, timeout=None):
     directory, filename = os.path.dirname(source), os.path.basename(source)
-    args = ['export', f'HOME={var.TMP_DIR}']
-    subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # args = ['export', f'HOME={var.TMP_DIR}']
+    # subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     args = ['soffice', '--headless', '--convert-to', 'pdf', filename]
-    subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=directory)
+    subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=directory, shell=True)
     return os.path.join(directory, os.path.splitext(filename)[0] + ".pdf")

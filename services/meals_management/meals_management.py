@@ -75,6 +75,9 @@ class MealsManagement(BaseService):
         res.load_from_file(date_dict["filename"])
         self._send_res_recap(res)
 
+    def _request_download_menu(self):
+        self._task_download_menu()
+
     def _request_get_todays_menu(self):
         today = dt.date.today()
         filename = os.path.join(var.MENUS_DIR, var.MENU_FILENAME.format(date=utl.get_str_from_time(today, date=True)))
