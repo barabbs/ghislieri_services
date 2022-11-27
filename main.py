@@ -9,7 +9,7 @@ file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(logging.Formatter('%(levelname)s;%(asctime)s;%(name)s;%(processName)s;%(message)s'))
 logger.addHandler(file_handler)
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)
+stream_handler.setLevel(logging.INFO)
 stream_handler.setFormatter(logging.Formatter('%(levelname)s\t%(asctime)s\t%(name)s\t%(processName)s\t%(message)s'))
 logger.addHandler(stream_handler)
 
