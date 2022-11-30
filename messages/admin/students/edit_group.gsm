@@ -29,8 +29,8 @@
                 "actions": [
                     [
                         "REQ",
-                        "student_databaser",
-                        "edit_group",
+                        "ghislieri_bot",
+                        "edit_groups",
                         {
                             "user_id": "$admin.selected_student.user_id",
                             "group": "$admin.selected_group.group",

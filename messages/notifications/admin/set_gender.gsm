@@ -26,38 +26,8 @@
                                 }
                             ],
                             [
-                                "REQ",
-                                "student_databaser",
-                                "edit_group",
-                                {
-                                    "user_id": "$new_sub.user_id",
-                                    "group": "student",
-                                    "edit": "add"
-                                }
-                            ],
-                            [
-                                "REQ",
-                                "ghislieri_bot",
-                                "add_notification",
-                                {
-                                    "users": [
-                                        "$new_sub.user_id"
-                                    ],
-                                    "n_type": "sub_accept",
-                                    "msg_code": "welcome.thank_you",
-                                    "notify": true
-                                }
-                            ],
-                            [
-                                "REQ",
-                                "ghislieri_bot",
-                                "expire_notification",
-                                {
-                                    "user_id": "$new_sub.user_id"
-                                }
-                            ],
-                            [
-                                "HOME"
+                                "NEW",
+                                "notifications.admin.set_group"
                             ]
                         ]
                     }
@@ -78,38 +48,8 @@
                                 }
                             ],
                             [
-                                "REQ",
-                                "student_databaser",
-                                "edit_group",
-                                {
-                                    "user_id": "$new_sub.user_id",
-                                    "group": "student",
-                                    "edit": "add"
-                                }
-                            ],
-                            [
-                                "REQ",
-                                "ghislieri_bot",
-                                "add_notification",
-                                {
-                                    "users": [
-                                        "$new_sub.user_id"
-                                    ],
-                                    "n_type": "sub_accept",
-                                    "msg_code": "welcome.thank_you",
-                                    "notify": true
-                                }
-                            ],
-                            [
-                                "REQ",
-                                "ghislieri_bot",
-                                "expire_notification",
-                                {
-                                    "user_id": "$new_sub.user_id"
-                                }
-                            ],
-                            [
-                                "HOME"
+                                "NEW",
+                                "notifications.admin.set_group"
                             ]
                         ]
                     }

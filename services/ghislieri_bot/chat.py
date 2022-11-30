@@ -17,7 +17,8 @@ class Chat(object):
     def __init__(self, bot, user_id, last_message_id, student_infos, groups):
         self.bot, self.user_id, self.last_message_id = bot, user_id, last_message_id
         self.data = dotdict({'user_id': self.user_id, 'infos': student_infos})
-        self.session, self.last_interaction = list(), 0
+        self.session = list()
+        self.last_interaction = 0  #
         self.msg_to_delete = list()
         self.groups = groups
 
@@ -64,18 +65,37 @@ class Chat(object):
 
     # Resetting session
 
-    def reset_session(self, msg_code=None):
+
+    def _reset_data(self, add_data=None):
         self.data = dotdict({'user_id': self.data['user_id'], 'infos': self.data['infos']})
-        self.last_interaction, notify = False, False
+        if add_data is not None:
+            self.data.update(add_data)
+
+
+    def reset_session(self, msg_code=None):
+        """
+        Resets the current session with the message of code msg_code if given,
+        else with the first unused notification from the NotificationCenter,
+        else with the home message
+
+        :param msg_code:
+        :return: None if session is not reset, else a bool representing if the reset should be notified to the user
+        """
         if msg_code is None:
-            notif = self.bot.notif_center.get_notification(self.user_id)
-            if notif is not None:
-                self.last_interaction = notif
-                msg_code, notify = notif.msg_code, notif.notify
-                self.data.update(notif.data)
+            notification = self.bot.notif_center.get_notification(self.user_id)
+            if notification is not None:
+                self.last_interaction = notification
+                msg_code, notify = notification.msg_code, notification.notify
+                self._reset_data(notification.data)
+            elif self.last_interaction is True:
+                return
             else:
                 msg_code, notify = var.HOME_MESSAGE_CODE, False
                 self.last_interaction = True
+                self._reset_data()
+        else:
+            self.last_interaction, notify = False, False
+            self._reset_data()
         self.session = [self.bot.get_message(msg_code), ]
         return notify
 
@@ -86,6 +106,14 @@ class Chat(object):
             return self.reset_session()
 
     def _is_session_expired(self, sync_time):
+        """
+        Returns whether the current chat session is expired.
+            TRUE  - session timed out | current notification expired | last_interaction = True  (current message is HOME)
+            FALSE - session is active | current notification active  | last_interaction = False (current message was manually set)
+
+        :param sync_time:
+        :return: True if session can be reset, False otherwise
+        """
         if isinstance(self.last_interaction, bool):
             return self.last_interaction
         elif isinstance(self.last_interaction, int):

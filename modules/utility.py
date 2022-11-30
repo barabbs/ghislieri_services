@@ -88,5 +88,5 @@ def get_text_hist(data, data_key, end_str):
 
 def convert_docx_to_pdf(source, timeout=None):
     directory, filename = os.path.dirname(source), os.path.basename(source)
-    subprocess.run(f"export HOME={var.TMP_DIR} && libreoffice --headless --convert-to pdf '{filename}'", stdout=sys.stdout, stderr=sys.stdout, timeout=timeout, cwd=directory, shell=True)
+    subprocess.run(f"export HOME={var.TMP_DIR} && libreoffice --headless --convert-to pdf '{filename}'", stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=directory, shell=True)
     return os.path.join(directory, os.path.splitext(filename)[0] + ".pdf")

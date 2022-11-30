@@ -1,8 +1,5 @@
 {
     "code": "home",
-    "whitelist": [
-        "student"
-    ],
     "components": {
         "TEXT": {
             "text": "🟥🟨    <b>Collegio Ghislieri</b>    🟨🟥",
@@ -12,8 +9,26 @@
             "buttons": [
                 [
                     {
+                        "text": "Iscriviti! ✒️",
+                        "id": "meals_management",
+                        "whitelist": [
+                            "signup"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "welcome.welcome"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🍽️    Mensa",
                         "id": "meals_management",
+                        "whitelist": [
+                            "student"
+                        ],
                         "actions": [
                             [
                                 "NEW",
@@ -26,6 +41,9 @@
                     {
                         "text": "📆    Prenota Servizi",
                         "id": "services_reservation",
+                        "whitelist": [
+                            "student"
+                        ],
                         "actions": [
                             [
                                 "NEW",
@@ -38,6 +56,9 @@
                     {
                         "text": "📩    Invia Contenuti",
                         "id": "content_submitter",
+                        "whitelist": [
+                            "student"
+                        ],
                         "actions": [
                             [
                                 "NEW",
@@ -50,6 +71,9 @@
                     {
                         "text": "📯    Canali e Gruppi",
                         "id": "telegram_channels",
+                        "whitelist": [
+                            "student"
+                        ],
                         "actions": [
                             [
                                 "NEW",
@@ -62,6 +86,9 @@
                     {
                         "text": "🔧    Impostazioni",
                         "id": "settings",
+                        "blacklist": [
+                            "signup"
+                        ],
                         "actions": [
                             [
                                 "NEW",

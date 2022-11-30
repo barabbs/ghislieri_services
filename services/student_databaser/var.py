@@ -17,3 +17,7 @@ FILEPATH_GROUPS_LIST = os.path.join(DATA_DIR, 'groups.gsgr')
 # Database
 DATABASE_STUDENTS_TABLE = "students"
 STUDENT_INFOS = ('name', 'surname', 'gender', 'email')
+
+# Groups
+INACTIVE_USER_GROUP = "inactive"
+SIGNUP_USER_GROUP = "signup"
