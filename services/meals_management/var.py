@@ -43,9 +43,9 @@ RESERV_EMAIL_METADATA = {"sender": "Servizio Prenotazione Pasti",
 RESERV_EMAIL_SENDING_TIME = "07:00:00"
 
 # Notification
-RESERV_NOTIFICATION_SENDING_TIME = "19:00:00"
+RESERV_NOTIFICATION_SENDING_TIMES = ("12:00:00", "19:00:00")
 RESERV_NOTIFICATION_DAYS_BEFORE = dt.timedelta(days=1)
-RESERV_NOTIFICATION_DATA = {"groups": ('student',), "n_type": "meals", "msg_code": "meals_management.reservation.reminder", "notify": True, "enabled_time": {"hours": 12}}
+RESERV_NOTIFICATION_DATA = {"groups": ('student',), "n_type": "meals", "msg_code": "meals_management.reservation.reminder", "notify": True, "enabled_time": {"hours": 7}}
 
 # ----- REPORTS
 
