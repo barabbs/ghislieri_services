@@ -66,6 +66,8 @@ class StudentDatabaser(BaseService):
             log.warning(f"User with user_id {user_id} already in database, re-enabling it")
             self._edit_group(user_id, var.INACTIVE_USER_GROUP, "rm")
             self._edit_database(user_id, 'last_message_id', last_message_id)
+        else:
+            self._edit_group(user_id, var.SIGNUP_USER_GROUP, "add")
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE} WHERE user_id = ?", (user_id,))
         return get_chat_dict(self.cursor.fetchone())
 

@@ -212,7 +212,7 @@ class Bot(tlg.Bot):
         new_msg_id = self.send_message(chat_id=user_id, text="Starting...")
         chat = Chat(self, **self.service.send_request(Request('student_databaser', 'new_chat', user_id, new_msg_id.message_id)))
         self.chats.add(chat)
-        chat.reset_session(var.WELCOME_MESSAGE_CODE)  # TODO: Change to HOME_MESSAGE
+        chat.reset_session()
         raise NewUser(chat)
 
     def expire_notification(self, user_id):

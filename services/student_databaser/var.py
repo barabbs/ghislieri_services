@@ -20,3 +20,4 @@ STUDENT_INFOS = ('name', 'surname', 'gender', 'email')
 
 # Groups
 INACTIVE_USER_GROUP = "inactive"
+SIGNUP_USER_GROUP = "signup"

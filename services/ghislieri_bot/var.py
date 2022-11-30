@@ -30,7 +30,6 @@ DEFAULT_PAGE_SHAPE = (1, 100)
 
 # Messages
 HOME_MESSAGE_CODE = "home"
-WELCOME_MESSAGE_CODE = "welcome.welcome"
 ERROR_MESSAGE_CODE = "utility.error"
 AUTH_ERROR_MESSAGE_CODE = "utility.auth"
 SHUTDOWN_MESSAGE_CODE = "utility.bot_shutdown"

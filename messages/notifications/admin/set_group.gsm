@@ -1,0 +1,80 @@
+{
+    "code": "notifications.admin.set_gender",
+    "whitelist": [
+        "master"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "Seleziona gruppi per <i>{new_sub[infos][name]} {new_sub[infos][surname]}</i>",
+            "actions": [
+                [
+                    "SAVE",
+                    "sub_check.groups_list",
+                    [
+                        {
+                            "name": "Studente",
+                            "group": "student"
+                        },
+                        {
+                            "name": "Ex Alunno",
+                            "group": "alumnus"
+                        }
+                    ]
+                ]
+            ]
+        },
+        "KEYBOARD": {
+            "options": {
+                "text": "{name} ({group})",
+                "opt_data_key": "sub_check.groups_list",
+                "ans_data_key": "sub_check.selected_group",
+                "actions": [
+                    [
+                        "REQ",
+                        "ghislieri_bot",
+                        "edit_groups",
+                        {
+                            "user_id": "$new_sub.user_id",
+                            "group": "$sub_check.selected_group.group",
+                            "edit": "add"
+                        }
+                    ],
+                    [
+                        "REQ",
+                        "ghislieri_bot",
+                        "edit_groups",
+                        {
+                            "user_id": "$new_sub.user_id",
+                            "group": "signup",
+                            "edit": "rm"
+                        }
+                    ],
+                    [
+                        "REQ",
+                        "ghislieri_bot",
+                        "add_notification",
+                        {
+                            "users": [
+                                "$new_sub.user_id"
+                            ],
+                            "n_type": "sub_accept",
+                            "msg_code": "welcome.thank_you",
+                            "notify": true
+                        }
+                    ],
+                    [
+                        "REQ",
+                        "ghislieri_bot",
+                        "expire_notification",
+                        {
+                            "user_id": "$new_sub.user_id"
+                        }
+                    ],
+                    [
+                        "HOME"
+                    ]
+                ]
+            }
+        }
+    }
+}
