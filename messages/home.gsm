@@ -10,7 +10,7 @@
                 [
                     {
                         "text": "Iscriviti! ✒️",
-                        "id": "meals_management",
+                        "id": "signup",
                         "whitelist": [
                             "signup"
                         ],
