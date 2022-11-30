@@ -27,8 +27,8 @@
                             ],
                             [
                                 "REQ",
-                                "student_databaser",
-                                "edit_group",
+                                "ghislieri_bot",
+                                "edit_groups",
                                 {
                                     "user_id": "$new_sub.user_id",
                                     "group": "student",
@@ -79,8 +79,8 @@
                             ],
                             [
                                 "REQ",
-                                "student_databaser",
-                                "edit_group",
+                                "ghislieri_bot",
+                                "edit_groups",
                                 {
                                     "user_id": "$new_sub.user_id",
                                     "group": "student",

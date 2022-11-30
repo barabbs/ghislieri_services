@@ -126,7 +126,7 @@ class Bot(tlg.Bot):
                 self._dispatch_message(chat, edit=not update_notify)
 
     def _remove_chat_handler(self, update, context):
-        self._remove_chat(self.get_chat_from_id(update.update_id))
+        self._remove_chat(self.get_chat_from_id(update.update_id), hard_remove=True)
 
     def _start_command_handler(self, update, context):
         try:
@@ -208,11 +208,11 @@ class Bot(tlg.Bot):
 
     def _new_student_signup(self, update):
         user_id = update.effective_user.id
-        log.info(f"Found new student with user_id {user_id}")
+        log.info(f"Found new user with user_id {user_id}")
         new_msg_id = self.send_message(chat_id=user_id, text="Starting...")
         chat = Chat(self, **self.service.send_request(Request('student_databaser', 'new_chat', user_id, new_msg_id.message_id)))
         self.chats.add(chat)
-        chat.reset_session(var.WELCOME_MESSAGE_CODE)
+        chat.reset_session(var.WELCOME_MESSAGE_CODE)  # TODO: Change to HOME_MESSAGE
         raise NewUser(chat)
 
     def expire_notification(self, user_id):
@@ -230,9 +230,10 @@ class Bot(tlg.Bot):
                 stats["notif"] += 1
         return stats
 
-    def _remove_chat(self, chat, delete=True):
+    def _remove_chat(self, chat, delete=True, hard_remove=False):
         if delete:
             self.delete_message(chat_id=chat.user_id, message_id=chat.last_message_id)
+        self.service.send_request(Request('student_databaser', 'remove_user', user_id=chat.user_id, hard_remove=hard_remove))
         self.chats.remove(chat)
         log.info(f"Removed student with user_id {chat.user_id}")
 
@@ -290,14 +291,15 @@ class Bot(tlg.Bot):
         except telegram.error.BadRequest as err:
             if err.message == EDIT_MSG_NOT_FOUND_ERROR:
                 log.warning(f"{chat} - {err.message}")
+                self._send_message(chat, message_content, disable_notification=True)
             elif err.message == EDIT_MSG_IDENTICAL_ERROR:
                 log.warning(f"{chat} - {err.message}")
             else:
                 raise
 
-    def _send_message(self, chat, message_content):
+    def _send_message(self, chat, message_content, disable_notification=False):
         chat.add_msg_to_delete(chat.last_message_id)
-        new_message = self.send_message(chat_id=chat.user_id, **message_content, disable_notification=False)  # TODO: utilise "disable_notification"
+        new_message = self.send_message(chat_id=chat.user_id, **message_content, disable_notification=disable_notification)  # TODO: utilise "disable_notification"
         new_id = new_message.message_id
         self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
         chat.set_last_message_id(new_id)
@@ -305,8 +307,9 @@ class Bot(tlg.Bot):
     # Runtime
 
     def sync(self):
-        if "--no_sync" not in sys.argv:
-            self.update_queue.put(ChatSyncUpdate())
+        if "--no_sync" in sys.argv:
+            return
+        self.update_queue.put(ChatSyncUpdate())
 
     def stop(self):
         for chat in self.chats.copy():

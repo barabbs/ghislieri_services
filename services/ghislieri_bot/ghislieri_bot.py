@@ -30,11 +30,11 @@ class GhislieriBot(BaseService):
     def _request_expire_notification(self, user_id):
         self.bot.get_chat_from_id(user_id).expire_notification()
 
-    def _request_set_groups(self, user_id, groups):
+    def _request_edit_groups(self, user_id, group, edit):
+        groups = self.send_request(Request("student_databaser", "edit_groups", user_id=user_id, group=group, edit=edit))
         self.bot.get_chat_from_id(user_id).set_groups(groups)
 
     def _request_remove_chat(self, user_id):
-        self.send_request(Request("student_databaser", "remove_chat", user_id=user_id))
         self.bot.update_queue.put(RemoveChatUpdate(user_id))
 
     def _request_save_feedback(self, user_id, student_infos, text):
