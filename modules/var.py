@@ -3,7 +3,7 @@ import sys, os, datetime
 DEBUG = "-d" in sys.argv
 
 # Version
-VERSION = "0.3.4"
+VERSION = "0.3.4a"
 CHANGELOG_VERSION = "0.3.4"
 
 # Directories
