@@ -6,6 +6,7 @@ import smtplib, imaplib, email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+from email.header import decode_header
 
 import logging, os
 
@@ -81,6 +82,8 @@ class EmailService(BaseService):
                         continue
                     file_name = part.get_filename()
                     if bool(file_name):
+                        if decode_header(file_name)[0][1] is not None:
+                            file_name = decode_header(file_name)[0][0].decode(decode_header(file_name)[0][1])
                         files.append(utl.get_unused_filepath(os.path.join(var.ATTACHMENT_DIR, file_name)))
                         with open(files[-1], 'wb') as f:
                             f.write(part.get_payload(decode=True))
