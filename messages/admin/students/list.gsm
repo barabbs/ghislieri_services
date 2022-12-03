@@ -38,7 +38,7 @@
             "navigation": [
                 [
                     [
-                        "arrows",
+                        "pages",
                         [
                             "student_list_page",
                             "student_list_page_max"

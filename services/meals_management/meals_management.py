@@ -17,7 +17,6 @@ class MealsManagement(BaseService):
         super(MealsManagement, self).__init__(*args, **kwargs)
         self.reservations = None
         self._load_reservations()
-        self.last_update = (dt.datetime.now() - var.TIMELIMIT).replace(hour=0, minute=0, second=0, microsecond=0)
 
     def _load_tasks(self):
         self.scheduler.every().day.at(var.RESERV_EMAIL_SENDING_TIME).do(self._task_send_res_recap)
