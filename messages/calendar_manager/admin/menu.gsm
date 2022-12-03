@@ -1,0 +1,42 @@
+{
+    "code": "calendar_manager.admin.menu",
+    "whitelist": [
+        "master"
+    ],
+    "components": {
+        "TEXT": {
+            "text": "🗓️    <b>Admin Calendario</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "Update RSS Feed",
+                        "id": "update_rssfeed",
+                        "whitelist": [
+                            "master"
+                        ],
+                        "actions": [
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "update_rssfeed"
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

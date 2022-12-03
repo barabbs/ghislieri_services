@@ -253,10 +253,12 @@ class Options(Buttons, Answer):
 get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)
 get_raw_home_nav = lambda text='🏠 Home': ({'text': text, 'id': 'home', 'actions': [['HOME']]},)
 get_raw_arrows_nav = lambda page_data_keys: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['PAGE', page_data_keys, -1]]},
+                                             {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
+get_raw_pages_nav = lambda page_data_keys: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['PAGE', page_data_keys, -1]]},
                                              {'text': f'{{{page_data_keys[0]}}}️ / {{{page_data_keys[1]}}}', 'id': 'page_counter', 'actions': [['SAVE', page_data_keys[0], 1]]},
                                              {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
 
-NAVIGATION_RAW_GENERATORS = {'back': get_raw_back_nav, 'home': get_raw_home_nav, 'arrows': get_raw_arrows_nav}
+NAVIGATION_RAW_GENERATORS = {'back': get_raw_back_nav, 'home': get_raw_home_nav, 'arrows': get_raw_arrows_nav, 'pages': get_raw_pages_nav}
 
 
 class Navigation(Buttons):

@@ -1,0 +1,54 @@
+{
+    "code": "calendar_manager.menu",
+    "components": {
+        "TEXT": {
+            "text": "🗓    <b>Eventi</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "📆    Calendario",
+                        "id": "calendar",
+                        "actions": [
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "get_calendar_range",
+                                {},
+                                "daily_events_navigation"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.daily_events"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔓    Admin",
+                        "id": "calendar_admin",
+                        "whitelist": [
+                            "master"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.admin.menu"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

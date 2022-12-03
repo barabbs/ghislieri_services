@@ -24,6 +24,21 @@
                 ],
                 [
                     {
+                        "text": "🗓   Eventi",
+                        "id": "calendar_manager",
+                        "whitelist": [
+                            "tester"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🍽️    Mensa",
                         "id": "meals_management",
                         "whitelist": [
@@ -39,7 +54,7 @@
                 ],
                 [
                     {
-                        "text": "📆    Prenota Servizi",
+                        "text": "📍    Prenota Servizi",
                         "id": "services_reservation",
                         "whitelist": [
                             "student"
@@ -50,9 +65,7 @@
                                 "services_reservation.menu"
                             ]
                         ]
-                    }
-                ],
-                [
+                    },
                     {
                         "text": "📩    Invia Contenuti",
                         "id": "content_submitter",
@@ -80,9 +93,7 @@
                                 "telegram_channels.menu"
                             ]
                         ]
-                    }
-                ],
-                [
+                    },
                     {
                         "text": "🔧    Impostazioni",
                         "id": "settings",
