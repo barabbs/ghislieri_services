@@ -1,0 +1,28 @@
+{
+    "code": "calendar_manager.event_details_url",
+    "components": {
+        "TEXT": {
+            "text": "{event[symbol]}    <b>{event[name]}</b>\n{event[hidden_url]}\n📅    <code>{event[date]}</code>\n🕔    <code>{event[start_h]} - {event[end_h]}</code>\n\n{event[description]}",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "Maggiori informazioni",
+                        "id": "event_url",
+                        "url": "$event.url",
+                        "actions": []
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

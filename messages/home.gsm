@@ -24,15 +24,22 @@
                 ],
                 [
                     {
-                        "text": "🗓   Eventi",
+                        "text": "🗓   Calendario",
                         "id": "calendar_manager",
-                        "whitelist": [
-                            "tester"
+                        "blacklist": [
+                            "signup"
                         ],
                         "actions": [
                             [
+                                "REQ",
+                                "calendar_manager",
+                                "get_calendar_range",
+                                {},
+                                "daily_events_navigation"
+                            ],
+                            [
                                 "NEW",
-                                "calendar_manager.menu"
+                                "calendar_manager.calendar"
                             ]
                         ]
                     }

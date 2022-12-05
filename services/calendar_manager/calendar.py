@@ -26,15 +26,23 @@ def get_calendar_name():
     return year, (ar.Arrow(year, 1, 1) + var.CALENDAR_SHIFT, ar.Arrow(year + 1, 1, 1) + var.CALENDAR_SHIFT)
 
 
-def event_to_string(event):
+def get_event_dict(event, day):
+    ev_dict = {"date": event.begin.format('dddd DD MMM YYYY', locale='it').capitalize(),
+               "name": event.name.upper(),
+               "recap_h": event.begin.format('HH:mm') if event.begin.floor('day') == day else "   ➤   ",
+               "start_h": event.begin.format('HH:mm') if event.begin.floor('day') == event.end.floor('day') else event.begin.format('DD MMM, HH:mm', locale='it') + " ",
+               "end_h": event.end.format('HH:mm') if event.begin.floor('day') == event.end.floor('day') else " " + event.end.format('DD MMM, HH:mm', locale='it'),
+               "description": event.description.replace("\xa0", "\n") if event.url is None else "",
+               "has_url": event.url is not None,
+               "hidden_url": "" if event.url is None else f'<a href="{event.url}"> </a>',
+               "url": event.url}
     for key, sym in var.SYMBOL_BY_CATEGORY.items():
         if key in event.categories:
+            ev_dict['symbol'] = sym
             break
     else:
-        sym = var.DEFAULT_SYMBOL
-    name = event.name if not event.name.isupper() else event.name.title()
-    url = f'        (<a href="{event.url}">info</a>)' if hasattr(event, "url") else ""
-    return f"{sym}<code> {event.begin.format('HH:mm')} - {event.end.format('HH:mm')}</code>{url}\n<code>    </code>{name}"
+        ev_dict['symbol'] = var.DEFAULT_SYMBOL
+    return ev_dict
 
 
 class Calendar(ics.Calendar):
@@ -70,6 +78,7 @@ class Calendar(ics.Calendar):
         if any(ev.uid == event.uid for ev in self.events):
             raise EventDuplicateUID(event.uid)  # TODO: Update if modification time is newer?
         self.events.add(event)
+        log.info(f"Evento aggiunto:  {event.begin.format('YYYY-MM-DD HH:mm:ss ZZ')} - {event.end.format('YYYY-MM-DD HH:mm:ss ZZ')}  |  {event.name}")
 
     def save(self):
         with open(self.filepath + ".temp", 'w') as file:
@@ -81,5 +90,7 @@ class Calendar(ics.Calendar):
 
     def get_day_events(self, day_num):
         day = self.range[0] + dt.timedelta(days=day_num)
-        text = "\n\n".join(event_to_string(event) for event in self.timeline.on(day, strict=False)) or var.NO_EVENT_FOR_DAY
-        return {"day": day.format("dddd DD MMMM YYYY", locale="it").capitalize(), "text": text}
+        events = tuple(get_event_dict(event, day) for event in self.timeline.on(day, strict=False))
+        no_event = f"\n\n{var.NO_EVENT_FOR_DAY}" if len(events) == 0 else ""
+        day_text = f"<b>{day.format('dddd DD MMMM YYYY', locale='it').capitalize()}</b>" + no_event
+        return {"day": day_text, "events": events}

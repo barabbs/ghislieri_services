@@ -41,10 +41,11 @@ CALENDAR_TIMEZONE = Container("VTIMEZONE",
                               )
 
 # Graphics
-SYMBOL_BY_CATEGORY = {"conference": "👥",
+SYMBOL_BY_CATEGORY = {"conference": "🗣",
                       "concert": "🎼"}
 DEFAULT_SYMBOL = "❓"
 NO_EVENT_FOR_DAY = "Nessun evento programmato"
+EVENT_LINK_TEXT = "Maggiori Informazioni"
 
 
 
