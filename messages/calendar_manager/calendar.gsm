@@ -1,0 +1,83 @@
+{
+    "code": "calendar_manager.calendar",
+    "components": {
+        "TEXT": {
+            "text": "📅    {daily_events[day]}",
+            "actions": [
+                [
+                    "REQ",
+                    "calendar_manager",
+                    "get_day_events",
+                    {
+                        "day_num": "$daily_events_navigation.day_num"
+                    },
+                    "daily_events"
+                ]
+            ]
+        },
+        "KEYBOARD": {
+            "options": {
+                "text": "{symbol}    {recap_h}    {name}                                                                                                                        ",
+                "opt_data_key": "daily_events.events",
+                "ans_data_key": "event",
+                "actions": [
+                    [
+                        "NEW",
+                        "calendar_manager.event_details_url",
+                        "event.has_url",
+                        "calendar_manager.event_details"
+                    ]
+                ]
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "◀",
+                        "id": "arrow_l",
+                        "actions": [
+                            [
+                                "PAGE",
+                                [
+                                    "daily_events_navigation.day_num",
+                                    "daily_events_navigation.day_max"
+                                ],
+                                -1
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "☰    Menu",
+                        "id": "menu",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.menu"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "▶",
+                        "id": "arrow_r",
+                        "actions": [
+                            [
+                                "PAGE",
+                                [
+                                    "daily_events_navigation.day_num",
+                                    "daily_events_navigation.day_max"
+                                ],
+                                1
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

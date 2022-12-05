@@ -24,15 +24,22 @@
                 ],
                 [
                     {
-                        "text": "🗓   Eventi",
+                        "text": "🗓   Calendario",
                         "id": "calendar_manager",
-                        "whitelist": [
-                            "tester"
+                        "blacklist": [
+                            "signup"
                         ],
                         "actions": [
                             [
+                                "REQ",
+                                "calendar_manager",
+                                "get_calendar_range",
+                                {},
+                                "daily_events_navigation"
+                            ],
+                            [
                                 "NEW",
-                                "calendar_manager.menu"
+                                "calendar_manager.calendar"
                             ]
                         ]
                     }
@@ -48,6 +55,21 @@
                             [
                                 "NEW",
                                 "meals_management.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "📯    Canali e Gruppi",
+                        "id": "telegram_channels",
+                        "whitelist": [
+                            "student"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "telegram_channels.menu"
                             ]
                         ]
                     }
@@ -81,19 +103,6 @@
                     }
                 ],
                 [
-                    {
-                        "text": "📯    Canali e Gruppi",
-                        "id": "telegram_channels",
-                        "whitelist": [
-                            "student"
-                        ],
-                        "actions": [
-                            [
-                                "NEW",
-                                "telegram_channels.menu"
-                            ]
-                        ]
-                    },
                     {
                         "text": "🔧    Impostazioni",
                         "id": "settings",
