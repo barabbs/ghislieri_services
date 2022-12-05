@@ -16,7 +16,7 @@ class RSSFeed(object):
                 id = raw_id[1] or raw_id[0]
                 ev_kwargs = var.RSSFEED_DEFAULTS_EVENT_KWARGS.copy()
                 ev_kwargs.update({'name': e['title'],
-                                  'description': BeautifulSoup(e['summary'], "lxml").p.get_text(),
+                                  'description': BeautifulSoup(e['summary'], "html.parser").p.get_text(),
                                   'url': e['link'],
                                   'begin': e['startdate'],
                                   'end': e['enddate'],
