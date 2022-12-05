@@ -61,6 +61,21 @@
                 ],
                 [
                     {
+                        "text": "📯    Canali e Gruppi",
+                        "id": "telegram_channels",
+                        "whitelist": [
+                            "student"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "telegram_channels.menu"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "📍    Prenota Servizi",
                         "id": "services_reservation",
                         "whitelist": [
@@ -88,19 +103,6 @@
                     }
                 ],
                 [
-                    {
-                        "text": "📯    Canali e Gruppi",
-                        "id": "telegram_channels",
-                        "whitelist": [
-                            "student"
-                        ],
-                        "actions": [
-                            [
-                                "NEW",
-                                "telegram_channels.menu"
-                            ]
-                        ]
-                    },
                     {
                         "text": "🔧    Impostazioni",
                         "id": "settings",
