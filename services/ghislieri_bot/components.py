@@ -144,7 +144,7 @@ class Keyboard(BaseComponent):
         # super(Keyboard, self).__init__(raw)  # Removed 'actions' from KEYBOARD component as it seems not to be used
 
     def get_content(self, **kwargs):
-        time_str = str(int(time()*10))
+        time_str = str(int(time()*10))[-6:]
         buttons = sum((part.get_keys(time_str=time_str, **kwargs) for part in self.parts), start=list())
         return {'reply_markup': tlg.InlineKeyboardMarkup(buttons)}
 
@@ -266,12 +266,12 @@ class Datetime(Buttons, Answer):
         super(Buttons, self).__init__(raw)
 
     def _get_data_dict(self, dt):
-        return {"iso": dt.format(), "text": dt.format('dddd DD MMM YYYY, HH:mm', locale='it')}
+        return {"dt": dt.format(), "text": dt.format('dddd DD MMMM YYYY, HH:mm', locale='it'), "short": dt.format('ddd DD MMM YYYY, HH:mm', locale='it')}
 
     def get_keys(self, data, **kwargs):
         key = format_data(self.ans_data_key, data)
         try:
-            dt = ar.get(data[key]["iso"])
+            dt = ar.get(data[key]["dt"])
         except (KeyError, TypeError):
             dt = ar.now().floor("hour")
             data[key] = self._get_data_dict(dt)
@@ -289,7 +289,7 @@ class Datetime(Buttons, Answer):
     def act(self, key_id, data, **kwargs):
         if key_id == "null":
             return
-        dt = ar.get(data[format_data(self.ans_data_key, data)]["iso"])
+        dt = ar.get(data[format_data(self.ans_data_key, data)]["dt"])
         elem, sign = key_id[0:-1], key_id[-1]
         if sign == "=":
             dt = dt.replace(**{elem: getattr(ar.now().floor("hour"), elem)})

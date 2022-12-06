@@ -1,0 +1,100 @@
+{
+    "code": "calendar_manager.new_event.select_class",
+    "components": {
+        "TEXT": {
+            "text": "🆕    Seleziona la <b>classe</b> dell'evento",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "🏛    Culturale",
+                        "id": "cultural",
+                        "whitelist": [
+                            "master",
+                            "calendar.cultural"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event.classification",
+                                "cultural"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.new_event"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "⚽️    Sport",
+                        "id": "sport",
+                        "whitelist": [
+                            "master",
+                            "calendar.sport"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event.classification",
+                                "sport"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.new_event"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔥    Collegiale",
+                        "id": "college",
+                        "whitelist": [
+                            "master",
+                            "calendar.college"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event.classification",
+                                "college"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.new_event"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "🗄️    Altro",
+                        "id": "misc",
+                        "whitelist": [
+                            "master",
+                            "calendar.misc"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event.classification",
+                                "misc"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.new_event"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

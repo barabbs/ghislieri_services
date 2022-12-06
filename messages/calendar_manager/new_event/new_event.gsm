@@ -6,10 +6,128 @@
             "actions": []
         },
         "KEYBOARD": {
-            "datetime": {
-                "type": "datetime",
-                "ans_data_key": "new_event"
-            },
+            "buttons": [
+                [
+                    {
+                        "text": "TITOLO    {new_event[name]}",
+                        "id": "title",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_text_key",
+                                "name"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_text_dialog",
+                                "il <b>Titolo</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.edit_text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "DESCRIZIONE    {new_event[description]}",
+                        "id": "description",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_text_key",
+                                "description"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_text_dialog",
+                                "la <b>Descrizione</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.edit_text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "INIZIO    {new_event[begin][short]}",
+                        "id": "begin",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_datetime_key",
+                                "begin"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_datetime_dialog",
+                                "<b>Inizio</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.edit_datetime"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "FINE    {new_event[end][short]}",
+                        "id": "end",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_datetime_key",
+                                "end"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_datetime_dialog",
+                                "<b>Fine</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.edit_datetime"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "LINK    {new_event[url]}",
+                        "id": "link",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_text_key",
+                                "url"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_text_dialog",
+                                "il <b>Link</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.edit_text"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "CATEGORIA    {new_event[categories]}",
+                        "id": "categories",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.select_cat"
+                            ]
+                        ]
+                    }
+                ]
+            ],
             "navigation": [
                 [
                     [

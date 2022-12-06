@@ -42,6 +42,8 @@ CALENDAR_TIMEZONE = Container("VTIMEZONE",
 
 # Graphics
 SYMBOL_BY_CATEGORY = {"conference": "🗣",
+                      "class": "📚",
+                      "meeting": "👥",
                       "concert": "🎼"}
 DEFAULT_SYMBOL = "❓"
 NO_EVENT_FOR_DAY = "Nessun evento programmato"
@@ -56,7 +58,7 @@ RSSFEED_LINK = "https://www.ghislieri.it/feed/?post_type=ajde_events&paged={page
 RSSFEED_MAX_PAGES = 100
 RSSFEED_MAX_ERRORS = 5
 RSSFEED_DEFAULTS_EVENT_KWARGS = {'status': "TENTATIVE",
-                                 'classification': "event",
+                                 'classification': "cultural",
                                  'categories': ("conference",)}
 RSSFEED_CATEGORIES_BY_AUTHOR = {'antonio.gurrado': ("conference",),
                                 'jacopo': ("concert",)}

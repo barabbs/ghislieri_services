@@ -11,10 +11,32 @@
                     {
                         "text": "🆕    Nuovo evento",
                         "id": "new_event",
+                        "whitelist": [
+                            "master",
+                            "calendar"
+                        ],
                         "actions": [
                             [
+                                "SAVE",
+                                "new_event",
+                                {
+                                    "name": null,
+                                    "description": null,
+                                    "begin": {
+                                        "dt": null,
+                                        "short": "--:--"
+                                    },
+                                    "end": {
+                                        "dt": null,
+                                        "short": "--:--"
+                                    },
+                                    "url": null,
+                                    "categories": null
+                                }
+                            ],
+                            [
                                 "NEW",
-                                "calendar_manager.new_event.new_event"
+                                "calendar_manager.new_event.select_class"
                             ]
                         ]
                     }
