@@ -1,4 +1,5 @@
 from modules.utility import dotdict
+from modules import utility as utl
 from .notifications import Notification
 from . import var
 import time
@@ -20,11 +21,12 @@ class Chat(object):
         self.session = list()
         self.last_interaction = 0  #
         self.msg_to_delete = list()
-        self.groups = groups
+        self.groups, self.permissions = None, None
+        self.set_groups(groups)
 
     def check_auth(self):
         msg = self._get_message()
-        if not msg.check_permission(self.groups):
+        if not msg.check_permission(self.permissions):
             self.reset_session(var.AUTH_ERROR_MESSAGE_CODE)
             self.data['auth_error.code'] = msg.code
             raise MessageAuthorizationError(msg.code, self.get_message_content())
@@ -43,6 +45,7 @@ class Chat(object):
 
     def set_groups(self, groups):
         self.groups = groups
+        self.permissions = utl.extend_groups(groups)
 
     def _set_last_interaction(self):
         self.last_interaction = int(time.time())

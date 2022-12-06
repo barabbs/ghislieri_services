@@ -6,6 +6,7 @@ from time import time
 import telegram as tlg
 import os, logging
 from math import ceil
+import arrow as ar
 
 log = logging.getLogger(__name__)
 
@@ -143,7 +144,7 @@ class Keyboard(BaseComponent):
         # super(Keyboard, self).__init__(raw)  # Removed 'actions' from KEYBOARD component as it seems not to be used
 
     def get_content(self, **kwargs):
-        time_str = str(int(time()))
+        time_str = str(int(time()*10))
         buttons = sum((part.get_keys(time_str=time_str, **kwargs) for part in self.parts), start=list())
         return {'reply_markup': tlg.InlineKeyboardMarkup(buttons)}
 
@@ -171,9 +172,9 @@ class Key(BaseComponent):
         self.url = raw['url'] if 'url' in raw else None
         super(Key, self).__init__(raw)
 
-    def _check_permission(self, groups):
+    def _check_permission(self, permissions):
         w, b = self.auth
-        return (w is None or len(w.intersection(groups)) > 0) and (b is None or len(b.intersection(groups)) == 0)
+        return (w is None or len(w.intersection(permissions)) > 0) and (b is None or len(b.intersection(permissions)) == 0)
 
     def check_id(self, key_id):
         return self.id == key_id
@@ -200,7 +201,7 @@ class Buttons(BaseComponent):
 
     def get_keys(self, chat, **kwargs):
         return list(filter(lambda r: len(r) != 0,
-                           (list(filter(lambda x: x is not None, (b.get_key(part=self, permissions=chat.groups, **kwargs) for b in row))) for row in self.buttons)))
+                           (list(filter(lambda x: x is not None, (b.get_key(part=self, permissions=chat.permissions, **kwargs) for b in row))) for row in self.buttons)))
 
     def act(self, key_id, **kwargs):
         for b in sum(self.buttons, tuple()):
@@ -250,13 +251,61 @@ class Options(Buttons, Answer):
         super(Buttons, self).act(answer=data[format_data(self.opt_data_key, data)][page * h * w + int(key_id)], data=data, **kwargs)
 
 
+class Datetime(Buttons, Answer):
+    PART_FLAG = 'd'
+    TYPES_ELEMENTS = {"datetime": [("day", "DD"),
+                                   ("month", "MMM"),
+                                   ("year", "YYYY"),
+                                   ("null", None),
+                                   ("hour", "HH"),
+                                   ("minute", "mm"), ]}
+
+    def __init__(self, raw):
+        self.type = raw['type']  # datetime / date / time
+        self.minute_inc = raw['minute_inc'] if 'minute_inc' in raw else 15
+        super(Buttons, self).__init__(raw)
+
+    def _get_data_dict(self, dt):
+        return {"iso": dt.format(), "text": dt.format('dddd DD MMM YYYY, HH:mm', locale='it')}
+
+    def get_keys(self, data, **kwargs):
+        key = format_data(self.ans_data_key, data)
+        try:
+            dt = ar.get(data[key]["iso"])
+        except (KeyError, TypeError):
+            dt = ar.now().floor("hour")
+            data[key] = self._get_data_dict(dt)
+        rows = [[], [], []]
+        for elem, form in self.TYPES_ELEMENTS[self.type]:
+            if elem == "null":
+                for i in range(3):
+                    rows[i].append(Key({'text': " ", 'id': f"null"}).get_key(part=self, data=data, **kwargs))
+                continue
+            rows[0].append(Key({'text': "▲", 'id': f"{elem}+"}).get_key(part=self, data=data, **kwargs))
+            rows[1].append(Key({'text': dt.format(form, locale='it'), 'id': f"{elem}="}).get_key(part=self, data=data, **kwargs))
+            rows[2].append(Key({'text': "▼", 'id': f"{elem}-"}).get_key(part=self, data=data, **kwargs))
+        return rows
+
+    def act(self, key_id, data, **kwargs):
+        if key_id == "null":
+            return
+        dt = ar.get(data[format_data(self.ans_data_key, data)]["iso"])
+        elem, sign = key_id[0:-1], key_id[-1]
+        if sign == "=":
+            dt = dt.replace(**{elem: getattr(ar.now().floor("hour"), elem)})
+        else:
+            inc = self.minute_inc if elem == "minute" else 1
+            dt = dt.shift(**{elem + "s": inc if sign == "+" else -inc})
+        super(Buttons, self).act(answer=self._get_data_dict(dt), data=data, **kwargs)
+
+
 get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)
 get_raw_home_nav = lambda text='🏠 Home': ({'text': text, 'id': 'home', 'actions': [['HOME']]},)
 get_raw_arrows_nav = lambda page_data_keys: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['PAGE', page_data_keys, -1]]},
                                              {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
 get_raw_pages_nav = lambda page_data_keys: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['PAGE', page_data_keys, -1]]},
-                                             {'text': f'{{{page_data_keys[0]}}}️ / {{{page_data_keys[1]}}}', 'id': 'page_counter', 'actions': [['SAVE', page_data_keys[0], 1]]},
-                                             {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
+                                            {'text': f'{{{page_data_keys[0]}}}️ / {{{page_data_keys[1]}}}', 'id': 'page_counter', 'actions': [['SAVE', page_data_keys[0], 1]]},
+                                            {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
 
 NAVIGATION_RAW_GENERATORS = {'back': get_raw_back_nav, 'home': get_raw_home_nav, 'arrows': get_raw_arrows_nav, 'pages': get_raw_pages_nav}
 
@@ -268,6 +317,6 @@ class Navigation(Buttons):
         super(Navigation, self).__init__(sum((NAVIGATION_RAW_GENERATORS[n[0]](*n[1:]) for n in row), start=tuple()) for row in raw)
 
 
-KEYBOARD_PARTE_CLASSES = {'options': Options, 'buttons': Buttons, 'navigation': Navigation}
+KEYBOARD_PARTE_CLASSES = {'options': Options, 'buttons': Buttons, 'datetime': Datetime, 'navigation': Navigation}
 
 COMPONENTS_CLASSES = {'TEXT': Text, 'KEYBOARD': Keyboard, 'ANSWER': Answer, 'PHOTO': Photo, 'PHOTO_ANS': PhotoAns}

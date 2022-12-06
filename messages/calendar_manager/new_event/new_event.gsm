@@ -1,0 +1,22 @@
+{
+    "code": "calendar_manager.new_event.new_event",
+    "components": {
+        "TEXT": {
+            "text": "🆕    <b>Nuovo evento</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "datetime": {
+                "type": "datetime",
+                "ans_data_key": "new_event"
+            },
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

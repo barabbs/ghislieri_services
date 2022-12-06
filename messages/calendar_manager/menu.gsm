@@ -9,6 +9,18 @@
             "buttons": [
                 [
                     {
+                        "text": "🆕    Nuovo evento",
+                        "id": "new_event",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.new_event"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🔓    Admin",
                         "id": "calendar_admin",
                         "whitelist": [
