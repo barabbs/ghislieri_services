@@ -1,0 +1,25 @@
+{
+    "code": "calendar_manager.new_event.confirmation",
+    "components": {
+        "TEXT": {
+            "text": "✅    Evento {new_event[name]} aggiunto!",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "OK",
+                        "id": "ok",
+                        "actions": [
+                            [
+                                "BACK",
+                                4
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}
