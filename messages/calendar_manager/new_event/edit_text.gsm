@@ -1,0 +1,26 @@
+{
+    "code": "calendar_manager.new_event.edit_text",
+    "components": {
+        "TEXT": {
+            "text": "✏️    Inserisci {edit_text_dialog} dell'evento",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "ANSWER": {
+            "ans_data_key": "new_event.{edit_text_key}",
+            "actions": [
+                [
+                    "BACK"
+                ]
+            ]
+        }
+    }
+}

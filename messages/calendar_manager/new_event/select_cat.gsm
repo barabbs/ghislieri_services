@@ -1,0 +1,104 @@
+{
+    "code": "calendar_manager.new_event.select_cat",
+    "components": {
+        "TEXT": {
+            "text": "#️⃣    Seleziona la <b>categoria</b> dell'evento",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "🗣    Conferenza",
+                        "id": "conference",
+                        "whitelist": [
+                            "master",
+                            "calendar.cultural"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event.categories",
+                                [
+                                    "conference"
+                                ]
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "📚    Corso",
+                        "id": "class",
+                        "whitelist": [
+                            "master",
+                            "calendar.cultural"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event.categories",
+                                [
+                                    "class"
+                                ]
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "👥    Incontro",
+                        "id": "meeting",
+                        "whitelist": [
+                            "master",
+                            "calendar.cultural"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event.categories",
+                                [
+                                    "meeting"
+                                ]
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "🎼    Concerto",
+                        "id": "concert",
+                        "whitelist": [
+                            "master",
+                            "calendar.cultural"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event.categories",
+                                [
+                                    "concert"
+                                ]
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}
