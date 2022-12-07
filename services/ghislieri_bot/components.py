@@ -252,61 +252,8 @@ class Options(Buttons, Answer):
         super(Buttons, self).act(answer=data[format_data(self.opt_data_key, data)][page * h * w + int(key_id)], data=data, **kwargs)
 
 
-# class Datetime(Buttons, Answer):
-#     PART_FLAG = 'd'
-#     TYPES_ELEMENTS = {"datetime": [("day", "DD"),
-#                                    ("month", "MMM"),
-#                                    ("year", "YYYY"),
-#                                    ("null", None),
-#                                    ("hour", "HH"),
-#                                    ("minute", "mm"), ]}
-#
-#     def __init__(self, raw):
-#         self.type = raw['type']  # datetime / date / time
-#         self.minute_inc = raw['minute_inc'] if 'minute_inc' in raw else 15
-#         super(Buttons, self).__init__(raw)
-#
-#     def _get_data_dict(self, dt):
-#         return {"dt": dt.format(), "text": dt.format('dddd DD MMMM YYYY, HH:mm', locale='it'), "short": dt.format('ddd DD MMM YYYY, HH:mm', locale='it')}
-#
-#     def get_keys(self, data, **kwargs):
-#         key = format_data(self.ans_data_key, data)
-#         try:
-#             dt = ar.get(data[key]["dt"])
-#         except (KeyError, TypeError):
-#             dt = ar.now().floor("hour")
-#             data[key] = self._get_data_dict(dt)
-#         rows = [[], [], []]
-#         for elem, form in self.TYPES_ELEMENTS[self.type]:
-#             if elem == "null":
-#                 for i in range(3):
-#                     rows[i].append(Key({'text': " ", 'id': f"null"}).get_key(part=self, data=data, **kwargs))
-#                 continue
-#             rows[0].append(Key({'text': "▲", 'id': f"{elem}+"}).get_key(part=self, data=data, **kwargs))
-#             rows[1].append(Key({'text': dt.format(form, locale='it'), 'id': f"{elem}="}).get_key(part=self, data=data, **kwargs))
-#             rows[2].append(Key({'text': "▼", 'id': f"{elem}-"}).get_key(part=self, data=data, **kwargs))
-#         return rows
-#
-#     def act(self, key_id, data, **kwargs):
-#         if key_id == "null":
-#             return
-#         dt = ar.get(data[format_data(self.ans_data_key, data)]["dt"])
-#         elem, sign = key_id[0:-1], key_id[-1]
-#         if sign == "=":
-#             dt = dt.replace(**{elem: getattr(ar.now().floor("hour"), elem)})
-#         else:
-#             inc = self.minute_inc if elem == "minute" else 1
-#             dt = dt.shift(**{elem + "s": inc if sign == "+" else -inc})
-#         super(Buttons, self).act(answer=self._get_data_dict(dt), data=data, **kwargs)
-
 class Datetime(Buttons, Answer):
     PART_FLAG = 'd'
-    TYPES_ELEMENTS = {"datetime": [("day", "DD"),
-                                   ("month", "MMM"),
-                                   ("year", "YYYY"),
-                                   ("null", None),
-                                   ("hour", "HH"),
-                                   ("minute", "mm"), ]}
 
     def __init__(self, raw):
         self.type = raw['type']  # datetime / date / time
