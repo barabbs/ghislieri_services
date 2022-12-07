@@ -2,7 +2,7 @@
     "code": "calendar_manager.insert_datae",
     "components": {
         "TEXT": {
-            "text": "🕓️    Inserisci la <b>data</b> da visualizzare",
+            "text": "📅️    Inserisci la <b>data</b> da visualizzare",
             "actions": []
         },
         "KEYBOARD": {

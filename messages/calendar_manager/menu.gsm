@@ -9,7 +9,7 @@
             "buttons": [
                 [
                     {
-                        "text": "▶️    Vai alla data",
+                        "text": "⏩️    Vai alla data",
                         "id": "insert_date",
                         "actions": [
                             [

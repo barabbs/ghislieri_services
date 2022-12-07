@@ -2,7 +2,7 @@ from modules.base_service import BaseService
 from modules.service_pipe import Request
 from . import var
 from .calendar import Calendar, EventNotInRange, EventDuplicateUID
-from .rssfeed import RSSFeed
+from . import rssfeed
 
 import logging, os
 
@@ -14,9 +14,8 @@ class CalendarManager(BaseService):
 
     def __init__(self, *args, **kwargs):
         super(CalendarManager, self).__init__(*args, **kwargs)
-        self.calendar = Calendar()
-        self.rssfeed = RSSFeed()
-        # self._task_update_rssfeed()
+        self.calendar = None
+        self.load_calendar()
 
     def _load_tasks(self):
         self.scheduler.every().day.at(var.RSSFEED_UPDATE_TIME).do(self._task_update_rssfeed)
@@ -67,7 +66,7 @@ class CalendarManager(BaseService):
     def _task_update_rssfeed(self):
         log.info("Updating events from RSSFeed...")
         errors = 0
-        for event in self.rssfeed.get_events():
+        for event in rssfeed.get_events():
             try:
                 self.calendar.add_event(autocorrect=True, **event)
             except (EventNotInRange, EventDuplicateUID) as err:
@@ -78,6 +77,7 @@ class CalendarManager(BaseService):
             else:
                 errors = 0
         self.calendar.save()
+        self.load_calendar()
         log.info("RSSFeed update finished")
 
 
