@@ -2,7 +2,7 @@
     "code": "calendar_manager.new_event.new_event",
     "components": {
         "TEXT": {
-            "text": "🆕    <b>Nuovo evento</b>",
+            "text": "🆕    <b>Nuovo evento</b>\n{new_event[classification][text]}",
             "actions": []
         },
         "KEYBOARD": {
@@ -53,6 +53,38 @@
                 ],
                 [
                     {
+                        "text": "LINK    {new_event[url]}",
+                        "id": "link",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_text_key",
+                                "url"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_text_dialog",
+                                "il <b>Link</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.edit_text"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "CATEGORIA    {new_event[categories][text]}",
+                        "id": "categories",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.select_cat"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "INIZIO    {new_event[begin][short]}",
                         "id": "begin",
                         "actions": [
@@ -97,42 +129,24 @@
                 ],
                 [
                     {
-                        "text": "LINK    {new_event[url]}",
-                        "id": "link",
+                        "text": "↩️ Back",
+                        "id": "back",
                         "actions": [
                             [
-                                "SAVE",
-                                "edit_text_key",
-                                "url"
-                            ],
-                            [
-                                "SAVE",
-                                "edit_text_dialog",
-                                "il <b>Link</b>"
-                            ],
-                            [
-                                "NEW",
-                                "calendar_manager.new_event.edit_text"
+                                "BACK"
                             ]
                         ]
                     },
                     {
-                        "text": "CATEGORIA    {new_event[categories]}",
-                        "id": "categories",
+                        "text": "OK",
+                        "id": "recap",
                         "actions": [
                             [
                                 "NEW",
-                                "calendar_manager.new_event.select_cat"
+                                "calendar_manager.new_event.recap"
                             ]
                         ]
                     }
-                ]
-            ],
-            "navigation": [
-                [
-                    [
-                        "back"
-                    ]
                 ]
             ]
         }

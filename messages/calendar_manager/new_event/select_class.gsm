@@ -19,7 +19,10 @@
                             [
                                 "SAVE",
                                 "new_event.classification",
-                                "cultural"
+                                {
+                                    "text": "🏛    Culturale",
+                                    "class": "cultural"
+                                }
                             ],
                             [
                                 "NEW",
@@ -38,7 +41,10 @@
                             [
                                 "SAVE",
                                 "new_event.classification",
-                                "sport"
+                                {
+                                    "text": "⚽️    Sport",
+                                    "class": "sport"
+                                }
                             ],
                             [
                                 "NEW",
@@ -59,7 +65,10 @@
                             [
                                 "SAVE",
                                 "new_event.classification",
-                                "college"
+                                {
+                                    "text": "🔥    Collegiale",
+                                    "class": "college"
+                                }
                             ],
                             [
                                 "NEW",
@@ -78,7 +87,10 @@
                             [
                                 "SAVE",
                                 "new_event.classification",
-                                "misc"
+                                {
+                                    "text": "🗄️    Altro",
+                                    "class": "misc"
+                                }
                             ],
                             [
                                 "NEW",

@@ -31,7 +31,11 @@
                                         "short": "--:--"
                                     },
                                     "url": null,
-                                    "categories": null
+                                    "categories": {
+                                        "cat": [],
+                                        "text": "---",
+                                        "sym": ""
+                                    }
                                 }
                             ],
                             [

@@ -7,6 +7,7 @@ import telegram as tlg
 import os, logging
 from math import ceil
 import arrow as ar
+import calendar as cal
 
 log = logging.getLogger(__name__)
 
@@ -144,7 +145,7 @@ class Keyboard(BaseComponent):
         # super(Keyboard, self).__init__(raw)  # Removed 'actions' from KEYBOARD component as it seems not to be used
 
     def get_content(self, **kwargs):
-        time_str = str(int(time()*10))[-6:]
+        time_str = str(int(time() * 10))[-6:]
         buttons = sum((part.get_keys(time_str=time_str, **kwargs) for part in self.parts), start=list())
         return {'reply_markup': tlg.InlineKeyboardMarkup(buttons)}
 
@@ -251,6 +252,53 @@ class Options(Buttons, Answer):
         super(Buttons, self).act(answer=data[format_data(self.opt_data_key, data)][page * h * w + int(key_id)], data=data, **kwargs)
 
 
+# class Datetime(Buttons, Answer):
+#     PART_FLAG = 'd'
+#     TYPES_ELEMENTS = {"datetime": [("day", "DD"),
+#                                    ("month", "MMM"),
+#                                    ("year", "YYYY"),
+#                                    ("null", None),
+#                                    ("hour", "HH"),
+#                                    ("minute", "mm"), ]}
+#
+#     def __init__(self, raw):
+#         self.type = raw['type']  # datetime / date / time
+#         self.minute_inc = raw['minute_inc'] if 'minute_inc' in raw else 15
+#         super(Buttons, self).__init__(raw)
+#
+#     def _get_data_dict(self, dt):
+#         return {"dt": dt.format(), "text": dt.format('dddd DD MMMM YYYY, HH:mm', locale='it'), "short": dt.format('ddd DD MMM YYYY, HH:mm', locale='it')}
+#
+#     def get_keys(self, data, **kwargs):
+#         key = format_data(self.ans_data_key, data)
+#         try:
+#             dt = ar.get(data[key]["dt"])
+#         except (KeyError, TypeError):
+#             dt = ar.now().floor("hour")
+#             data[key] = self._get_data_dict(dt)
+#         rows = [[], [], []]
+#         for elem, form in self.TYPES_ELEMENTS[self.type]:
+#             if elem == "null":
+#                 for i in range(3):
+#                     rows[i].append(Key({'text': " ", 'id': f"null"}).get_key(part=self, data=data, **kwargs))
+#                 continue
+#             rows[0].append(Key({'text': "▲", 'id': f"{elem}+"}).get_key(part=self, data=data, **kwargs))
+#             rows[1].append(Key({'text': dt.format(form, locale='it'), 'id': f"{elem}="}).get_key(part=self, data=data, **kwargs))
+#             rows[2].append(Key({'text': "▼", 'id': f"{elem}-"}).get_key(part=self, data=data, **kwargs))
+#         return rows
+#
+#     def act(self, key_id, data, **kwargs):
+#         if key_id == "null":
+#             return
+#         dt = ar.get(data[format_data(self.ans_data_key, data)]["dt"])
+#         elem, sign = key_id[0:-1], key_id[-1]
+#         if sign == "=":
+#             dt = dt.replace(**{elem: getattr(ar.now().floor("hour"), elem)})
+#         else:
+#             inc = self.minute_inc if elem == "minute" else 1
+#             dt = dt.shift(**{elem + "s": inc if sign == "+" else -inc})
+#         super(Buttons, self).act(answer=self._get_data_dict(dt), data=data, **kwargs)
+
 class Datetime(Buttons, Answer):
     PART_FLAG = 'd'
     TYPES_ELEMENTS = {"datetime": [("day", "DD"),
@@ -265,38 +313,78 @@ class Datetime(Buttons, Answer):
         self.minute_inc = raw['minute_inc'] if 'minute_inc' in raw else 15
         super(Buttons, self).__init__(raw)
 
-    def _get_data_dict(self, dt):
-        return {"dt": dt.format(), "text": dt.format('dddd DD MMMM YYYY, HH:mm', locale='it'), "short": dt.format('ddd DD MMM YYYY, HH:mm', locale='it')}
+    def _get_dict_from_dict(self, dt, status):
+        try:
+            return {"dt": dt.format(),
+                    "status": status,
+                    "text": dt.format('dddd DD MMMM YYYY, HH:mm', locale='it'),
+                    "short": dt.format('ddd DD MMM YYYY, HH:mm', locale='it')}
+        except AttributeError:
+            return {"dt": None,
+                    "status": status,
+                    "text": "--:--",
+                    "short": "--:--"}
 
-    def get_keys(self, data, **kwargs):
+    def _get_data_from_dict(self, data):
         key = format_data(self.ans_data_key, data)
         try:
             dt = ar.get(data[key]["dt"])
+            status = data[key]["status"]
         except (KeyError, TypeError):
-            dt = ar.now().floor("hour")
-            data[key] = self._get_data_dict(dt)
-        rows = [[], [], []]
-        for elem, form in self.TYPES_ELEMENTS[self.type]:
-            if elem == "null":
-                for i in range(3):
-                    rows[i].append(Key({'text': " ", 'id': f"null"}).get_key(part=self, data=data, **kwargs))
-                continue
-            rows[0].append(Key({'text': "▲", 'id': f"{elem}+"}).get_key(part=self, data=data, **kwargs))
-            rows[1].append(Key({'text': dt.format(form, locale='it'), 'id': f"{elem}="}).get_key(part=self, data=data, **kwargs))
-            rows[2].append(Key({'text': "▼", 'id': f"{elem}-"}).get_key(part=self, data=data, **kwargs))
-        return rows
+            dt = ar.now().replace(tzinfo="utc").floor("hour")
+            status = None
+            data[key] = self._get_dict_from_dict(dt, status)
+        return dt, status
+
+    def get_keys(self, data, **kwargs):
+        dt, status = self._get_data_from_dict(data)
+        if status is None:
+            keys = [[Key({'text': dt.format('dddd DD MMMM YYYY', locale='it').capitalize(), 'id': "date"}).get_key(part=self, data=data, **kwargs)],
+                    [Key({'text': dt.format('HH:mm'), 'id': "hour"}).get_key(part=self, data=data, **kwargs)],
+                    [Key({'text': "❌", 'id': "back"}).get_key(part=self, data=data, actions=[['BACK']], **kwargs),
+                     Key({'text': "✔", 'id': "ok"}).get_key(part=self, data=data, actions=[['BACK']], **kwargs)]
+                    ]
+        elif status == "date":
+            keys = [[Key({'text': "◀", 'id': "-"}).get_key(part=self, data=data, **kwargs),
+                     Key({'text': dt.format('MMMM YYYY', locale='it').capitalize(), 'id': "null"}).get_key(part=self, data=data, **kwargs),
+                     Key({'text': "▶", 'id': "+"}).get_key(part=self, data=data, **kwargs)]]
+            keys += list(
+                list(Key({'text': i, 'id': str(i)} if i != 0 else {'text': " ", 'id': "null"}).get_key(part=self, data=data, **kwargs) for i in row) for row in cal.monthcalendar(dt.year, dt.month))
+        elif status == "hour":
+            keys = list(list(Key({'text': f"{i:02}", 'id': str(i)}).get_key(part=self, data=data, **kwargs) for i in range(6 * j, 6 * (j + 1))) for j in range(4))
+        elif status == "minute":
+            h = f"{dt.hour:02}"
+            keys = list(list(Key({'text': f"{h}:{i:02}", 'id': str(i)}).get_key(part=self, data=data, **kwargs) for i in range(30 * j, 30 * (j + 1), 5)) for j in range(2))
+        return keys
 
     def act(self, key_id, data, **kwargs):
         if key_id == "null":
             return
-        dt = ar.get(data[format_data(self.ans_data_key, data)]["dt"])
-        elem, sign = key_id[0:-1], key_id[-1]
-        if sign == "=":
-            dt = dt.replace(**{elem: getattr(ar.now().floor("hour"), elem)})
-        else:
-            inc = self.minute_inc if elem == "minute" else 1
-            dt = dt.shift(**{elem + "s": inc if sign == "+" else -inc})
-        super(Buttons, self).act(answer=self._get_data_dict(dt), data=data, **kwargs)
+        dt, status = self._get_data_from_dict(data)
+        if status is None:
+            if key_id == "back":
+                super(Buttons, self).act(answer=self._get_dict_from_dict(None, None), data=data, **kwargs)
+                get_action_back()(**kwargs)
+            elif key_id == "ok":
+                get_action_back()(**kwargs)
+            else:
+                super(Buttons, self).act(answer=self._get_dict_from_dict(dt, key_id), data=data, **kwargs)
+        elif status == "date":
+            if key_id == "+":
+                dt = dt.shift(months=1)
+                super(Buttons, self).act(answer=self._get_dict_from_dict(dt, "date"), data=data, **kwargs)
+            elif key_id == "-":
+                dt = dt.shift(months=-1)
+                super(Buttons, self).act(answer=self._get_dict_from_dict(dt, "date"), data=data, **kwargs)
+            else:
+                dt = dt.replace(day=int(key_id))
+                super(Buttons, self).act(answer=self._get_dict_from_dict(dt, None), data=data, **kwargs)
+        elif status == "hour":
+            dt = dt.replace(hour=int(key_id))
+            super(Buttons, self).act(answer=self._get_dict_from_dict(dt, "minute"), data=data, **kwargs)
+        elif status == "minute":
+            dt = dt.replace(minute=int(key_id))
+            super(Buttons, self).act(answer=self._get_dict_from_dict(dt, None), data=data, **kwargs)
 
 
 get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)

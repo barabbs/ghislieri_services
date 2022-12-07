@@ -22,6 +22,7 @@ CALENDAR_DEFAULTS = {'creator': "Ghislieri Services Calendar"}
 CALENDAR_SHIFT = dt.timedelta(weeks=32)
 AUTOCORRECT_DEFAULT_DURATION = dt.timedelta(hours=2)
 UID_SEPARATOR = "/"
+TIMEZONE = "Europe/Rome"
 
 # Timezone for calcurse integration (NOT WORKING)
 CALENDAR_TIMEZONE = Container("VTIMEZONE",

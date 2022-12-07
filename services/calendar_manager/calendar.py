@@ -1,5 +1,6 @@
 from . import var
 import arrow as ar
+from time import time
 import os, ics
 import datetime as dt
 from modules import utility as utl
@@ -12,9 +13,14 @@ BEGIN_AFTER_END = "End must be after begin"
 
 
 class EventNotInRange(Exception):
+    IT_MSG = "L'evento non è dell'anno corrente"
     def __init__(self, evstart):
         super(EventNotInRange, self).__init__(f"Event with start {evstart} not in calendar range")
 
+class EventEndBeforeStart(Exception):
+    IT_MSG = "L'oraio di fine è precedente a quello di inizio"
+    def __init__(self, evstart, evend):
+        super(EventEndBeforeStart, self).__init__(f"Event has end {evend} before start {evstart}")
 
 class EventDuplicateUID(Exception):
     def __init__(self, uid):
@@ -32,7 +38,7 @@ def get_event_dict(event, day):
                "recap_h": event.begin.format('HH:mm') if event.begin.floor('day') == day else "   ➤   ",
                "start_h": event.begin.format('HH:mm') if event.begin.floor('day') == event.end.floor('day') else event.begin.format('DD MMM, HH:mm', locale='it') + " ",
                "end_h": event.end.format('HH:mm') if event.begin.floor('day') == event.end.floor('day') else " " + event.end.format('DD MMM, HH:mm', locale='it'),
-               "description": event.description.replace("\xa0", "\n") if event.url is None else "",
+               "description": event.description.replace("\xa0", "\n") if event.url is None and event.description is not None else "",
                "has_url": event.url is not None,
                "hidden_url": "" if event.url is None else f'<a href="{event.url}"> </a>',
                "url": event.url}
@@ -49,6 +55,10 @@ class Calendar(ics.Calendar):
     def __init__(self):
         self.year, self.range = get_calendar_name()
         self.filepath = os.path.join(var.CALENDARS_DIR, f"{var.CALENDAR_NAME}{self.year}-{self.year + 1}{var.CALENDAR_EXT}")
+        self.calendar = None
+        self._load_calendar()
+
+    def _load_calendar(self):
         try:
             with open(self.filepath, 'r') as file:
                 super(Calendar, self).__init__(file.read(), **var.CALENDAR_DEFAULTS)
@@ -58,10 +68,14 @@ class Calendar(ics.Calendar):
 
     def add_event(self, autocorrect=False, **kwargs):
         if "organizer" in kwargs:
-            kwargs["organizer"]["email"] = kwargs["organizer"].get("email", "NONE")
+            kwargs["organizer"]["email"] = kwargs["organizer"].get("email", "NONE") or "NONE"
             kwargs["organizer"] = ics.Organizer(**kwargs["organizer"])
+        if "uid" not in kwargs and "id" not in kwargs:
+            kwargs["id"] = str(int(time()))
         if "id" in kwargs:
             kwargs["uid"] = kwargs["classification"] + var.UID_SEPARATOR + kwargs.pop("id")
+        if "created" not in kwargs:
+            kwargs["created"] = ar.now()
         try:
             event = ics.Event(**kwargs)
         except ValueError as err:
@@ -71,19 +85,20 @@ class Calendar(ics.Calendar):
                 kwargs["duration"] = var.AUTOCORRECT_DEFAULT_DURATION
                 event = ics.Event(**kwargs)
             else:
-                raise
+                raise EventEndBeforeStart
         log.debug(f"{event.begin.format('YYYY-MM-DD HH:mm:ss ZZ')} - {event.end.format('YYYY-MM-DD HH:mm:ss ZZ')}  |  {event.name}")
         if event.begin < self.range[0] or event.begin > self.range[1]:
             raise EventNotInRange(event.begin)
         if any(ev.uid == event.uid for ev in self.events):
             raise EventDuplicateUID(event.uid)  # TODO: Update if modification time is newer?
         self.events.add(event)
-        log.info(f"Evento aggiunto:  {event.begin.format('YYYY-MM-DD HH:mm:ss ZZ')} - {event.end.format('YYYY-MM-DD HH:mm:ss ZZ')}  |  {event.name}")
+        log.info(f"Event added:  {event.begin.format('YYYY-MM-DD HH:mm:ss ZZ')} - {event.end.format('YYYY-MM-DD HH:mm:ss ZZ')}  |  {event.name}")
 
     def save(self):
         with open(self.filepath + ".temp", 'w') as file:
             file.writelines(self.serialize_iter())
         os.rename(self.filepath + ".temp", self.filepath)
+        self._load_calendar()
 
     def get_calendar_range(self):
         return {'day_num': (ar.now() - self.range[0]).days, 'day_max': 365}

@@ -19,9 +19,11 @@
                             [
                                 "SAVE",
                                 "new_event.categories",
-                                [
-                                    "conference"
-                                ]
+                                {
+                                    "cat": ["conference"],
+                                    "text": "🗣  Conferenza",
+                                    "sym": "🗣"
+                                }
                             ],
                             [
                                 "BACK"
@@ -39,9 +41,11 @@
                             [
                                 "SAVE",
                                 "new_event.categories",
-                                [
-                                    "class"
-                                ]
+                                {
+                                    "cat": ["class"],
+                                    "text": "📚  Corso",
+                                    "sym": "📚"
+                                }
                             ],
                             [
                                 "BACK"
@@ -61,9 +65,11 @@
                             [
                                 "SAVE",
                                 "new_event.categories",
-                                [
-                                    "meeting"
-                                ]
+                                {
+                                    "cat": ["meeting"],
+                                    "text": "👥  Incontro",
+                                    "sym": "👥"
+                                }
                             ],
                             [
                                 "BACK"
@@ -81,9 +87,11 @@
                             [
                                 "SAVE",
                                 "new_event.categories",
-                                [
-                                    "concert"
-                                ]
+                                {
+                                    "cat": ["concert"],
+                                    "text": "🎼  Concerto",
+                                    "sym": "🎼"
+                                }
                             ],
                             [
                                 "BACK"

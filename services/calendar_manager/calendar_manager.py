@@ -26,6 +26,17 @@ class CalendarManager(BaseService):
         self.calendar = Calendar()
 
     # Requests
+    def _request_add_event(self, **kwargs):
+        for k, s in (("name", "Titolo"), ("begin", "Orario di inizio"), ("end", "Orario di fine")):
+            if kwargs[k] is None:
+                return {"ok": False, "text": f"{s} dell'evento mancante"}
+
+        try:
+            self.calendar.add_event(**kwargs)
+        except Exception as err:
+            return {"ok": False, "text": getattr(err, "IT_MSG", "Errore generico")}
+        self.calendar.save()
+        return {"ok": True, "text": ""}
 
     def _request_get_calendar_range(self):
         return self.calendar.get_calendar_range()

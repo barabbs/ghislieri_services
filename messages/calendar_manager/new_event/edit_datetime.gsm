@@ -9,37 +9,7 @@
             "datetime": {
                 "type": "datetime",
                 "ans_data_key": "new_event.{edit_datetime_key}"
-            },
-            "buttons": [
-                [
-                    {
-                        "text": "↩️ Back",
-                        "id": "back",
-                        "actions": [
-                            [
-                                "SAVE",
-                                "new_event.{edit_datetime_key}",
-                                {
-                                    "dt": null,
-                                    "short": "--:--"
-                                }
-                            ],
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    },
-                    {
-                        "text": "OK",
-                        "id": "ok",
-                        "actions": [
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
-                ]
-            ]
+            }
         }
     }
 }
