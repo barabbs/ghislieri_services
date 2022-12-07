@@ -260,17 +260,13 @@ class Datetime(Buttons, Answer):
         self.minute_inc = raw['minute_inc'] if 'minute_inc' in raw else 15
         super(Buttons, self).__init__(raw)
 
-    def _get_dict_from_dict(self, dt, status):
-        try:
-            return {"dt": dt.format(),
-                    "status": status,
-                    "text": dt.format('dddd DD MMMM YYYY, HH:mm', locale='it'),
-                    "short": dt.format('ddd DD MMM YYYY, HH:mm', locale='it')}
-        except AttributeError:
-            return {"dt": None,
-                    "status": status,
-                    "text": "--:--",
-                    "short": "--:--"}
+    def _get_dict_from_data(self, dt, status):
+        return {"dt": dt.format(),
+                "status": status,
+                "date": dt.format('YYYY-MM-DD'),
+                "time": dt.format('HH:mm'),
+                "text": dt.format('dddd DD MMMM YYYY, HH:mm', locale='it'),
+                "short": dt.format('ddd DD MMM YYYY, HH:mm', locale='it')}
 
     def _get_data_from_dict(self, data):
         key = format_data(self.ans_data_key, data)
@@ -280,17 +276,17 @@ class Datetime(Buttons, Answer):
         except (KeyError, TypeError):
             dt = ar.now().replace(tzinfo="utc").floor("hour")
             status = None
-            data[key] = self._get_dict_from_dict(dt, status)
+            data[key] = self._get_dict_from_data(dt, status)
         return dt, status
 
     def get_keys(self, data, **kwargs):
         dt, status = self._get_data_from_dict(data)
         if status is None:
-            keys = [[Key({'text': dt.format('dddd DD MMMM YYYY', locale='it').capitalize(), 'id': "date"}).get_key(part=self, data=data, **kwargs)],
-                    [Key({'text': dt.format('HH:mm'), 'id': "hour"}).get_key(part=self, data=data, **kwargs)],
-                    [Key({'text': "❌", 'id': "back"}).get_key(part=self, data=data, actions=[['BACK']], **kwargs),
-                     Key({'text': "✔", 'id': "ok"}).get_key(part=self, data=data, actions=[['BACK']], **kwargs)]
-                    ]
+            keys = list()
+            if self.type in ("datetime", "date"):
+                keys.append([Key({'text': dt.format('dddd DD MMMM YYYY', locale='it').capitalize(), 'id': "date"}).get_key(part=self, data=data, **kwargs),])
+            if self.type in ("datetime", "time"):
+                keys.append([Key({'text': dt.format('HH:mm'), 'id': "hour"}).get_key(part=self, data=data, **kwargs),])
         elif status == "date":
             keys = [[Key({'text': "◀", 'id': "-"}).get_key(part=self, data=data, **kwargs),
                      Key({'text': dt.format('MMMM YYYY', locale='it').capitalize(), 'id': "null"}).get_key(part=self, data=data, **kwargs),
@@ -309,29 +305,23 @@ class Datetime(Buttons, Answer):
             return
         dt, status = self._get_data_from_dict(data)
         if status is None:
-            if key_id == "back":
-                super(Buttons, self).act(answer=self._get_dict_from_dict(None, None), data=data, **kwargs)
-                get_action_back()(**kwargs)
-            elif key_id == "ok":
-                get_action_back()(**kwargs)
-            else:
-                super(Buttons, self).act(answer=self._get_dict_from_dict(dt, key_id), data=data, **kwargs)
+            super(Buttons, self).act(answer=self._get_dict_from_data(dt, key_id), data=data, **kwargs)
         elif status == "date":
             if key_id == "+":
                 dt = dt.shift(months=1)
-                super(Buttons, self).act(answer=self._get_dict_from_dict(dt, "date"), data=data, **kwargs)
+                super(Buttons, self).act(answer=self._get_dict_from_data(dt, "date"), data=data, **kwargs)
             elif key_id == "-":
                 dt = dt.shift(months=-1)
-                super(Buttons, self).act(answer=self._get_dict_from_dict(dt, "date"), data=data, **kwargs)
+                super(Buttons, self).act(answer=self._get_dict_from_data(dt, "date"), data=data, **kwargs)
             else:
                 dt = dt.replace(day=int(key_id))
-                super(Buttons, self).act(answer=self._get_dict_from_dict(dt, None), data=data, **kwargs)
+                super(Buttons, self).act(answer=self._get_dict_from_data(dt, None), data=data, **kwargs)
         elif status == "hour":
             dt = dt.replace(hour=int(key_id))
-            super(Buttons, self).act(answer=self._get_dict_from_dict(dt, "minute"), data=data, **kwargs)
+            super(Buttons, self).act(answer=self._get_dict_from_data(dt, "minute"), data=data, **kwargs)
         elif status == "minute":
             dt = dt.replace(minute=int(key_id))
-            super(Buttons, self).act(answer=self._get_dict_from_dict(dt, None), data=data, **kwargs)
+            super(Buttons, self).act(answer=self._get_dict_from_data(dt, None), data=data, **kwargs)
 
 
 get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)

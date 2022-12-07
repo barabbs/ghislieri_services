@@ -9,10 +9,23 @@
             "buttons": [
                 [
                     {
+                        "text": "▶️    Vai alla data",
+                        "id": "insert_date",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.insert_date"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🆕    Nuovo evento",
                         "id": "new_event",
                         "whitelist": [
                             "master",
+                            "admin",
                             "calendar"
                         ],
                         "actions": [
@@ -31,12 +44,17 @@
                                         "short": "--:--"
                                     },
                                     "url": null,
-                                    "categories": {
-                                        "cat": [],
-                                        "text": "---",
-                                        "sym": ""
-                                    }
+                                    "categories": null
                                 }
+                            ],
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "get_categories",
+                                {
+                                    "groups": "$groups"
+                                },
+                                "new_event.categories"
                             ],
                             [
                                 "NEW",

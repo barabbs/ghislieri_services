@@ -1,14 +1,14 @@
 {
-    "code": "calendar_manager.new_event.edit_datetime",
+    "code": "calendar_manager.insert_datae",
     "components": {
         "TEXT": {
-            "text": "🕓️    Inserisci l'orario di {edit_datetime_dialog} dell'evento",
+            "text": "🕓️    Inserisci la <b>data</b> da visualizzare",
             "actions": []
         },
         "KEYBOARD": {
             "datetime": {
-                "type": "datetime",
-                "ans_data_key": "new_event.{edit_datetime_key}"
+                "type": "date",
+                "ans_data_key": "daily_events_day_select"
             },
             "buttons": [
                 [
@@ -16,16 +16,6 @@
                         "text": "❌",
                         "id": "back",
                         "actions": [
-                            [
-                                "SAVE",
-                                "new_event.{edit_datetime_key}",
-                                {
-                                    "dt": null,
-                                    "status": null,
-                                    "text": "--:--",
-                                    "short": "--:--"
-                                }
-                            ],
                             [
                                 "BACK"
                             ]
@@ -36,7 +26,13 @@
                         "id": "ok",
                         "actions": [
                             [
-                                "BACK"
+                                "SAVE",
+                                "daily_events_day",
+                                "$daily_events_day_select.date"
+                            ],
+                            [
+                                "BACK",
+                                2
                             ]
                         ]
                     }

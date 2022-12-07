@@ -14,13 +14,17 @@ BEGIN_AFTER_END = "End must be after begin"
 
 class EventNotInRange(Exception):
     IT_MSG = "L'evento non è dell'anno corrente"
+
     def __init__(self, evstart):
         super(EventNotInRange, self).__init__(f"Event with start {evstart} not in calendar range")
 
+
 class EventEndBeforeStart(Exception):
     IT_MSG = "L'oraio di fine è precedente a quello di inizio"
+
     def __init__(self, evstart, evend):
         super(EventEndBeforeStart, self).__init__(f"Event has end {evend} before start {evstart}")
+
 
 class EventDuplicateUID(Exception):
     def __init__(self, uid):
@@ -42,12 +46,13 @@ def get_event_dict(event, day):
                "has_url": event.url is not None,
                "hidden_url": "" if event.url is None else f'<a href="{event.url}"> </a>',
                "url": event.url}
-    for key, sym in var.SYMBOL_BY_CATEGORY.items():
+    for key, sym in var.CATEGORIES_BY_CLASS[event.classification].items():
         if key in event.categories:
-            ev_dict['symbol'] = sym
+            ev_dict['symbol'] = sym[1]
             break
     else:
         ev_dict['symbol'] = var.DEFAULT_SYMBOL
+    ev_dict['categories'] = " | ".join(f"{var.ALL_CATEGORIES[k][1]} {var.ALL_CATEGORIES[k][0].lower()}" for k in event.categories)
     return ev_dict
 
 
@@ -64,7 +69,7 @@ class Calendar(ics.Calendar):
                 super(Calendar, self).__init__(file.read(), **var.CALENDAR_DEFAULTS)
         except FileNotFoundError:
             super(Calendar, self).__init__(**var.CALENDAR_DEFAULTS)
-            self.extra.append(var.CALENDAR_TIMEZONE)
+            # self.extra.append(var.CALENDAR_TIMEZONE)
 
     def add_event(self, autocorrect=False, **kwargs):
         if "organizer" in kwargs:
@@ -100,12 +105,16 @@ class Calendar(ics.Calendar):
         os.rename(self.filepath + ".temp", self.filepath)
         self._load_calendar()
 
-    def get_calendar_range(self):
-        return {'day_num': (ar.now() - self.range[0]).days, 'day_max': 365}
-
-    def get_day_events(self, day_num):
-        day = self.range[0] + dt.timedelta(days=day_num)
-        events = tuple(get_event_dict(event, day) for event in self.timeline.on(day, strict=False))
+    def get_day_events(self, day, classes):
+        if day is None:
+            day = ar.now().replace(tzinfo="utc").floor("day")
+        else:
+            day = ar.get(day, "YYYY-MM-DD")
+            if day < self.range[0]:
+                day = self.range[0]
+            elif day > self.range[1]:
+                day = self.range[1]
+        events = tuple(get_event_dict(event, day) for event in self.timeline.on(day, strict=False) if event.classification in classes)
         no_event = f"\n\n{var.NO_EVENT_FOR_DAY}" if len(events) == 0 else ""
         day_text = f"<b>{day.format('dddd DD MMMM YYYY', locale='it').capitalize()}</b>" + no_event
-        return {"day": day_text, "events": events}
+        return {"day": day_text, "events": events, "prev": day.shift(days=-1).format("YYYY-MM-DD"), "next": day.shift(days=1).format("YYYY-MM-DD")}

@@ -53,38 +53,6 @@
                 ],
                 [
                     {
-                        "text": "LINK    {new_event[url]}",
-                        "id": "link",
-                        "actions": [
-                            [
-                                "SAVE",
-                                "edit_text_key",
-                                "url"
-                            ],
-                            [
-                                "SAVE",
-                                "edit_text_dialog",
-                                "il <b>Link</b>"
-                            ],
-                            [
-                                "NEW",
-                                "calendar_manager.new_event.edit_text"
-                            ]
-                        ]
-                    },
-                    {
-                        "text": "CATEGORIA    {new_event[categories][text]}",
-                        "id": "categories",
-                        "actions": [
-                            [
-                                "NEW",
-                                "calendar_manager.new_event.select_cat"
-                            ]
-                        ]
-                    }
-                ],
-                [
-                    {
                         "text": "INIZIO    {new_event[begin][short]}",
                         "id": "begin",
                         "actions": [
@@ -123,6 +91,40 @@
                             [
                                 "NEW",
                                 "calendar_manager.new_event.edit_datetime"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "LINK    {new_event[url]}",
+                        "id": "link",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_text_key",
+                                "url"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_text_dialog",
+                                "il <b>Link</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.edit_text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "CATEGORIE    {new_event[categories][text]}",
+                        "id": "categories",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.select_cat"
                             ]
                         ]
                     }

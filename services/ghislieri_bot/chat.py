@@ -46,6 +46,8 @@ class Chat(object):
     def set_groups(self, groups):
         self.groups = groups
         self.permissions = utl.extend_groups(groups)
+        self.data["groups"] = self.groups
+        self.data["permissions"] = self.permissions
 
     def _set_last_interaction(self):
         self.last_interaction = int(time.time())
@@ -70,7 +72,7 @@ class Chat(object):
 
 
     def _reset_data(self, add_data=None):
-        self.data = dotdict({'user_id': self.data['user_id'], 'infos': self.data['infos']})
+        self.data = dotdict({'user_id': self.data['user_id'], 'infos': self.data['infos'], 'groups': self.groups, 'permissions': self.permissions})
         if add_data is not None:
             self.data.update(add_data)
 

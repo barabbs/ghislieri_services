@@ -2,104 +2,27 @@
     "code": "calendar_manager.new_event.select_cat",
     "components": {
         "TEXT": {
-            "text": "#️⃣    Seleziona la <b>categoria</b> dell'evento",
+            "text": "#️⃣    Seleziona le <b>categorie</b> dell'evento",
             "actions": []
         },
         "KEYBOARD": {
-            "buttons": [
-                [
-                    {
-                        "text": "🗣    Conferenza",
-                        "id": "conference",
-                        "whitelist": [
-                            "master",
-                            "calendar.cultural"
-                        ],
-                        "actions": [
-                            [
-                                "SAVE",
-                                "new_event.categories",
-                                {
-                                    "cat": ["conference"],
-                                    "text": "🗣  Conferenza",
-                                    "sym": "🗣"
-                                }
-                            ],
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    },
-                    {
-                        "text": "📚    Corso",
-                        "id": "class",
-                        "whitelist": [
-                            "master",
-                            "calendar.cultural"
-                        ],
-                        "actions": [
-                            [
-                                "SAVE",
-                                "new_event.categories",
-                                {
-                                    "cat": ["class"],
-                                    "text": "📚  Corso",
-                                    "sym": "📚"
-                                }
-                            ],
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
-                ],
-                [
-                    {
-                        "text": "👥    Incontro",
-                        "id": "meeting",
-                        "whitelist": [
-                            "master",
-                            "calendar.cultural"
-                        ],
-                        "actions": [
-                            [
-                                "SAVE",
-                                "new_event.categories",
-                                {
-                                    "cat": ["meeting"],
-                                    "text": "👥  Incontro",
-                                    "sym": "👥"
-                                }
-                            ],
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    },
-                    {
-                        "text": "🎼    Concerto",
-                        "id": "concert",
-                        "whitelist": [
-                            "master",
-                            "calendar.cultural"
-                        ],
-                        "actions": [
-                            [
-                                "SAVE",
-                                "new_event.categories",
-                                {
-                                    "cat": ["concert"],
-                                    "text": "🎼  Concerto",
-                                    "sym": "🎼"
-                                }
-                            ],
-                            [
-                                "BACK"
-                            ]
-                        ]
-                    }
+            "options": {
+                "text": "{sym}    {text}   {sel_text}",
+                "opt_data_key": "new_event.categories.cats",
+                "ans_data_key": "selected_cat",
+                "actions": [
+                    [
+                        "REQ",
+                        "calendar_manager",
+                        "get_categories",
+                        {
+                            "categories": "$new_event.categories.cats",
+                            "selected": "$selected_cat"
+                        },
+                        "new_event.categories"
+                    ]
                 ]
-            ],
+            },
             "navigation": [
                 [
                     [
