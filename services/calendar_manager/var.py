@@ -68,7 +68,7 @@ CLASSES_AUTHORIZATIONS = {"cultural": (None, None),  # (whitelist, blacklist)
 #                               )
 
 # Graphics
-DEFAULT_SYMBOL = "❓"
+DEFAULT_SYMBOL = "📌"
 NO_EVENT_FOR_DAY = "Nessun evento programmato"
 EVENT_LINK_TEXT = "Maggiori Informazioni"
 
