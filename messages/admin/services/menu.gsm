@@ -108,6 +108,23 @@
                 ],
                 [
                     {
+                        "text": "calendar_manager",
+                        "id": "calendar_manager",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "serv_name",
+                                "calendar_manager"
+                            ],
+                            [
+                                "NEW",
+                                "admin.services.options"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🛑    Shutdown",
                         "id": "shutdown",
                         "actions": [

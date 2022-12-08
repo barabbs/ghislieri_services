@@ -1,5 +1,5 @@
 {
-    "code": "calendar_manager.new_event.new_event",
+    "code": "calendar_manager.new_event.main",
     "components": {
         "TEXT": {
             "text": "🆕    <b>Nuovo evento</b>\n{new_event[classification][text]}",
