@@ -23,13 +23,17 @@ CALENDAR_SHIFT = dt.timedelta(weeks=32)
 AUTOCORRECT_DEFAULT_DURATION = dt.timedelta(hours=2)
 UID_SEPARATOR = "/"
 TIMEZONE = "Europe/Rome"
-CATEGORIES_BY_CLASS = {"cultural": {"gs": ("Ghislieri Scienza", "🧬"),
-                                    "phg": ("Philosophicum Ghislieri", "🏛"),
-                                    "bardi": ("Bardi Ghisleriani", "🎻"),
-                                    "conference": ("Conferenza", "🗣"),
+CATEGORIES_BY_CLASS = {"cultural": {"conference": ("Conferenza", "🗣"),
                                     "class": ("Corso", "📚"),
                                     "meeting": ("Incontro", "👥"),
-                                    "concert": ("Concerto", "🎼")},
+                                    "concert": ("Concerto", "🎼"),
+                                    "sci_tech": ("Scienze e Tecnologie", "📐"),
+                                    "biomed": ("Scienze Biomediche", "🧬"),
+                                    "social_sci": ("Scienze Sociali", "⚖️"),
+                                    "human_sci": ("Scienze Umane", "🏺")},
+                       "cultural.gs": {"gs": ("Ghislieri Scienza", "🔬")},
+                       "cultural.phg": {"phg": ("Philosophicum Ghislieri", "🏛")},
+                       "cultural.bardi": {"bardi": ("Bardi Ghisleriani", "🎻")},
                        "sport": {"football": ("Calcio", "⚽️"),
                                  "basketball": ("Basket", "🏀"),
                                  "volleyball": ("Pallavolo", "🏐"),
@@ -38,13 +42,13 @@ CATEGORIES_BY_CLASS = {"cultural": {"gs": ("Ghislieri Scienza", "🧬"),
                                    "happyhour": ("Aperitivo", "🍸"),
                                    "goliardic": ("Goliardia", "👺")},
                        "misc": {"formal": ("Festa Collegiale", "🥂"),
-                                "maintenance": ("Manutenzione", "⚙️"),
+                                "maintenance": ("Manutenzione", "🧰"),
                                 "other": ("Altro", "📌")},
                        }
 ALL_CATEGORIES = dict()
 for i in CATEGORIES_BY_CLASS.values():
     ALL_CATEGORIES.update(i)
-AUTH_GROUPS = {"master", "admin"}
+AUTH_GROUPS = {"admin"}
 CLASSES_AUTHORIZATIONS = {"cultural": (None, None),  # (whitelist, blacklist)
                           "sport": (None, None),
                           "college": ({"master", "student"}, None),

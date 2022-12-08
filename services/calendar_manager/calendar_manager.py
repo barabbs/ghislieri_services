@@ -40,12 +40,12 @@ class CalendarManager(BaseService):
         self.calendar.save()
         return {"ok": True, "text": ""}
 
-    def _request_get_categories(self, categories=None, groups=None, selected=None):
+    def _request_get_categories(self, categories=None, permissions=None, selected=None):
         if categories is None:
-            if len(var.AUTH_GROUPS.intersection(groups)) > 0:
+            if len(var.AUTH_GROUPS.intersection(permissions)) > 0:
                 classes = var.CATEGORIES_BY_CLASS.keys()
             else:
-                classes = (g[9:] for g in filter(lambda x: x[:9] == "calendar.", groups))
+                classes = (g[9:] for g in filter(lambda x: x[:9] == "calendar.", permissions))
             return {"text": "---", "cats": sum((list({"name": k, "text": s[0], "sym": s[1], "sel": False, "sel_text": ""} for k, s in var.CATEGORIES_BY_CLASS[cl].items()) for cl in classes), start=list())}
         else:
             for s in categories:
