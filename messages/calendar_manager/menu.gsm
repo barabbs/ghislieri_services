@@ -52,7 +52,7 @@
                                 "calendar_manager",
                                 "get_categories",
                                 {
-                                    "groups": "$groups"
+                                    "permissions": "$permissions"
                                 },
                                 "new_event.categories"
                             ],

@@ -1,0 +1,45 @@
+{
+    "code": "calendar_manager.delete_event.main",
+    "components": {
+        "TEXT": {
+            "text": "🗑❓    Vuoi davvero <b>eliminare</b> l'evento <b>{event[name]}</b>?",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "✔️",
+                        "id": "yes",
+                        "actions": [
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "remove_event",
+                                {
+                                    "uid": "$event.uid"
+                                },
+                                "remove_event_result"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.delete_event.confirmation",
+                                "remove_event_result.ok",
+                                "calendar_manager.delete_event.error"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "❌",
+                        "id": "no",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}

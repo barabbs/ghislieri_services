@@ -1,0 +1,25 @@
+{
+    "code": "calendar_manager.delete_event.error",
+    "components": {
+        "TEXT": {
+            "text": "❌    Errore nel rimuovere l'evento {event[name]}\n\n⚠️    <b>{remove_event_result[text]}</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "OK",
+                        "id": "ok",
+                        "actions": [
+                            [
+                                "BACK",
+                                2
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}

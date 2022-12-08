@@ -1,0 +1,168 @@
+{
+    "code": "calendar_manager.edit_event.main",
+    "components": {
+        "TEXT": {
+            "text": "✏️    <b>Modifica evento</b>\n\n<b>CLASSE</b>    {edit_event[classification]}",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "TITOLO    {edit_event[name]}",
+                        "id": "title",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_text_key",
+                                "name"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_text_dialog",
+                                "il <b>Titolo</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.edit_text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "DESCRIZIONE    {edit_event[description]}",
+                        "id": "description",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_text_key",
+                                "description"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_text_dialog",
+                                "la <b>Descrizione</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.edit_text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "INIZIO    {edit_event[begin][short]}",
+                        "id": "begin",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_datetime_key",
+                                "begin"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_datetime_dialog",
+                                "<b>Inizio</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.edit_datetime"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "FINE    {edit_event[end][short]}",
+                        "id": "end",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_datetime_key",
+                                "end"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_datetime_dialog",
+                                "<b>Fine</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.edit_datetime"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "LINK    {edit_event[url]}",
+                        "id": "link",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_text_key",
+                                "url"
+                            ],
+                            [
+                                "SAVE",
+                                "edit_text_dialog",
+                                "il <b>Link</b>"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.edit_text"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "CATEGORIE    {edit_event[categories][text]}",
+                        "id": "categories",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.select_cat"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "STATO    {edit_event[status][text]}",
+                        "id": "status",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.select_status"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "id": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "OK",
+                        "id": "recap",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.recap"
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}

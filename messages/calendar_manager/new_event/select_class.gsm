@@ -20,13 +20,13 @@
                                 "SAVE",
                                 "new_event.classification",
                                 {
-                                    "text": "🏛    Culturale",
+                                    "text": "🏛  Culturale",
                                     "class": "cultural"
                                 }
                             ],
                             [
                                 "NEW",
-                                "calendar_manager.new_event.new_event"
+                                "calendar_manager.new_event.main"
                             ]
                         ]
                     },
@@ -42,13 +42,13 @@
                                 "SAVE",
                                 "new_event.classification",
                                 {
-                                    "text": "⚽️    Sport",
+                                    "text": "⚽️  Sport",
                                     "class": "sport"
                                 }
                             ],
                             [
                                 "NEW",
-                                "calendar_manager.new_event.new_event"
+                                "calendar_manager.new_event.main"
                             ]
                         ]
                     }
@@ -66,13 +66,13 @@
                                 "SAVE",
                                 "new_event.classification",
                                 {
-                                    "text": "🔥    Collegiale",
+                                    "text": "🔥  Collegiale",
                                     "class": "college"
                                 }
                             ],
                             [
                                 "NEW",
-                                "calendar_manager.new_event.new_event"
+                                "calendar_manager.new_event.main"
                             ]
                         ]
                     },
@@ -88,13 +88,13 @@
                                 "SAVE",
                                 "new_event.classification",
                                 {
-                                    "text": "🗄️    Altro",
+                                    "text": "🗄️  Altro",
                                     "class": "misc"
                                 }
                             ],
                             [
                                 "NEW",
-                                "calendar_manager.new_event.new_event"
+                                "calendar_manager.new_event.main"
                             ]
                         ]
                     }

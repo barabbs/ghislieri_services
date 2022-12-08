@@ -23,13 +23,17 @@ CALENDAR_SHIFT = dt.timedelta(weeks=32)
 AUTOCORRECT_DEFAULT_DURATION = dt.timedelta(hours=2)
 UID_SEPARATOR = "/"
 TIMEZONE = "Europe/Rome"
-CATEGORIES_BY_CLASS = {"cultural": {"gs": ("Ghislieri Scienza", "🧬"),
-                                    "phg": ("Philosophicum Ghislieri", "🏛"),
-                                    "bardi": ("Bardi Ghisleriani", "🎻"),
-                                    "conference": ("Conferenza", "🗣"),
+CATEGORIES_BY_CLASS = {"cultural": {"conference": ("Conferenza", "🗣"),
                                     "class": ("Corso", "📚"),
                                     "meeting": ("Incontro", "👥"),
-                                    "concert": ("Concerto", "🎼")},
+                                    "concert": ("Concerto", "🎼"),
+                                    "sci_tech": ("Scienze e Tecnologie", "📐"),
+                                    "biomed": ("Scienze Biomediche", "🧬"),
+                                    "social_sci": ("Scienze Sociali", "⚖️"),
+                                    "human_sci": ("Scienze Umane", "🏺")},
+                       "cultural.gs": {"gs": ("Ghislieri Scienza", "🔬")},
+                       "cultural.phg": {"phg": ("Philosophicum Ghislieri", "🏛")},
+                       "cultural.bardi": {"bardi": ("Bardi Ghisleriani", "🎻")},
                        "sport": {"football": ("Calcio", "⚽️"),
                                  "basketball": ("Basket", "🏀"),
                                  "volleyball": ("Pallavolo", "🏐"),
@@ -38,7 +42,7 @@ CATEGORIES_BY_CLASS = {"cultural": {"gs": ("Ghislieri Scienza", "🧬"),
                                    "happyhour": ("Aperitivo", "🍸"),
                                    "goliardic": ("Goliardia", "👺")},
                        "misc": {"formal": ("Festa Collegiale", "🥂"),
-                                "maintenance": ("Manutenzione", "⚙️"),
+                                "maintenance": ("Manutenzione", "🧰"),
                                 "other": ("Altro", "📌")},
                        }
 ALL_CATEGORIES = dict()
@@ -49,6 +53,8 @@ CLASSES_AUTHORIZATIONS = {"cultural": (None, None),  # (whitelist, blacklist)
                           "sport": (None, None),
                           "college": ({"master", "student"}, None),
                           "misc": (None, None)}
+STATUS_TEXTS = {"CONFIRMED": "🟢  Confermato", "TENTATIVE": "🟢  Auto/Ipotesi", "CANCELLED": "🔴  Cancellato", None: "---"}
+CLASSIFICATION_TEXTS = {"cultural": "🏛  Culturale", "sport": "⚽️  Sport", "college": "🔥  Collegiale", "misc": "🗄️  Altro"}
 
 # Timezone for calcurse integration (NOT WORKING)
 # CALENDAR_TIMEZONE = Container("VTIMEZONE",

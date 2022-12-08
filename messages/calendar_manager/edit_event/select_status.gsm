@@ -1,0 +1,77 @@
+{
+    "code": "calendar_manager.edit_event.select_cat",
+    "components": {
+        "TEXT": {
+            "text": "🚦    Seleziona lo <b>stato</b> dell'evento",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "🟢    Confermato",
+                        "id": "conf",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_event.status",
+                                {
+                                    "text": "🟢  Confermato",
+                                    "st": "CONFIRMED"
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🟡    Automatico / Da confermare",
+                        "id": "tent",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_event.status",
+                                {
+                                    "text": "🟡  Auto/Ipotesi",
+                                    "st": "TENTATIVE"
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🔴    Cancellato",
+                        "id": "canc",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_event.status",
+                                {
+                                    "text": "🔴  Cancellato",
+                                    "st": "CANCELLED"
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

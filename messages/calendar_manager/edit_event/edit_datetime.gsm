@@ -1,0 +1,47 @@
+{
+    "code": "calendar_manager.edit_event.edit_datetime",
+    "components": {
+        "TEXT": {
+            "text": "🕓️    Inserisci l'orario di {edit_datetime_dialog} dell'evento",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "datetime": {
+                "type": "datetime",
+                "ans_data_key": "edit_event.{edit_datetime_key}"
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "❌",
+                        "id": "back",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "edit_event.{edit_datetime_key}",
+                                {
+                                    "dt": null,
+                                    "status": null,
+                                    "text": "--:--",
+                                    "short": "--:--"
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "✔",
+                        "id": "ok",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}

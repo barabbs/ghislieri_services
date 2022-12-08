@@ -1,8 +1,8 @@
 {
-    "code": "calendar_manager.new_event.new_event",
+    "code": "calendar_manager.new_event.main",
     "components": {
         "TEXT": {
-            "text": "🆕    <b>Nuovo evento</b>\n{new_event[classification][text]}",
+            "text": "🆕    <b>Nuovo evento</b>\n\n<b>CLASSE</b>    {new_event[classification][text]}",
             "actions": []
         },
         "KEYBOARD": {
