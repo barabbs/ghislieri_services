@@ -296,8 +296,8 @@ class Datetime(Buttons, Answer):
         elif status == "hour":
             keys = list(list(Key({'text': f"{i:02}", 'id': str(i)}).get_key(part=self, data=data, **kwargs) for i in range(6 * j, 6 * (j + 1))) for j in range(4))
         elif status == "minute":
-            h = f"{dt.hour:02}"
-            keys = list(list(Key({'text': f"{h}:{i:02}", 'id': str(i)}).get_key(part=self, data=data, **kwargs) for i in range(30 * j, 30 * (j + 1), 5)) for j in range(2))
+            # h = f"{dt.hour:02}"
+            keys = list(list(Key({'text': f":{i:02}", 'id': str(i)}).get_key(part=self, data=data, **kwargs) for i in range(30 * j, 30 * (j + 1), 5)) for j in range(2))
         return keys
 
     def act(self, key_id, data, **kwargs):

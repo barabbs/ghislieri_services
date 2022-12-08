@@ -54,7 +54,10 @@ def get_event_daily_recap(event, day):
                "hidden_url": f'<a href="{event.url}"> </a>',
                "url": event.url,
                "uid": event.uid}
-    for key, sym in var.CATEGORIES_BY_CLASS[event.classification].items():
+    cats = dict()
+    for c in (v for v in var.CATEGORIES_BY_CLASS.keys() if v.split(".")[0] == event.classification):
+        cats.update(var.CATEGORIES_BY_CLASS[c])
+    for key, sym in cats.items():
         if key in event.categories:
             ev_dict['symbol'] = sym[1]
             break
