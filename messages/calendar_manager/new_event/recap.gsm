@@ -2,7 +2,7 @@
     "code": "calendar_manager.new_event.recap",
     "components": {
         "TEXT": {
-            "text": "🆕    <b>Anteprima evento</b>\n{new_event[classification][text]}\n\n\n{new_event[categories][text]}    <b>{new_event[name]}</b>\n\n<b>Inizio</b>    <code>{new_event[begin][short]}</code>\n<b>Fine</b>      <code>{new_event[end][short]}</code>\n\n<i>{new_event[description]}</i>\n\n<b>Link</b>      {new_event[url]}",
+            "text": "📍    <b>Anteprima evento</b>\n\n<b>CLASSE</b>    {new_event[classification][text]}\n\n\n{new_event[categories][text]}    <b>{new_event[name]}</b>\n\n<b>Inizio</b>    <code>{new_event[begin][short]}</code>\n<b>Fine</b>      <code>{new_event[end][short]}</code>\n\n<i>{new_event[description]}</i>\n\n<b>Link</b>      {new_event[url]}",
             "actions": []
         },
         "KEYBOARD": {
