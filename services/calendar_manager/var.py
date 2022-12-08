@@ -23,7 +23,10 @@ CALENDAR_SHIFT = dt.timedelta(weeks=32)
 AUTOCORRECT_DEFAULT_DURATION = dt.timedelta(hours=2)
 UID_SEPARATOR = "/"
 TIMEZONE = "Europe/Rome"
-CATEGORIES_BY_CLASS = {"cultural": {"conference": ("Conferenza", "🗣"),
+CATEGORIES_BY_CLASS = {"cultural.gs": {"gs": ("Ghislieri Scienza", "🔬")},
+                       "cultural.phg": {"phg": ("Philosophicum Ghislieri", "🏛")},
+                       "cultural.bardi": {"bardi": ("Bardi Ghisleriani", "🎻")},
+                       "cultural": {"conference": ("Conferenza", "🗣"),
                                     "class": ("Corso", "📚"),
                                     "meeting": ("Incontro", "👥"),
                                     "concert": ("Concerto", "🎼"),
@@ -31,9 +34,6 @@ CATEGORIES_BY_CLASS = {"cultural": {"conference": ("Conferenza", "🗣"),
                                     "biomed": ("Scienze Biomediche", "🧬"),
                                     "social_sci": ("Scienze Sociali", "⚖️"),
                                     "human_sci": ("Scienze Umane", "🏺")},
-                       "cultural.gs": {"gs": ("Ghislieri Scienza", "🔬")},
-                       "cultural.phg": {"phg": ("Philosophicum Ghislieri", "🏛")},
-                       "cultural.bardi": {"bardi": ("Bardi Ghisleriani", "🎻")},
                        "sport": {"football": ("Calcio", "⚽️"),
                                  "basketball": ("Basket", "🏀"),
                                  "volleyball": ("Pallavolo", "🏐"),
