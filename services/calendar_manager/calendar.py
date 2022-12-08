@@ -104,7 +104,7 @@ class Calendar(ics.Calendar):
                 kwargs["duration"] = var.AUTOCORRECT_DEFAULT_DURATION
                 event = ics.Event(**kwargs)
             else:
-                raise EventEndBeforeStart
+                raise EventEndBeforeStart(kwargs['begin'], kwargs['end'])
         if event.begin < self.range[0] or event.begin > self.range[1]:
             raise EventNotInRange(event.begin)
         if any(ev.uid == event.uid for ev in self.events):
@@ -116,10 +116,11 @@ class Calendar(ics.Calendar):
         if ar.get(kwargs["begin"]) < self.range[0] or ar.get(kwargs["begin"]) > self.range[1]:
             raise EventNotInRange(ar.get(kwargs["begin"]))
         if ar.get(kwargs["end"]) < ar.get(kwargs["begin"]):
-            raise EventEndBeforeStart
+            raise EventEndBeforeStart(kwargs['begin'], kwargs['end'])
         kwargs["last_modified"] = ar.now().replace(tzinfo="utc")
         event = self.get_event_from_uid(kwargs["uid"])
-        event.__dict__.update(kwargs)
+        for k,v in kwargs.items():
+            setattr(event, k, v)
         log.info(f"Event edited:  {event.begin.format('YYYY-MM-DD HH:mm:ss ZZ')} - {event.end.format('YYYY-MM-DD HH:mm:ss ZZ')}  |  {event.name}")
 
     def remove_event(self, uid):

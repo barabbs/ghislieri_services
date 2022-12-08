@@ -9,7 +9,7 @@
             "buttons": [
                 [
                     {
-                        "text": "✏️    Modifica evento",
+                        "text": "✏️    Modifica",
                         "id": "edit_event",
                         "whitelist": [
                             "master",
