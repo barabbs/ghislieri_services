@@ -17,6 +17,13 @@ def get_unused_filepath(filepath, sep="_"):
         filepath = f"{base}{sep}{i}{ext}"
     return filepath
 
+def extend_groups(groups):
+    ext = groups.copy()
+    for g in groups:
+        raw = g.split(".")
+        for i in range(len(raw)-1):
+            ext.add(".".join(raw[0:i+1]))
+    return ext
 
 def log_error(error, severity="error", **kwargs):
     time = get_str_from_time()

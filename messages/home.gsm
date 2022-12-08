@@ -31,11 +31,9 @@
                         ],
                         "actions": [
                             [
-                                "REQ",
-                                "calendar_manager",
-                                "get_calendar_range",
-                                {},
-                                "daily_events_navigation"
+                                "SAVE",
+                                "daily_events_day",
+                                null
                             ],
                             [
                                 "NEW",

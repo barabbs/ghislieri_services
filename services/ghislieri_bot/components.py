@@ -6,6 +6,8 @@ from time import time
 import telegram as tlg
 import os, logging
 from math import ceil
+import arrow as ar
+import calendar as cal
 
 log = logging.getLogger(__name__)
 
@@ -143,7 +145,7 @@ class Keyboard(BaseComponent):
         # super(Keyboard, self).__init__(raw)  # Removed 'actions' from KEYBOARD component as it seems not to be used
 
     def get_content(self, **kwargs):
-        time_str = str(int(time()))
+        time_str = str(int(time() * 10))[-6:]
         buttons = sum((part.get_keys(time_str=time_str, **kwargs) for part in self.parts), start=list())
         return {'reply_markup': tlg.InlineKeyboardMarkup(buttons)}
 
@@ -171,9 +173,9 @@ class Key(BaseComponent):
         self.url = raw['url'] if 'url' in raw else None
         super(Key, self).__init__(raw)
 
-    def _check_permission(self, groups):
+    def _check_permission(self, permissions):
         w, b = self.auth
-        return (w is None or len(w.intersection(groups)) > 0) and (b is None or len(b.intersection(groups)) == 0)
+        return (w is None or len(w.intersection(permissions)) > 0) and (b is None or len(b.intersection(permissions)) == 0)
 
     def check_id(self, key_id):
         return self.id == key_id
@@ -200,7 +202,7 @@ class Buttons(BaseComponent):
 
     def get_keys(self, chat, **kwargs):
         return list(filter(lambda r: len(r) != 0,
-                           (list(filter(lambda x: x is not None, (b.get_key(part=self, permissions=chat.groups, **kwargs) for b in row))) for row in self.buttons)))
+                           (list(filter(lambda x: x is not None, (b.get_key(part=self, permissions=chat.permissions, **kwargs) for b in row))) for row in self.buttons)))
 
     def act(self, key_id, **kwargs):
         for b in sum(self.buttons, tuple()):
@@ -250,13 +252,85 @@ class Options(Buttons, Answer):
         super(Buttons, self).act(answer=data[format_data(self.opt_data_key, data)][page * h * w + int(key_id)], data=data, **kwargs)
 
 
+class Datetime(Buttons, Answer):
+    PART_FLAG = 'd'
+
+    def __init__(self, raw):
+        self.type = raw['type']  # datetime / date / time
+        self.minute_inc = raw['minute_inc'] if 'minute_inc' in raw else 15
+        super(Buttons, self).__init__(raw)
+
+    def _get_dict_from_data(self, dt, status):
+        return {"dt": dt.format(),
+                "status": status,
+                "date": dt.format('YYYY-MM-DD'),
+                "time": dt.format('HH:mm'),
+                "text": dt.format('dddd DD MMMM YYYY, HH:mm', locale='it'),
+                "short": dt.format('ddd DD MMM YYYY, HH:mm', locale='it')}
+
+    def _get_data_from_dict(self, data):
+        key = format_data(self.ans_data_key, data)
+        try:
+            dt = ar.get(data[key]["dt"])
+            status = data[key]["status"]
+        except (KeyError, TypeError):
+            dt = ar.now().replace(tzinfo="utc").floor("hour")
+            status = None
+            data[key] = self._get_dict_from_data(dt, status)
+        return dt, status
+
+    def get_keys(self, data, **kwargs):
+        dt, status = self._get_data_from_dict(data)
+        if status is None:
+            keys = list()
+            if self.type in ("datetime", "date"):
+                keys.append([Key({'text': dt.format('dddd DD MMMM YYYY', locale='it').capitalize(), 'id': "date"}).get_key(part=self, data=data, **kwargs),])
+            if self.type in ("datetime", "time"):
+                keys.append([Key({'text': dt.format('HH:mm'), 'id': "hour"}).get_key(part=self, data=data, **kwargs),])
+        elif status == "date":
+            keys = [[Key({'text': "◀", 'id': "-"}).get_key(part=self, data=data, **kwargs),
+                     Key({'text': dt.format('MMMM YYYY', locale='it').capitalize(), 'id': "null"}).get_key(part=self, data=data, **kwargs),
+                     Key({'text': "▶", 'id': "+"}).get_key(part=self, data=data, **kwargs)]]
+            keys += list(
+                list(Key({'text': i, 'id': str(i)} if i != 0 else {'text': " ", 'id': "null"}).get_key(part=self, data=data, **kwargs) for i in row) for row in cal.monthcalendar(dt.year, dt.month))
+        elif status == "hour":
+            keys = list(list(Key({'text': f"{i:02}", 'id': str(i)}).get_key(part=self, data=data, **kwargs) for i in range(6 * j, 6 * (j + 1))) for j in range(4))
+        elif status == "minute":
+            h = f"{dt.hour:02}"
+            keys = list(list(Key({'text': f"{h}:{i:02}", 'id': str(i)}).get_key(part=self, data=data, **kwargs) for i in range(30 * j, 30 * (j + 1), 5)) for j in range(2))
+        return keys
+
+    def act(self, key_id, data, **kwargs):
+        if key_id == "null":
+            return
+        dt, status = self._get_data_from_dict(data)
+        if status is None:
+            super(Buttons, self).act(answer=self._get_dict_from_data(dt, key_id), data=data, **kwargs)
+        elif status == "date":
+            if key_id == "+":
+                dt = dt.shift(months=1)
+                super(Buttons, self).act(answer=self._get_dict_from_data(dt, "date"), data=data, **kwargs)
+            elif key_id == "-":
+                dt = dt.shift(months=-1)
+                super(Buttons, self).act(answer=self._get_dict_from_data(dt, "date"), data=data, **kwargs)
+            else:
+                dt = dt.replace(day=int(key_id))
+                super(Buttons, self).act(answer=self._get_dict_from_data(dt, None), data=data, **kwargs)
+        elif status == "hour":
+            dt = dt.replace(hour=int(key_id))
+            super(Buttons, self).act(answer=self._get_dict_from_data(dt, "minute"), data=data, **kwargs)
+        elif status == "minute":
+            dt = dt.replace(minute=int(key_id))
+            super(Buttons, self).act(answer=self._get_dict_from_data(dt, None), data=data, **kwargs)
+
+
 get_raw_back_nav = lambda text='↩️ Back': ({'text': text, 'id': 'back', 'actions': [['BACK']]},)
 get_raw_home_nav = lambda text='🏠 Home': ({'text': text, 'id': 'home', 'actions': [['HOME']]},)
 get_raw_arrows_nav = lambda page_data_keys: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['PAGE', page_data_keys, -1]]},
                                              {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
 get_raw_pages_nav = lambda page_data_keys: ({'text': '◀️', 'id': 'arrow_l', 'actions': [['PAGE', page_data_keys, -1]]},
-                                             {'text': f'{{{page_data_keys[0]}}}️ / {{{page_data_keys[1]}}}', 'id': 'page_counter', 'actions': [['SAVE', page_data_keys[0], 1]]},
-                                             {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
+                                            {'text': f'{{{page_data_keys[0]}}}️ / {{{page_data_keys[1]}}}', 'id': 'page_counter', 'actions': [['SAVE', page_data_keys[0], 1]]},
+                                            {'text': '▶️', 'id': 'arrow_r', 'actions': [['PAGE', page_data_keys, 1]]})
 
 NAVIGATION_RAW_GENERATORS = {'back': get_raw_back_nav, 'home': get_raw_home_nav, 'arrows': get_raw_arrows_nav, 'pages': get_raw_pages_nav}
 
@@ -268,6 +342,6 @@ class Navigation(Buttons):
         super(Navigation, self).__init__(sum((NAVIGATION_RAW_GENERATORS[n[0]](*n[1:]) for n in row), start=tuple()) for row in raw)
 
 
-KEYBOARD_PARTE_CLASSES = {'options': Options, 'buttons': Buttons, 'navigation': Navigation}
+KEYBOARD_PARTE_CLASSES = {'options': Options, 'buttons': Buttons, 'datetime': Datetime, 'navigation': Navigation}
 
 COMPONENTS_CLASSES = {'TEXT': Text, 'KEYBOARD': Keyboard, 'ANSWER': Answer, 'PHOTO': Photo, 'PHOTO_ANS': PhotoAns}

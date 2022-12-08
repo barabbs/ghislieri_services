@@ -1,0 +1,56 @@
+{
+    "code": "calendar_manager.new_event.recap",
+    "components": {
+        "TEXT": {
+            "text": "🆕    <b>Anteprima evento</b>\n{new_event[classification][text]}\n\n\n{new_event[categories][text]}    <b>{new_event[name]}</b>\n\n<b>Inizio</b>    <code>{new_event[begin][short]}</code>\n<b>Fine</b>      <code>{new_event[end][short]}</code>\n\n<i>{new_event[description]}</i>\n\n<b>Link</b>      {new_event[url]}",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "id": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "➕ Aggiungi",
+                        "id": "add_event",
+                        "actions": [
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "add_event",
+                                {
+                                    "name": "$new_event.name",
+                                    "description": "$new_event.description",
+                                    "begin": "$new_event.begin.dt",
+                                    "end": "$new_event.end.dt",
+                                    "url": "$new_event.url",
+                                    "categories": "$new_event.categories.cats",
+                                    "classification": "$new_event.classification.class",
+                                    "status": "CONFIRMED",
+                                    "organizer": {
+                                        "common_name": "{infos[name]} {infos[surname]}",
+                                        "email": "$infos.email"
+                                    }
+                                },
+                                "new_event_result"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.confirmation",
+                                "new_event_result.ok",
+                                "calendar_manager.new_event.error"
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}

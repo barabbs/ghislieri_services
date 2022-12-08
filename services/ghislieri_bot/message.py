@@ -15,9 +15,9 @@ class Message(object):
         for k, d in comp.items():
             self.components[k] = COMPONENTS_CLASSES[k](d)
 
-    def check_permission(self, groups):
+    def check_permission(self, permissions):
         w, b = self.auth
-        return (w is None or len(w.intersection(groups)) > 0) and (b is None or len(b.intersection(groups)) == 0)
+        return (w is None or len(w.intersection(permissions)) > 0) and (b is None or len(b.intersection(permissions)) == 0)
 
     def get_content(self, chat, **kwargs):
         content = {'parse_mode': tlg.ParseMode.HTML}

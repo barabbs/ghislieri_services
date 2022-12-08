@@ -9,6 +9,62 @@
             "buttons": [
                 [
                     {
+                        "text": "⏩️    Vai alla data",
+                        "id": "insert_date",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.insert_date"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "🆕    Nuovo evento",
+                        "id": "new_event",
+                        "whitelist": [
+                            "master",
+                            "admin",
+                            "calendar"
+                        ],
+                        "actions": [
+                            [
+                                "SAVE",
+                                "new_event",
+                                {
+                                    "name": null,
+                                    "description": null,
+                                    "begin": {
+                                        "dt": null,
+                                        "short": "--:--"
+                                    },
+                                    "end": {
+                                        "dt": null,
+                                        "short": "--:--"
+                                    },
+                                    "url": null,
+                                    "categories": null
+                                }
+                            ],
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "get_categories",
+                                {
+                                    "groups": "$groups"
+                                },
+                                "new_event.categories"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.new_event.select_class"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
                         "text": "🔓    Admin",
                         "id": "calendar_admin",
                         "whitelist": [

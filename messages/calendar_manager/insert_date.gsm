@@ -1,0 +1,43 @@
+{
+    "code": "calendar_manager.insert_datae",
+    "components": {
+        "TEXT": {
+            "text": "📅️    Inserisci la <b>data</b> da visualizzare",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "datetime": {
+                "type": "date",
+                "ans_data_key": "daily_events_day_select"
+            },
+            "buttons": [
+                [
+                    {
+                        "text": "❌",
+                        "id": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "✔",
+                        "id": "ok",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "daily_events_day",
+                                "$daily_events_day_select.date"
+                            ],
+                            [
+                                "BACK",
+                                2
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}
