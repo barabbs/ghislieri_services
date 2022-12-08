@@ -1,0 +1,52 @@
+{
+    "code": "calendar_manager.edit_event.recap",
+    "components": {
+        "TEXT": {
+            "text": "📍    <b>Anteprima evento</b>\n\n<b>CLASSE</b>    {edit_event[classification]}\n\n\n{edit_event[categories][text]}    <b>{edit_event[name]}</b>\n\n<b>Inizio</b>    <code>{edit_event[begin][short]}</code>\n<b>Fine</b>      <code>{edit_event[end][short]}</code>\n\n<i>{edit_event[description]}</i>\n\n<b>Link</b>      {edit_event[url]}",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "↩️ Back",
+                        "id": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "✏ Modifica",
+                        "id": "edit_event",
+                        "actions": [
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "edit_event",
+                                {
+                                    "uid": "$edit_event.uid",
+                                    "name": "$edit_event.name",
+                                    "description": "$edit_event.description",
+                                    "begin": "$edit_event.begin.dt",
+                                    "end": "$edit_event.end.dt",
+                                    "url": "$edit_event.url",
+                                    "categories": "$edit_event.categories.cats",
+                                    "status": "$edit_event.status.st"
+                                },
+                                "edit_event_result"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.confirmation",
+                                "edit_event_result.ok",
+                                "calendar_manager.edit_event.error"
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}

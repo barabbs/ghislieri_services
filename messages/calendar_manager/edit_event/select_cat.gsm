@@ -1,0 +1,35 @@
+{
+    "code": "calendar_manager.edit_event.select_cat",
+    "components": {
+        "TEXT": {
+            "text": "#️⃣    Seleziona le <b>categorie</b> dell'evento",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "options": {
+                "text": "{sym}    {text}   {sel_text}",
+                "opt_data_key": "edit_event.categories.cats",
+                "ans_data_key": "selected_cat",
+                "actions": [
+                    [
+                        "REQ",
+                        "calendar_manager",
+                        "get_categories",
+                        {
+                            "categories": "$edit_event.categories.cats",
+                            "selected": "$selected_cat"
+                        },
+                        "edit_event.categories"
+                    ]
+                ]
+            },
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

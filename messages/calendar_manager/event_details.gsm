@@ -2,10 +2,52 @@
     "code": "calendar_manager.event_details",
     "components": {
         "TEXT": {
-            "text": "<b><u>{event[name]}</u></b>\n\n{event[hidden_url]}<i>{event[categories]}</i>\n\n📅    <code>{event[date]}</code>\n🕔    <code>{event[start_h]} - {event[end_h]}</code>\n\n{event[description]}",
+            "text": "<b><u>{event[name]}</u></b>\n\n📅    <code>{event[date]}</code>\n🕔    <code>{event[start_h]} - {event[end_h]}</code>\n\n<i>{event[categories]}</i>\n\n{event[description]}",
             "actions": []
         },
         "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "✏️    Modifica evento",
+                        "id": "edit_event",
+                        "whitelist": [
+                            "master",
+                            "admin"
+                        ],
+                        "actions": [
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "get_event_dict",
+                                {
+                                    "uid": "$event.uid",
+                                    "permissions": "$permissions"
+                                },
+                                "edit_event"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.main"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "🗑️    Elimina",
+                        "id": "delete_event",
+                        "whitelist": [
+                            "master",
+                            "admin"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.delete_event.main"
+                            ]
+                        ]
+                    }
+                ]
+            ],
             "navigation": [
                 [
                     [

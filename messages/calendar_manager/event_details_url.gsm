@@ -2,17 +2,67 @@
     "code": "calendar_manager.event_details_url",
     "components": {
         "TEXT": {
-            "text": "<b><u>{event[name]}</u></b>\n\n{event[hidden_url]}<i>{event[categories]}</i>\n\n📅    <code>{event[date]}</code>\n🕔    <code>{event[start_h]} - {event[end_h]}</code>\n\n{event[description]}",
+            "text": "<b><u>{event[name]}</u></b>\n{event[hidden_url]}\n📅    <code>{event[date]}</code>\n🕔    <code>{event[start_h]} - {event[end_h]}</code>\n\n<i>{event[categories]}</i>",
             "actions": []
         },
         "KEYBOARD": {
             "buttons": [
                 [
                     {
-                        "text": "Maggiori informazioni",
+                        "text": "🔗    Visita link",
                         "id": "event_url",
                         "url": "$event.url",
                         "actions": []
+                    },
+                    {
+                        "text": "ℹ️    Descrizione",
+                        "id": "description",
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.event_details"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "✏️    Modifica",
+                        "id": "edit_event",
+                        "whitelist": [
+                            "master",
+                            "admin"
+                        ],
+                        "actions": [
+                            [
+                                "REQ",
+                                "calendar_manager",
+                                "get_event_dict",
+                                {
+                                    "uid": "$event.uid",
+                                    "permissions": "$permissions"
+                                },
+                                "edit_event"
+                            ],
+                            [
+                                "NEW",
+                                "calendar_manager.edit_event.main"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "🗑️    Elimina",
+                        "id": "delete_event",
+                        "whitelist": [
+                            "master",
+                            "admin"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "calendar_manager.delete_event.main"
+                            ]
+                        ]
                     }
                 ]
             ],

@@ -48,11 +48,13 @@ CATEGORIES_BY_CLASS = {"cultural": {"conference": ("Conferenza", "🗣"),
 ALL_CATEGORIES = dict()
 for i in CATEGORIES_BY_CLASS.values():
     ALL_CATEGORIES.update(i)
-AUTH_GROUPS = {"admin"}
+AUTH_GROUPS = {"master", "admin"}
 CLASSES_AUTHORIZATIONS = {"cultural": (None, None),  # (whitelist, blacklist)
                           "sport": (None, None),
                           "college": ({"master", "student"}, None),
                           "misc": (None, None)}
+STATUS_TEXTS = {"CONFIRMED": "🟢  Confermato", "TENTATIVE": "🟢  Auto/Ipotesi", "CANCELLED": "🔴  Cancellato", None: "---"}
+CLASSIFICATION_TEXTS = {"cultural": "🏛  Culturale", "sport": "⚽️  Sport", "college": "🔥  Collegiale", "misc": "🗄️  Altro"}
 
 # Timezone for calcurse integration (NOT WORKING)
 # CALENDAR_TIMEZONE = Container("VTIMEZONE",

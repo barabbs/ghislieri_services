@@ -1,0 +1,25 @@
+{
+    "code": "calendar_manager.delete_event.confirmation",
+    "components": {
+        "TEXT": {
+            "text": "✅    Evento {event[name]} rimosso!",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "OK",
+                        "id": "ok",
+                        "actions": [
+                            [
+                                "BACK",
+                                3
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}
