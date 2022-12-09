@@ -13,6 +13,9 @@ def get_printer_address():
     with open(var.FILEPATH_PRINTER_ADDRESS, 'r') as printer_address:
         return printer_address.readline()
 
+# The service prints to the default system printer
+# The printer settings can be changed through
+# the CUPS webinterface (at machine-ip:631) or the lpadmin settings
 
 class PrinterService(BaseService):
     SERVICE_NAME = var.SERVICE_NAME
