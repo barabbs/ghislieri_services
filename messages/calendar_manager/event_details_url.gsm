@@ -2,7 +2,7 @@
     "code": "calendar_manager.event_details_url",
     "components": {
         "TEXT": {
-            "text": "<b><u>{event[name]}</u></b>\n{event[hidden_url]}\n📅    <code>{event[date]}</code>\n🕔    <code>{event[start_h]} - {event[end_h]}</code>\n\n<i>{event[categories]}</i>",
+            "text": "<b><u>{event[name]}</u></b>\n{event[hidden_url]}\n{event[cancelled]}📅    <code>{event[date]}</code>\n🕔    <code>{event[start_h]} - {event[end_h]}</code>\n\n<i>{event[categories]}</i>",
             "actions": []
         },
         "KEYBOARD": {
