@@ -53,7 +53,7 @@ CLASSES_AUTHORIZATIONS = {"cultural": (None, None),  # (whitelist, blacklist)
                           "sport": (None, None),
                           "college": ({"master", "student"}, None),
                           "misc": (None, None)}
-STATUS_TEXTS = {"CONFIRMED": "🟢  Confermato", "TENTATIVE": "🟢  Auto/Ipotesi", "CANCELLED": "🔴  Cancellato", None: "---"}
+STATUS_TEXTS = {"CONFIRMED": "🟢  Confermato", "TENTATIVE": "🟡  Auto/Ipotesi", "CANCELLED": "🔴  Cancellato", None: "---"}
 CLASSIFICATION_TEXTS = {"cultural": "🏛  Culturale", "sport": "⚽️  Sport", "college": "🔥  Collegiale", "misc": "🗄️  Altro"}
 
 # Timezone for calcurse integration (NOT WORKING)
