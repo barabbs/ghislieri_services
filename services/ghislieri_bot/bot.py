@@ -95,6 +95,7 @@ class Bot(tlg.Bot):
         dispatcher.add_handler(tlg.ext.CommandHandler('start', self._start_command_handler))
         dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._keyboard_handler))
         dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.photo, self._photo_handler))
+        dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.document, self._file_handler))
         dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text, self._answer_handler))
         dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.all, self._delete_handler))
         dispatcher.add_error_handler(self._error_handler)
@@ -159,6 +160,15 @@ class Bot(tlg.Bot):
         try:
             chat = self._get_chat_from_update(update)
             chat.reply('PHOTO_ANS', photo=update.message.photo[-1])
+        except NewUser as user:
+            chat = user.chat
+        chat.add_msg_to_delete(update.message.message_id)
+        self._dispatch_message(chat)
+
+    def _file_handler(self, update, context):
+        try:
+            chat = self._get_chat_from_update(update)
+            chat.reply('FILE_ANS', file=update.message.document)
         except NewUser as user:
             chat = user.chat
         chat.add_msg_to_delete(update.message.message_id)
