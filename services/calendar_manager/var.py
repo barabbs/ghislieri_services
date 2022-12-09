@@ -75,6 +75,7 @@ CLASSIFICATION_TEXTS = {"cultural": "🏛  Culturale", "sport": "⚽️  Sport",
 
 # Graphics
 DEFAULT_SYMBOL = "📌"
+CANCELLED_SYMBOL = "❌"
 NO_EVENT_FOR_DAY = "Nessun evento programmato"
 EVENT_LINK_TEXT = "Maggiori Informazioni"
 

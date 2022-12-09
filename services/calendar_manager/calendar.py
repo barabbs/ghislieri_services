@@ -44,6 +44,7 @@ def get_calendar_name():
 
 
 def get_event_daily_recap(event, day):
+    cancelled = event.status == "CANCELLED"
     ev_dict = {"date": event.begin.format('dddd DD MMM YYYY', locale='it').capitalize(),
                "name": event.name.upper(),
                "recap_h": event.begin.format('HH:mm') if event.begin.floor('day') == day else "   ➤   ",
@@ -53,16 +54,21 @@ def get_event_daily_recap(event, day):
                "has_url": event.url is not None,
                "hidden_url": f'<a href="{event.url}"> </a>',
                "url": event.url,
-               "uid": event.uid}
-    cats = dict()
-    for c in (v for v in var.CATEGORIES_BY_CLASS.keys() if v.split(".")[0] == event.classification):
-        cats.update(var.CATEGORIES_BY_CLASS[c])
-    for key, sym in cats.items():
-        if key in event.categories:
-            ev_dict['symbol'] = sym[1]
-            break
+               "uid": event.uid,
+               "cancelled": f"{var.CANCELLED_SYMBOL}  <code>EVENTO CANCELLATO</code>  {var.CANCELLED_SYMBOL}\n\n" if cancelled else ""}
+
+    if cancelled:
+        ev_dict['symbol'] = var.CANCELLED_SYMBOL
     else:
-        ev_dict['symbol'] = var.DEFAULT_SYMBOL
+        cats = dict()
+        for c in (v for v in var.CATEGORIES_BY_CLASS.keys() if v.split(".")[0] == event.classification):
+            cats.update(var.CATEGORIES_BY_CLASS[c])
+        for key, sym in cats.items():
+            if key in event.categories:
+                ev_dict['symbol'] = sym[1]
+                break
+        else:
+            ev_dict['symbol'] = var.DEFAULT_SYMBOL
     ev_dict['categories'] = " | ".join(f"{var.ALL_CATEGORIES[k][1]} {var.ALL_CATEGORIES[k][0].lower()}" for k in event.categories)
     return ev_dict
 
@@ -122,7 +128,7 @@ class Calendar(ics.Calendar):
             raise EventEndBeforeStart(kwargs['begin'], kwargs['end'])
         kwargs["last_modified"] = ar.now().replace(tzinfo="utc")
         event = self.get_event_from_uid(kwargs["uid"])
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             setattr(event, k, v)
         log.info(f"Event edited:  {event.begin.format('YYYY-MM-DD HH:mm:ss ZZ')} - {event.end.format('YYYY-MM-DD HH:mm:ss ZZ')}  |  {event.name}")
 
