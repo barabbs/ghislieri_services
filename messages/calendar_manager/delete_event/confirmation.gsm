@@ -2,7 +2,7 @@
     "code": "calendar_manager.delete_event.confirmation",
     "components": {
         "TEXT": {
-            "text": "✅    Evento {event[name]} rimosso!",
+            "text": "✅    Evento <b>{event[name]}</b> rimosso!",
             "actions": []
         },
         "KEYBOARD": {

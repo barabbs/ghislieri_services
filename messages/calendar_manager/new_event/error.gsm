@@ -2,7 +2,7 @@
     "code": "calendar_manager.new_event.error",
     "components": {
         "TEXT": {
-            "text": "❌    Errore nell'aggiungere l'evento {new_event[name]}\n\n⚠️    <b>{new_event_result[text]}</b>",
+            "text": "❌    Errore nell'aggiungere l'evento <b>{new_event[name]}</b>\n\n⚠️    <b>{new_event_result[text]}</b>",
             "actions": []
         },
         "KEYBOARD": {

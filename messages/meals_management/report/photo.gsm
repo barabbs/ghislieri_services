@@ -21,12 +21,12 @@
             ]
         },
         "PHOTO_ANS": {
-            "photo_filepath": [
+            "filepath": [
                 "meals_management",
                 "reports",
                 "Meal_Report_{user_id}_{date}.jpg"
             ],
-            "photos_paths_data_key": "meal_report.photos",
+            "paths_data_key": "meal_report.photos",
             "actions": [
                 [
                     "NEW",
