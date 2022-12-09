@@ -1,0 +1,100 @@
+{
+    "code": "printer_service.set_copies",
+    "components": {
+        "TEXT": {
+            "text": "🔢️    Seleziona o scrivi il <b>numero di copie</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "1",
+                        "id": "1",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.copies",
+                                1
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "2",
+                        "id": "2",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.copies",
+                                2
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "3",
+                        "id": "3",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.copies",
+                                3
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "4",
+                        "id": "4",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.copies",
+                                4
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "5",
+                        "id": "5",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.copies",
+                                5
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "ANSWER": {
+            "ans_data_key": "print_job.copies",
+            "actions": [
+                [
+                    "BACK"
+                ]
+            ]
+        }
+    }
+}

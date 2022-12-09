@@ -1,0 +1,25 @@
+{
+    "code": "printer_service.error",
+    "components": {
+        "TEXT": {
+            "text": "❌    Errore nella stampa del file\n\n⚠️    <b>{print_result[text]}</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "OK",
+                        "id": "ok",
+                        "actions": [
+                            [
+                                "BACK",
+                                2
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}

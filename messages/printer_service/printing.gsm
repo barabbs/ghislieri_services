@@ -1,0 +1,49 @@
+{
+    "code": "printer_service.printing",
+    "components": {
+        "TEXT": {
+            "text": "🖨️❓    Vuoi davvero procedere con la <b>stampa</b>?\n\n<i>L'operazione può richiedere <b>qualche momento</b></i>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "✔️",
+                        "id": "yes",
+                        "actions": [
+                            [
+                                "REQ",
+                                "printer_service",
+                                "print_files",
+                                {
+                                    "filepaths": "$print_job.files",
+                                    "copies": "$print_job.copies",
+                                    "page_list": "$print_job.page_list.value",
+                                    "sides": "$print_job.sides.value",
+                                    "number-up": "$print_job.number-up.value"
+                                },
+                                "print_result"
+                            ],
+                            [
+                                "NEW",
+                                "printer_service.confirmation",
+                                "print_result.ok",
+                                "printer_service.error"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "❌",
+                        "id": "no",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ]
+        }
+    }
+}

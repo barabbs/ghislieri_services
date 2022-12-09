@@ -59,6 +59,19 @@
                 ],
                 [
                     {
+                        "text": "🖨    Stampa",
+                        "id": "print",
+                        "whitelist": [
+                            "student"
+                        ],
+                        "actions": [
+                            [
+                                "NEW",
+                                "printer_service.send_file"
+                            ]
+                        ]
+                    },
+                    {
                         "text": "📯    Canali e Gruppi",
                         "id": "telegram_channels",
                         "whitelist": [
