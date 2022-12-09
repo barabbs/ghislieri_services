@@ -1,0 +1,19 @@
+{
+    "code": "printer_service.confirmation",
+    "components": {
+        "TEXT": {
+            "text": "✅    File stampato con <b>successo</b>!",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "home",
+                        "OK"
+                    ]
+                ]
+            ]
+        }
+    }
+}

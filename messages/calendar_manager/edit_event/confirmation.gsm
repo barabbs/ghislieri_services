@@ -2,7 +2,7 @@
     "code": "calendar_manager.edit_event.confirmation",
     "components": {
         "TEXT": {
-            "text": "✅    Evento {edit_event[name]} aggiornato!",
+            "text": "✅    Evento <b>{edit_event[name]}</b> aggiornato!",
             "actions": []
         },
         "KEYBOARD": {

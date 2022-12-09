@@ -1,0 +1,126 @@
+{
+    "code": "printer_service.set_number_up",
+    "components": {
+        "TEXT": {
+            "text": "️    Seleziona il numero di <b>pagine per facciata</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "1",
+                        "id": "1",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.number-up",
+                                {
+                                    "text": "1",
+                                    "value": null
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "2",
+                        "id": "2",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.number-up",
+                                {
+                                    "text": "2",
+                                    "value": 2
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "4",
+                        "id": "4",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.number-up",
+                                {
+                                    "text": "4",
+                                    "value": 4
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "6",
+                        "id": "6",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.number-up",
+                                {
+                                    "text": "6",
+                                    "value": 6
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "9",
+                        "id": "9",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.number-up",
+                                {
+                                    "text": "9",
+                                    "value": 9
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "16",
+                        "id": "16",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.number-up",
+                                {
+                                    "text": "16",
+                                    "value": 16
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

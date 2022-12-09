@@ -2,7 +2,7 @@
     "code": "calendar_manager.new_event.confirmation",
     "components": {
         "TEXT": {
-            "text": "✅    Evento {new_event[name]} aggiunto!",
+            "text": "✅    Evento <b>{new_event[name]}</b> aggiunto!",
             "actions": []
         },
         "KEYBOARD": {

@@ -1,0 +1,77 @@
+{
+    "code": "printer_service.set_sides",
+    "components": {
+        "TEXT": {
+            "text": "📑    Seleziona il <b>fronte retro</b>",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "Solo fronte",
+                        "id": "one-sided",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.sides",
+                                {
+                                    "text": "Solo fronte",
+                                    "value": "one-sided"
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Fronte retro - Lato lungo",
+                        "id": "long-edge",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.sides",
+                                {
+                                    "text": "Fronte retro (lato lungo)",
+                                    "value": "two-sided-long-edge"
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "Fronte retro - Lato corto",
+                        "id": "short-edge",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "print_job.sides",
+                                {
+                                    "text": "Fronte retro (lato corto)",
+                                    "value": "two-sided-short-edge"
+                                }
+                            ],
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

@@ -123,18 +123,31 @@ class Answer(BaseComponent):
         super(Answer, self).act(answer=answer, data=data, **kwargs)
 
 
-class PhotoAns(BaseComponent):
+class FileAns(BaseComponent):
     def __init__(self, raw):
-        self.photo_filepath = raw['photo_filepath']
-        self.photos_paths_data_key = raw['photos_paths_data_key'] if 'photos_paths_data_key' in raw else None
-        super(PhotoAns, self).__init__(raw)
+        self.filepath = raw['filepath']
+        self.paths_data_key = raw['paths_data_key'] if 'paths_data_key' in raw else None
+        self.mime_types = raw['mime_types'] if 'mime_types' in raw else None
+        super(FileAns, self).__init__(raw)
 
-    def act(self, photo, data, **kwargs):
-        data.update({"date": utl.get_str_from_time(date=True)})
-        path = photo.get_file().download(utl.get_unused_filepath(os.path.join(DATA_DIR, *format_data(self.photo_filepath, data))))
-        if self.photos_paths_data_key is not None:
-            data[format_data(self.photos_paths_data_key, data)] += (path,)
-        super(PhotoAns, self).act(photo=photo, data=data, **kwargs)
+    def _download(self, file, data, **kwargs):
+        if self.mime_types is None or file.mime_type in self.mime_types:
+            return file.get_file().download(utl.get_unused_filepath(os.path.join(DATA_DIR, *format_data(self.filepath, data))))
+
+    def act(self, data, **kwargs):
+        data.update({"datetime": utl.get_str_from_time(), "date": utl.get_str_from_time(date=True)})
+        path = self._download(data=data, **kwargs)
+        if path is None:
+            return
+        if self.paths_data_key is not None:
+            data[format_data(self.paths_data_key, data)] += (path,)
+        super(FileAns, self).act(data=data, **kwargs)
+
+
+class PhotoAns(FileAns):
+
+    def _download(self, photo, data, **kwargs):
+        return photo.get_file().download(utl.get_unused_filepath(os.path.join(DATA_DIR, *format_data(self.filepath, data))))
 
 
 # Keyboard
@@ -284,9 +297,9 @@ class Datetime(Buttons, Answer):
         if status is None:
             keys = list()
             if self.type in ("datetime", "date"):
-                keys.append([Key({'text': dt.format('dddd DD MMMM YYYY', locale='it').capitalize(), 'id': "date"}).get_key(part=self, data=data, **kwargs),])
+                keys.append([Key({'text': dt.format('dddd DD MMMM YYYY', locale='it').capitalize(), 'id': "date"}).get_key(part=self, data=data, **kwargs), ])
             if self.type in ("datetime", "time"):
-                keys.append([Key({'text': dt.format('HH:mm'), 'id': "hour"}).get_key(part=self, data=data, **kwargs),])
+                keys.append([Key({'text': dt.format('HH:mm'), 'id': "hour"}).get_key(part=self, data=data, **kwargs), ])
         elif status == "date":
             keys = [[Key({'text': "◀", 'id': "-"}).get_key(part=self, data=data, **kwargs),
                      Key({'text': dt.format('MMMM YYYY', locale='it').capitalize(), 'id': "null"}).get_key(part=self, data=data, **kwargs),
@@ -344,4 +357,4 @@ class Navigation(Buttons):
 
 KEYBOARD_PARTE_CLASSES = {'options': Options, 'buttons': Buttons, 'datetime': Datetime, 'navigation': Navigation}
 
-COMPONENTS_CLASSES = {'TEXT': Text, 'KEYBOARD': Keyboard, 'ANSWER': Answer, 'PHOTO': Photo, 'PHOTO_ANS': PhotoAns}
+COMPONENTS_CLASSES = {'TEXT': Text, 'KEYBOARD': Keyboard, 'ANSWER': Answer, 'PHOTO': Photo, 'FILE_ANS': FileAns, 'PHOTO_ANS': PhotoAns}

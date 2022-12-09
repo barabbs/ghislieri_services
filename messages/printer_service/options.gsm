@@ -1,0 +1,89 @@
+{
+    "code": "printer_service.options",
+    "components": {
+        "TEXT": {
+            "text": "⚙️    <b>Opzioni</b> di stampa",
+            "actions": []
+        },
+        "KEYBOARD": {
+            "buttons": [
+                [
+                    {
+                        "text": "COPIE    {print_job[copies]}",
+                        "id": "copies",
+                        "actions": [
+                            [
+                                "NEW",
+                                "printer_service.set_copies"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "PAGINE    {print_job[page_list][text]}",
+                        "id": "page_list",
+                        "actions": [
+                            [
+                                "NEW",
+                                "printer_service.set_page_list"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "FRONTE RETRO    {print_job[sides][text]}",
+                        "id": "sides",
+                        "actions": [
+                            [
+                                "NEW",
+                                "printer_service.set_sides"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "PAGINE PER FACCIATA    {print_job[number-up][text]}",
+                        "id": "number-up",
+                        "actions": [
+                            [
+                                "NEW",
+                                "printer_service.set_number_up"
+                            ]
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "text": "↩️ Back",
+                        "id": "back",
+                        "actions": [
+                            [
+                                "BACK"
+                            ]
+                        ]
+                    },
+                    {
+                        "text": "📑 Stampa",
+                        "id": "print",
+                        "actions": [
+                            [
+                                "NEW",
+                                "printer_service.printing"
+                            ]
+                        ]
+                    }
+                ]
+            ],
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        }
+    }
+}

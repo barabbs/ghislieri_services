@@ -1,0 +1,56 @@
+{
+    "code": "printer_service.send_file",
+    "components": {
+        "TEXT": {
+            "text": "📑    Invia il <b>file</b> in formato <u>.pdf</u>",
+            "actions": [
+                [
+                    "SAVE",
+                    "print_job",
+                    {
+                        "files": [],
+                        "copies": 1,
+                        "page_list": {
+                            "text": "Tutte",
+                            "value": null
+                        },
+                        "sides": {
+                            "text": "Solo fronte",
+                            "value": "one-sided"
+                        },
+                        "number-up": {
+                            "text": "1",
+                            "value": null
+                        }
+                    }
+                ]
+            ]
+        },
+        "KEYBOARD": {
+            "navigation": [
+                [
+                    [
+                        "back"
+                    ]
+                ]
+            ]
+        },
+        "FILE_ANS": {
+            "filepath": [
+                "printer_service",
+                "files",
+                "print_{datetime}_{user_id}.pdf"
+            ],
+            "paths_data_key": "print_job.files",
+            "mime_types": [
+                "application/pdf"
+            ],
+            "actions": [
+                [
+                    "NEW",
+                    "printer_service.options"
+                ]
+            ]
+        }
+    }
+}

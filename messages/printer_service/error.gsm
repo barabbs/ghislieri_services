@@ -1,8 +1,8 @@
 {
-    "code": "calendar_manager.delete_event.confirmation",
+    "code": "printer_service.error",
     "components": {
         "TEXT": {
-            "text": "✅    Evento <b>{event[name]}</b> rimosso!",
+            "text": "❌    Errore nella stampa del file\n\n⚠️    <b>{print_result[text]}</b>",
             "actions": []
         },
         "KEYBOARD": {
@@ -14,7 +14,7 @@
                         "actions": [
                             [
                                 "BACK",
-                                3
+                                2
                             ]
                         ]
                     }

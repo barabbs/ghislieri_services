@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/opt/ghislieri_services
-ExecStart=/usr/bin/python3 main.py student_databaser calendar_manager email_service meals_management content_submitter ghislieri_bot
+ExecStart=/usr/bin/python3 main.py student_databaser calendar_manager email_service printer_service meals_management content_submitter ghislieri_bot
 User = ghislieri-services
 Group = ghislieri-services
 Restart = on-failure
