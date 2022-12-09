@@ -121,6 +121,21 @@
                                 "admin.services.options"
                             ]
                         ]
+                    },
+                    {
+                        "text": "printer_service",
+                        "id": "printer_service",
+                        "actions": [
+                            [
+                                "SAVE",
+                                "serv_name",
+                                "printer_service"
+                            ],
+                            [
+                                "NEW",
+                                "admin.services.options"
+                            ]
+                        ]
                     }
                 ],
                 [
