@@ -18,7 +18,7 @@ class PrinterService(BaseService):
     SERVICE_NAME = var.SERVICE_NAME
 
     def __init__(self, *args, **kwargs):
-        self.address = get_printer_address()
+        # self.address = get_printer_address()
         super(PrinterService, self).__init__(*args, **kwargs)
 
     def _request_print_files(self, filepaths, copies=1, page_list=None, **kwargs):
@@ -34,8 +34,10 @@ class PrinterService(BaseService):
         try:
             for fpath in filepaths:
                 directory, filename = os.path.dirname(fpath), os.path.basename(fpath)
+                log.info(f'Printing with command  -  lp -n {copies} {opt_agrs}-t "ghislieri_services {utl.get_str_from_time()}" {pages_arg}"{filename}"')
                 subprocess.run(f'lp -n {copies} {opt_agrs}-t "ghislieri_services {utl.get_str_from_time()}" {pages_arg}"{filename}"', capture_output=True, check=True,
                                timeout=var.PRINT_PROCESS_TIMEOUT, cwd=directory, shell=True)
+                log.info(f"Printed file {filename}")
         except subprocess.CalledProcessError as err:
             return {"ok": False, "text": f"Errore nella stampa\n\n{err.stderr.decode('utf-8')}"}
         except subprocess.TimeoutExpired as err:
