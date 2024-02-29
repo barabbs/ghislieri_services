@@ -15,8 +15,8 @@
                             "value": null
                         },
                         "sides": {
-                            "text": "Solo fronte",
-                            "value": "one-sided"
+                            "text": "Fronte retro (lato lungo)",
+                            "value": "two-sided-long-edge"
                         },
                         "number-up": {
                             "text": "1",

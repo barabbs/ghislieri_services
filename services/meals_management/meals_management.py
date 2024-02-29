@@ -4,7 +4,7 @@ from . import var
 from .reservation import Reservation, get_date_str
 from modules.service_pipe import Request
 import datetime as dt
-import os, re, pdf2image
+import os, pdf2image
 import logging
 
 log = logging.getLogger(__name__)
@@ -112,25 +112,19 @@ class MealsManagement(BaseService):
             pass
 
     def _task_download_menu(self):
-        docx_files = self.send_request(Request('email_service', 'download_attachments', mailbox=var.MENU_MAILBOX))
-        pdf_files = list(utl.convert_docx_to_pdf(f, timeout=15) for f in docx_files)
-        img_files = ((os.path.basename(f), pdf2image.convert_from_path(f, dpi=var.MENU_PNG_DPI)[0]) for f in pdf_files)
-        for name, img in img_files:
+        files = self.send_request(Request('email_service', 'download_attachments', mailbox=var.MENU_MAILBOX))
+        for f in files:
+            filename = os.path.basename(f["filepath"])
+            pdf_file = utl.convert_docx_to_pdf(f["filepath"], timeout=15)
+            img = pdf2image.convert_from_path(pdf_file, dpi=var.MENU_PNG_DPI)[0]
             try:
-                regex = re.search(r"\D+(\d+)(.*)", name)
-                day, month = int(regex.group(1)), regex.group(2)
-                for n, m in enumerate(utl.MONTHS_ABBR):
-                    if m in month:
-                        month = month.replace(month, f" {n + 1} ")
-                        break
-                month = int(re.search(r"\D+(\d+).*", month).group(1))
-                date = utl.get_str_from_time(dt.date(year=dt.date.today().year, month=month, day=day), date=True)
+                date = utl.get_date_from_filename(filename, utl.get_time_from_str(f["date"]))
                 img.save(os.path.join(var.MENUS_DIR, var.MENU_FILENAME.format(date=date)), "PNG")
-                log.info(f"got new menu for {date}")
-            except AttributeError:
-                log.error(f"error in menu date recognition for file {name}")
-        for fn in docx_files + pdf_files:
-            os.remove(fn)
+                log.info(f"New menu {filename} for {utl.get_str_from_time(date, date=True)}")
+            except utl.DateNotInterpreted:
+                log.error(f"Error in menu date interpretation for file {filename}")
+            os.remove(f["filepath"])
+            os.remove(pdf_file)
 
 
 SERVICE_CLASS = MealsManagement
