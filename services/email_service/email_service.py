@@ -7,6 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.header import decode_header
+from email import utils
 
 import logging, os
 
@@ -75,6 +76,7 @@ class EmailService(BaseService):
             for message_number in msg_numbers[0].split()[::-1]:
                 res, data = imap_server.fetch(message_number, '(RFC822)')
                 email_message = email.message_from_bytes(data[0][1])
+                metadata = {"date": utl.get_str_from_time(utils.parsedate_to_datetime(email_message['date']))}
                 for part in email_message.walk():
                     if part.get_content_maintype() == 'multipart':
                         continue
@@ -84,9 +86,12 @@ class EmailService(BaseService):
                     if bool(file_name):
                         if decode_header(file_name)[0][1] is not None:
                             file_name = decode_header(file_name)[0][0].decode(decode_header(file_name)[0][1])
-                        files.append(utl.get_unused_filepath(os.path.join(var.ATTACHMENT_DIR, file_name)))
-                        with open(files[-1], 'wb') as f:
+                        file_metadata = metadata.copy()
+                        filepath = utl.get_unused_filepath(os.path.join(var.ATTACHMENT_DIR, file_name))
+                        file_metadata["filepath"] = filepath
+                        with open(filepath, 'wb') as f:
                             f.write(part.get_payload(decode=True))
+                        files.append(file_metadata)
         except Exception as err:
             log.error(f"Exception while downloading attachments: {err}")
             utl.log_error(err)
