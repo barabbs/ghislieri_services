@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import bs4.element
 import tinycss2
+import html
 from . import var
 
 
@@ -61,7 +62,7 @@ def _get_style(soup):
 
 def _sanify(tag, style, ):
     if type(tag) == bs4.element.NavigableString:
-        return str(tag)
+        return html.escape(str(tag), quote=False)
     elif tag.name == "br":
         return "\n"
     elif tag.name == "span" and "class" in tag.attrs.keys():
