@@ -1,4 +1,4 @@
-from modules.base_service import BaseService
+from modules.base_service import BaseService, task
 from modules.service_pipe import Request
 from .facebook_scraping import get_facebook_group_posts
 from . import var
@@ -53,6 +53,7 @@ class ChannelsManager(BaseService):
 
     # Tasks
 
+    @task
     def _task_check_facebook_posts(self):
         self._check_facebook_posts()
 
