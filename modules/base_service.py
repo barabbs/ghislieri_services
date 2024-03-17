@@ -5,6 +5,7 @@ from multiprocessing import Process
 import schedule as sch
 from time import sleep, time
 import os, logging, json
+import functools
 
 log = logging.getLogger(__name__)
 
@@ -19,6 +20,20 @@ class NoResultRequest(Exception):
 
 _EMPTY_EXECS_STATS = {"time": 0., "num": 0, "long": 0}
 _EMPTY_REQS_STATS = {"num": 0, "err": 0}
+
+
+def task(task_fun):
+    @functools.wraps(task_fun)
+    def wrapper(self, *args, **kwargs):
+        log.debug(f"{self.SERVICE_NAME} executing task {task_fun.__name__} with args {args} and kwargs {kwargs}")
+        try:
+            return task_fun(self, *args, **kwargs)
+        except StopService:
+            raise
+        except Exception as err:
+            log.error(f"Error while executing task {task_fun.__name__} with args {args} and kwargs {kwargs}")
+            utl.log_error(err, service=self.SERVICE_NAME, task=task_fun.__name__, args=args, kwargs=kwargs)
+    return wrapper
 
 
 class BaseService(Process):
@@ -48,7 +63,8 @@ class BaseService(Process):
             os.remove(filepath)
         except FileNotFoundError:
             execs, reqs = _EMPTY_EXECS_STATS.copy(), _EMPTY_REQS_STATS.copy()
-            self.statistics = {"execs": execs, "reqs": reqs, "history": {"execs": [execs, ] * 24, "reqs": [reqs, ] * 24, }}
+            self.statistics = {"execs": execs, "reqs": reqs,
+                               "history": {"execs": [execs, ] * 24, "reqs": [reqs, ] * 24, }}
         self.statistics["start_time"] = dt.datetime.now()
         self._task_update_statistics()
 
@@ -76,7 +92,8 @@ class BaseService(Process):
         for e in self.statistics["history"]["execs"]:
             e["avg_exec_time"] = 1000 * e["time"] / max(1, e["num"])
         stats = {"start_time": self.statistics["start_time"].strftime(var.DATETIME_FORMAT)}
-        stats["hists"] = {"execs": utl.get_text_hist(self.statistics["history"]["execs"], "avg_exec_time", "{avg_exec_time:.3f} {long:3}"),
+        stats["hists"] = {"execs": utl.get_text_hist(self.statistics["history"]["execs"], "avg_exec_time",
+                                                     "{avg_exec_time:.3f} {long:3}"),
                           "reqs": utl.get_text_hist(self.statistics["history"]["reqs"], "num", "{num:4} {err:3}")}
         stats["data"] = "\n".join(f"  {k.upper():6}  {v}" for k, v in self._get_statistics().items())
         return stats

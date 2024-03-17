@@ -314,6 +314,16 @@ class Bot(tlg.Bot):
         self.service.send_request(Request('student_databaser', 'set_chat_last_message_id', chat.user_id, new_id))
         chat.set_last_message_id(new_id)
 
+    # Requests
+
+    def request_send_message(self, chat_id, **kwargs):
+        msg = self.send_message(chat_id=chat_id, parse_mode=tlg.ParseMode.HTML, **kwargs)
+        return msg.message_id
+
+    def request_send_photo(self, chat_id, **kwargs):
+        msg = self.send_photo(chat_id=chat_id, parse_mode=tlg.ParseMode.HTML, **kwargs)
+        return msg.message_id
+
     # Runtime
 
     def sync(self):
