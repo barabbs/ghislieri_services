@@ -25,8 +25,6 @@ def _fetch_soup(options="", post_id=None):
     url = BASIC_URL + GROUP_URL
     url += ("?" + options) if post_id is None else POST_URL.format(post_id=post_id)
     page = requests.get(url, headers={"cookie": COOKIES})
-    with open(f"temp/{post_id}.html", 'wb') as file:
-        file.write(page.content)
     return BeautifulSoup(page.content, "html.parser")
 
 
