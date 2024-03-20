@@ -30,7 +30,7 @@ class ChannelsManager(BaseService):
         self.post_history = _get_posts_history()
 
     def _load_tasks(self):
-        self.scheduler.every(2).minutes.at(":00").do(self._task_check_facebook_posts)
+        self.scheduler.every(var.FACEBOOK_UPDATE_INTERVAL).minutes.at(":12").do(self._task_check_facebook_posts)
         super(ChannelsManager, self)._load_tasks()
 
     def _send_post(self, post):

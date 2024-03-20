@@ -14,6 +14,7 @@ FACEBOOK_POSTS_FILE = os.path.join(DATA_DIR, 'facebook_posts.fbpst')
 CHANNEL_ID_FILE = os.path.join(DATA_DIR, 'channel_id.cmid')
 
 # Facebook Scraping
+FACEBOOK_UPDATE_INTERVAL = 15  # minutes
 MAX_PAGES_SCRAPED = 3
 FACEBOOK_POST_MSG = """<b>❯    {author:<100}</b>
 
