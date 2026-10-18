@@ -8,7 +8,7 @@ from typing import Any
 from aiogram import BaseMiddleware, Dispatcher, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, ExceptionTypeFilter
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.types import CallbackQuery, ErrorEvent, Message, TelegramObject
 from aiogram_dialog import DialogManager, ShowMode, StartMode, setup_dialogs
 from aiogram_dialog.api.exceptions import OutdatedIntent, UnknownIntent, UnknownState
@@ -16,7 +16,7 @@ from aiogram_dialog.api.exceptions import OutdatedIntent, UnknownIntent, Unknown
 from .. import users
 from ..app import App
 from ..notify import OpenCallback
-from .common import go_home
+from .common import enforce_access_on_press, go_home
 from .dialogs import (
     admin,
     calendar,
@@ -82,7 +82,10 @@ def _state_index() -> dict[str, tuple[Any, str | None]]:
 
 def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
     """`message_manager` is replaced only in tests (aiogram_dialog.test_tools.MockMessageManager)."""
-    dp = Dispatcher(storage=MemoryStorage(), app=app)
+    enforce_access_on_press()
+    # Isolation: one user's updates are handled one at a time (photo albums, double taps).
+    isolation = SimpleEventIsolation()
+    dp = Dispatcher(storage=MemoryStorage(), events_isolation=isolation, app=app)
     dp.update.outer_middleware(UserMiddleware())
     states = _state_index()
 
@@ -106,16 +109,26 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
         dialog_manager: DialogManager,
         user: users.User | None,
     ):
-        """A button on a notification: delete the notification, open the dialog in a new message."""
-        if isinstance(query.message, Message):
-            app.notifier.retract_delivery(query.from_user.id, query.message.message_id)
-            with contextlib.suppress(TelegramBadRequest):
-                await query.message.delete()
+        """A button on a notification: delete the notification, open the dialog in a new message.
+
+        Only buttons of a notification actually delivered to this user open anything, so crafted
+        callback data cannot reach a dialog the user was not invited to.
+        """
         await query.answer()
-        if not callback_data.state:
+        if not isinstance(query.message, Message):
             return
+        allowed = app.notifier.delivered_buttons(query.from_user.id, query.message.message_id)
+        app.notifier.retract_delivery(query.from_user.id, query.message.message_id)
+        with contextlib.suppress(TelegramBadRequest):
+            await query.message.delete()
         state, access = states.get(callback_data.state, (None, None))
-        if state is None or user is None or not user.is_active or (access and not user.has(access)):
+        if (
+            state is None
+            or callback_data.state not in allowed
+            or user is None
+            or not user.is_active
+            or (access and not user.has(access))
+        ):
             return
         await dialog_manager.start(state, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND)
 
@@ -151,5 +164,5 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
     for module in MODULES:
         dp.include_router(module.dialog)
     dp.include_router(fallback)
-    setup_dialogs(dp, message_manager=message_manager)
+    setup_dialogs(dp, message_manager=message_manager, events_isolation=isolation)
     return dp

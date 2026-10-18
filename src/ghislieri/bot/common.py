@@ -7,7 +7,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 from aiogram_dialog import DialogManager, ShowMode, StartMode
-from aiogram_dialog.widgets.kbd import Cancel, Start
+from aiogram_dialog.widgets.kbd import Cancel, Keyboard, Start
 from aiogram_dialog.widgets.text import Const
 
 from .. import users
@@ -40,21 +40,38 @@ def esc(value: object) -> str:
 def perm(group: str | None):
     """`when=` predicate: show (and accept presses of) a widget only for holders of `group`.
 
-    `None` means any active user.
-    aiogram-dialog ignores presses on hidden widgets, so this is also an access check.
+    `None` means any active user. It is also an access check: see `enforce_access_on_press`.
     """
 
     def predicate(data: dict, widget, manager: DialogManager) -> bool:
         user = user_of(manager)
         return user is not None and user.is_active and (group is None or user.has(group))
 
+    predicate.access_check = True  # type: ignore[attr-defined]
     return predicate
 
 
-def perm_active(data: dict, widget, manager: DialogManager) -> bool:
-    """`when=` predicate for widgets every approved user may use."""
-    user = user_of(manager)
-    return user is not None and user.is_active
+perm_active = perm(None)
+
+
+def enforce_access_on_press() -> None:
+    """Make aiogram-dialog refuse presses on keyboards hidden by a `perm(...)` condition.
+
+    aiogram-dialog checks `when=` only when drawing the keyboard, not when a callback arrives, and
+    a modified client can send the callback data of a hidden button. Every keyboard (including
+    groups, whose children are processed through this method) goes through Keyboard.process_callback.
+    """
+    if getattr(Keyboard.process_callback, "access_checked", False):
+        return
+    original = Keyboard.process_callback
+
+    async def process_callback(self, callback, dialog, manager):
+        if getattr(self.condition, "access_check", False) and not self.condition({}, self, manager):
+            return False
+        return await original(self, callback, dialog, manager)
+
+    process_callback.access_checked = True  # type: ignore[attr-defined]
+    Keyboard.process_callback = process_callback  # type: ignore[method-assign]
 
 
 async def go_home(manager: DialogManager, show_mode: ShowMode = ShowMode.AUTO) -> None:

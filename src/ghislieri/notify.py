@@ -154,6 +154,15 @@ class Notifier:
             (user_id, message_id),
         )
 
+    def delivered_buttons(self, user_id: int, message_id: int) -> set[str]:
+        """Dialog states offered by the notification behind this message (empty if it isn't one)."""
+        row = self.conn.execute(
+            "SELECT n.buttons FROM deliveries d JOIN notifications n ON n.id = d.notification_id"
+            " WHERE d.user_id = ? AND d.message_id = ?",
+            (user_id, message_id),
+        ).fetchone()
+        return {b["state"] for b in json.loads(row["buttons"] or "[]") if b["state"]} if row else set()
+
     def expire(self) -> None:
         """Retract every notification past its expiry time. Run periodically."""
         rows = self.conn.execute(
