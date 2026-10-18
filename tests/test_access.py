@@ -1,8 +1,8 @@
 """Access control on crafted callbacks (aiogram-dialog does not check `when=` on presses by itself)."""
 
 from aiogram.types import InlineKeyboardButton
-
 from conftest import client, make_user
+
 from ghislieri import users
 
 

@@ -1,0 +1,24 @@
+name: CI
+on:
+  push:
+    branches: [main, rework]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+      - run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0
+      - run: uv sync --locked
+      - run: uv run ruff check src tests
+      - run: uv run ruff format --check src tests
+      - run: uv run pytest -q
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: podman build -f deploy/Containerfile -t ghislieri:ci .
+      - run: podman run --rm --entrypoint python ghislieri:ci -c "import ghislieri.bot, weasyprint"

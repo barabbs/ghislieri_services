@@ -1,8 +1,8 @@
 import datetime as dt
 
 import pytest
-
 from conftest import make_user
+
 from ghislieri import clock, users
 from ghislieri.settings import ProductionGuardError, Settings, check_production_guard
 

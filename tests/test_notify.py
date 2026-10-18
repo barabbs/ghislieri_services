@@ -1,8 +1,8 @@
 import datetime as dt
 
 from aiogram.methods import DeleteMessage
-
 from conftest import make_user
+
 from ghislieri import clock, users
 
 
@@ -34,7 +34,6 @@ async def test_expired_not_sent(app):
 async def test_blocked_user(app):
     from aiogram.exceptions import TelegramForbiddenError
     from aiogram.methods import SendMessage
-
     from conftest import RecordingBot
 
     class BlockedBot(RecordingBot):

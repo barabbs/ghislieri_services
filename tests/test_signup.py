@@ -1,6 +1,6 @@
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator as Btn
-
 from conftest import client, make_user
+
 from ghislieri import users
 
 
@@ -29,8 +29,13 @@ async def test_signup_and_approval(dp, app, message_manager):
     from aiogram.types import Message
 
     note = Message.model_validate(
-        {"message_id": 1000, "date": 0, "chat": {"id": 99, "type": "private"}, "text": alert.text,
-         "reply_markup": alert.reply_markup.model_dump()}
+        {
+            "message_id": 1000,
+            "date": 0,
+            "chat": {"id": 99, "type": "private"},
+            "text": alert.text,
+            "reply_markup": alert.reply_markup.model_dump(),
+        }
     )
     await admin.click(note, Btn("👀 Vedi registrazioni"))
     await admin.click(message_manager.last_message(), Btn("Bianchi Luca"))

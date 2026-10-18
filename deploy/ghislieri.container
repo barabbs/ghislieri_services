@@ -1,0 +1,28 @@
+# Podman Quadlet unit for the production server (RHEL 9).
+# Install: copy to /etc/containers/systemd/, then `systemctl daemon-reload && systemctl start ghislieri`.
+# Secrets (once): printf '%s' "$TOKEN" | podman secret create ghislieri-bot-token -
+#                 printf '%s' "$APP_PASSWORD" | podman secret create ghislieri-smtp-password -
+# Production marker (once): mkdir -p /etc/ghislieri && touch /etc/ghislieri/production
+
+[Unit]
+Description=Ghislieri Telegram bot
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+Image=localhost/ghislieri:latest
+Volume=ghislieri-data:/data:Z
+Volume=/etc/ghislieri/production:/etc/ghislieri/production:ro
+# Printing through the host's CUPS (SELinux may need a policy tweak; untested).
+Volume=/run/cups/cups.sock:/run/cups/cups.sock
+Environment=CUPS_SERVER=/run/cups/cups.sock
+EnvironmentFile=/etc/ghislieri/ghislieri.env
+Secret=ghislieri-bot-token,type=env,target=GS_BOT_TOKEN
+Secret=ghislieri-smtp-password,type=env,target=GS_SMTP_PASSWORD
+
+[Service]
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
