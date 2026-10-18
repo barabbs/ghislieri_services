@@ -16,3 +16,6 @@ token.json
 # IDE
 .idea/
 .vscode/
+
+# Local runtime data of the new version
+var/
