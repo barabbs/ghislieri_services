@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 1cm; }
+  body { font-family: sans-serif; }
+  table.layout { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  td.column { vertical-align: top; padding: 0 3px 8px; }
+  table.res { width: 100%; border-collapse: collapse; }
+  table.res th, table.res td { border: 0.5px solid black; padding: 2px 3px; text-align: left; font-size: 11px;
+    overflow-wrap: break-word; }
+  table.res th { background-color: black; color: white; }
+  table.res tr:nth-child(even) { background-color: #eee; }
+  table.res .mark { width: 1.2em; text-align: center; }
+  caption { font-size: 11px; font-weight: bold; text-align: left; padding-bottom: 2px; }
+</style>
+</head>
+<body>
+<h2>{{ title }}</h2>
+<hr>
+{% for row in columns|batch(4) %}
+<table class="layout">
+  <tr>
+    {% for label, students in row %}
+    <td class="column">
+      <table class="res">
+        <caption>{{ label }}</caption>
+        <tr>
+          <th>Cognome</th>
+          <th>Nome</th>
+          {% for meal in meals %}<th class="mark">{{ meal_names[meal][0] }}</th>{% endfor %}
+        </tr>
+        {% for s in students %}
+        <tr>
+          <td>{{ s.surname }}</td>
+          <td>{{ s.name }}</td>
+          {% for yes in s.attending %}<td class="mark">{{ "X" if yes }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </td>
+    {% endfor %}
+    {% for _ in range(4 - row|length) %}<td></td>{% endfor %}
+  </tr>
+</table>
+{% endfor %}
+<hr>
+<h4>
+  TOTALE
+  {% for meal in meals %}
+  &nbsp;&nbsp;&nbsp;&nbsp; {{ meal_names[meal] }}: {{ recap.totals[meal].total }}
+  ({% for label in recap.groups %}{{ label }} {{ recap.totals[meal][label] }}{{ " / " if not loop.last }}{% endfor %})
+  {% endfor %}
+</h4>
+</body>
+</html>

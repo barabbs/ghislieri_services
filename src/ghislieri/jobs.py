@@ -26,7 +26,9 @@ async def expire_notifications(app: App) -> None:
 
 def setup(app: App) -> None:
     month, day = clock.ACADEMIC_YEAR_ROLLOVER
-    app.scheduler.add_job(academic_year_rollover, CronTrigger(month=month, day=day, hour=0, minute=30), args=[app])
-    app.scheduler.add_job(expire_notifications, CronTrigger(minute="*/5"), args=[app])
+    app.scheduler.add_job(
+        academic_year_rollover, CronTrigger(month=month, day=day, hour=0, minute=30, timezone=clock.TZ), args=[app]
+    )
+    app.scheduler.add_job(expire_notifications, CronTrigger(minute="*/5", timezone=clock.TZ), args=[app])
     meals.schedule(app)
     events.schedule(app)
