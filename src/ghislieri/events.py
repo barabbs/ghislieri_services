@@ -360,7 +360,7 @@ async def sync_job(app: App, notify_user: int | None = None) -> None:
 
 
 def schedule(app: App) -> None:
-    app.scheduler.add_job(sync_job, CronTrigger(hour=3, minute=0), args=[app], id="calendar_sync")
+    app.scheduler.add_job(sync_job, CronTrigger(hour=3, minute=0, timezone=clock.TZ), args=[app], id="calendar_sync")
 
 
 # iCalendar

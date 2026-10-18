@@ -1,98 +1,95 @@
-# Architecture (legacy, v0.5.x)
+# Architecture (v1)
 
-This describes the system as it is on `main` (v0.5.2, last PR #63). The `rework` branch will change much of it; see [rework/proposal.md](rework/proposal.md).
-
-## Overview
-
-Ghislieri Services is one Python program that runs several independent *services* plus a Telegram bot front end. Students interact only with the bot; the bot calls the other services to read or change data.
+One Python process runs the Telegram bot and every scheduled job on a single asyncio event loop. State lives in one SQLite file. There are no worker processes and no internal RPC.
 
 ```
-main.py
- └─ GhislieriServices (modules/ghislieri_services.py)   ← supervisor, also a service
-     ├─ student_databaser   (users, groups, chat state)
-     ├─ calendar_manager    (college calendar, events)
-     ├─ email_service       (mailbox polling, sending)
-     ├─ printer_service     (print jobs via CUPS)
-     ├─ meals_management    (menus, reservations, recaps)
-     ├─ content_submitter   (eduroam reports, social media submissions)
-     ├─ channels_manager    (Facebook page → Telegram channel)
-     └─ ghislieri_bot       (Telegram bot, renders messages/*.gsm)
+src/ghislieri/
+  __main__.py     entry point: settings → guard → DB → bot → scheduler → polling
+  settings.py     GS_* env vars / .env (pydantic-settings), production guard
+  app.py          App: settings, conn, bot, notifier, scheduler (handed to every handler)
+  db.py           SQLite connection + numbered migrations (migrations/*.sql)
+  clock.py        Europe/Rome time, academic year
+  log.py          logging to stderr, error alerts to Telegram, recent-errors buffer
+  notify.py       notification engine
+  mail.py         SMTP sending
+  jobs.py         scheduler setup, core jobs (alumni rollover, notification expiry)
+  users.py        users, groups, permissions
+  meals.py        canteen: meal days, bookings, reminders, recap PDF, reports
+  events.py       college calendar: events, website sync, ICS export
+  printing.py     lp command
+  submissions.py  eduroam reports, social posts, feedback
+  templates/      Jinja2 templates (meal recap)
+  bot/
+    __init__.py   dispatcher, user middleware, /start, notification buttons, error handlers
+    common.py     shared dialog helpers (permissions, escaping, navigation)
+    dialogs/      one aiogram-dialog Dialog per area
 ```
 
-Each service is a separate OS process. They communicate only through request/response pipes.
+Rule of thumb: domain modules (`meals.py`, `events.py`, ...) hold the logic and the SQL and know nothing about menus; `bot/dialogs/*` hold the menus and call the domain modules.
 
-## Startup
+## Bot
 
-```
-python main.py [-d] [--no_sync] <service> [<service> ...]
-```
+Built on [aiogram 3](https://docs.aiogram.dev) and [aiogram-dialog](https://aiogram-dialog.readthedocs.io).
 
-- Positional arguments are the services to start. The production unit (`ghislieri_services.service`) lists all eight.
-- `-d` enables DEBUG mode: the data directory becomes `./data` instead of `/var/opt/ghislieri_services`, the bot uses the test token, and session/sync timeouts get shorter. DEBUG is read from `sys.argv` independently in `modules/var.py` and in every `services/*/var.py`.
-- `--no_sync` disables the bot's periodic chat sync.
+- **Dialogs.** Each area is a `Dialog` of `Window`s (`bot/dialogs/<area>.py`). Each module exports its `StatesGroup`, `dialog` and `ACCESS` (group needed to open it, `None` for any active user). Dialogs keep one live menu message per user and edit it in place; user text input is deleted after it is read (`common.tidy_input`).
+- **Dialog state** is in memory (`MemoryStorage`). After a restart old buttons raise `UnknownIntent`; the error handler answers with a fresh home menu. This is deliberate: nothing in a menu is worth persisting.
+- **Isolation.** `SimpleEventIsolation` handles one user's updates one at a time (photo albums, double taps), while different users are served concurrently.
+- **User middleware** loads the sender's DB record into `user` for every update. Users who had blocked the bot become active again; `disabled` users are ignored.
+- **Entry points** (`bot/__init__.py`): `/start` (signup, waiting screen, or home), notification buttons, and a fallback that treats stray messages as `/start`.
 
-`main.py` configures the root logger (a new log file per start in `data/logs/`, plus stderr). It then builds `GhislieriServices` and calls `run()`.
+### Access control
 
-## Services framework
+- `users.User.has(group)` with dotted groups: holding `calendar.cultural.gs` grants `calendar.cultural` and `calendar`.
+- `when=perm(group)` hides a widget **and** refuses its presses. aiogram-dialog itself only evaluates `when` while drawing the keyboard, so `common.enforce_access_on_press` patches `Keyboard.process_callback` to re-check `perm()` conditions on every press. Data-based `when=` conditions are not access checks: never use them to protect a privileged action.
+- Notification buttons (`open|<state>`) only open a state that the notification behind that very message offered to that user, and only if the user holds the dialog's `ACCESS`.
 
-### `BaseService` (`modules/base_service.py`)
+## Database
 
-Every service subclasses `BaseService`, which subclasses `multiprocessing.Process`. Its `run()` is a polling loop at 16 Hz (`SERVICE_UPDATE_INTERVAL = 0.0625` s):
+`db.connect` opens the file (WAL mode, foreign keys on) and applies `migrations/NNNN_*.sql` whose number is above `PRAGMA user_version`, one transaction each. To change the schema, add a new numbered file; never edit an applied one.
 
-1. `_update()`: per-service hook, empty by default.
-2. `_execute_tasks()`: runs due jobs of a per-service [`schedule`](https://schedule.readthedocs.io) scheduler. Subclasses register jobs in `_load_tasks()`.
-3. `_handle_requests()`: drains incoming requests from the service's pipe.
+The connection is used only from the event-loop thread. Queries touch at most a few hundred rows, so they run synchronously.
 
-Conventions:
-
-- Methods named `_request_<name>` are the service's RPC API. A request with `r_type="<name>"` calls the method through `getattr`.
-- Methods named `_task_<name>` are scheduled jobs. The `@task` decorator logs exceptions and writes an error file instead of crashing the process.
-- `_stop()` runs on a stop request. `_exit()` runs when the loop ends; the base version saves statistics.
-
-Each service also keeps simple statistics: loop execution times, request counts and errors, and an hourly 24-slot history. They are saved to `data/statistics/<service>.gsst` on exit and reloaded (then deleted) on start. Admins see them in the bot.
-
-### RPC (`modules/service_pipe.py`)
-
-- `Request(service_name, r_type, *args, **kwargs)` is a plain picklable object.
-- The parent creates one `ServicePipe` per service (a duplex `multiprocessing.Pipe` plus a `Lock`) before forking. Every process therefore holds every pipe.
-- `send_request` takes the target pipe's lock, sends the request, and **blocks** until the result arrives. If the result is an `Exception`, it is re-raised in the caller.
-- The target polls its end of the pipe in its loop and sends back the return value. A method may raise `NoResultRequest` when it has already replied by itself (for example `restart_service`).
-
-Consequences: calls are synchronous. Latency is bounded below by the target's loop period. Two services calling each other at the same moment can deadlock.
-
-### Supervisor (`modules/ghislieri_services.py`)
-
-`GhislieriServices` is itself a `BaseService` (its loop runs in the main process). It:
-
-- imports `services.<name>.<name>` and instantiates the module's `SERVICE_CLASS`;
-- starts all processes, then checks every 5 minutes for dead ones and restarts them;
-- exposes admin requests: `shutdown`, `restart_service` (stop, `importlib.reload`, start), `get_errors`, `get_error`, `get_logs`, `get_log` (paginated), `get_version` (reads the changelog in `data/changelogs/`);
-- on exit sends `stop` to every service, sets the shared stop `Event`, and joins the processes.
-
-## Configuration
-
-There is no configuration file. Constants live in `modules/var.py` (version, directories, formats) and in each `services/<name>/var.py`. Secrets and runtime settings are files in the data directory: bot tokens (`*.gbtk`), Google credentials, email credentials, printer address, channel id, and others. See the per-service docs.
-
-## Data directory
-
-Production: `/var/opt/ghislieri_services/` (DEBUG: `./data/`). Layout:
-
-| Path | Content |
+| Table | Content |
 |---|---|
-| `logs/` | one log file per process start, `;`-separated fields |
-| `errors/` | one `.gser` file per caught exception (header + traceback) |
-| `statistics/` | `<service>.gsst` JSON, saved on shutdown |
-| `changelogs/` | `changelog_<version>.gscl`, shown by the bot |
-| `<service>/` | per-service data, see [services/](services/) |
+| `users` | Telegram id, name, surname, gender, email, `enrollment_year`, `status` (pending / active / blocked / disabled) |
+| `user_groups` | (user, group) pairs |
+| `notifications`, `deliveries` | notification text and buttons; per-user delivery state and message id |
+| `submissions` | feedback, eduroam reports, social posts, canteen reports (JSON payload, photos as Telegram file ids) |
+| `meal_days`, `meal_bookings` | bookable days with opening date; per user and meal: attending yes/no (no row = no answer) |
+| `events` | calendar events (UTC times, class, categories, status, source rss/bot) |
 
-All persistence is JSON or text files written in place. There is no database and no file locking.
+## Notifications
+
+A notification is a separate bot message, never the menu itself, so it cannot overwrite what the user is doing.
+
+- `notifier.send(user_ids, text, kind=..., ref=..., buttons=..., silent=..., expires_at=...)` stores the notification and one `deliveries` row per user, then queues them.
+- One background worker sends everything, about 20 messages per second, handling Telegram's `RetryAfter` and users who blocked the bot. Handlers never wait for a broadcast, so the bot stays responsive at reminder time. Pending deliveries are resumed after a restart.
+- `kind` + `ref` identify what a notification is about (e.g. `meal_reminder` + a date). Sending again with the same pair replaces the earlier message (`replace=True`), and `retract(kind, ref, user_id)` deletes it, e.g. when a student has booked.
+- A job retracts expired notifications every 5 minutes.
+
+## Scheduled jobs
+
+APScheduler `AsyncIOScheduler` in Europe/Rome. A failing job is logged at ERROR (and so alerted); the process keeps running. Jobs are idempotent.
+
+| When | Job |
+|---|---|
+| every 5 min | expire notifications |
+| daily 03:00 | calendar sync from the college website |
+| daily 07:00 | meal recap PDF by email |
+| daily 12:00, 19:00 | meal reminders for tomorrow |
+| Aug 15 00:30 | students → alumni after 6 academic years |
+| Aug 15 01:00 | meal days for the new academic year |
 
 ## Logging and errors
 
-- Standard `logging`, configured in `main.py`. Child processes inherit the handlers through `fork`.
-- Caught exceptions are also written by `utility.log_error` as separate files in `errors/`. Admins can browse them from the bot.
-- Nobody is notified actively. An admin must open the bot's error list to notice a failure.
+- Everything goes to stderr in one format; in production that is journald (`journalctl -u ghislieri`).
+- Records at ERROR and above are also sent to `GS_ALERT_CHAT_ID` (repeats muted for 10 minutes) and kept in memory for the developer menu.
+- Unhandled exceptions in handlers are logged, the user sees "Qualcosa è andato storto" and the home menu.
 
-## Telegram bot
+## Configuration
 
-See [bot/README.md](bot/README.md) for the bot runtime and [bot/messages.md](bot/messages.md) for the JSON message format.
+`settings.Settings` reads `GS_*` environment variables, and `.env` in the working directory for development. See `deploy/ghislieri.env.example`.
+
+**Production guard** (`settings.check_production_guard`): the production bot's token only runs with `GS_ENV=prod` on a host that has `/etc/ghislieri/production`, and `GS_ENV=prod` only runs with the production bot's token.
+
+In dev, email goes to `GS_MAIL_DEV_REDIRECT` or is only logged, and printing is only logged.

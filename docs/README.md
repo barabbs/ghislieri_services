@@ -1,10 +1,11 @@
 # Ghislieri Services documentation
 
-For maintainers. Describes the current system (v0.5.x, branch `main`) and the planned rework.
+For maintainers of the Collegio Ghislieri Telegram bot.
 
-- [architecture.md](architecture.md): processes, RPC between services, data directory, logging.
-- [bot/README.md](bot/README.md): how the Telegram bot works (live message, sessions, notifications, permissions).
-- [bot/messages.md](bot/messages.md): reference for the JSON `.gsm` message format, with a message inventory.
-- Services: [student_databaser](services/student_databaser.md), [calendar_manager](services/calendar_manager.md), [email_service](services/email_service.md), [printer_service](services/printer_service.md), [meals_management](services/meals_management.md), [content_submitter](services/content_submitter.md), [channels_manager](services/channels_manager.md).
-- [development.md](development.md): local setup with uv, running in debug mode.
-- Rework: [proposal](rework/proposal.md), [stack research](rework/research.md).
+- [features.md](features.md): what the bot does, area by area, with the rules that matter (meals calendar, reminders, permissions).
+- [architecture.md](architecture.md): how the code is organised; bot, database, notifications, jobs, logging, configuration.
+- [development.md](development.md): local setup with uv, tests, conventions, releasing.
+- [deployment.md](deployment.md): Podman/Quadlet on the production server.
+- [migration.md](migration.md): importing v0.5 data.
+- [legacy/](legacy/architecture.md): documentation of v0.5 (multiprocessing services, JSON message files), kept for reference.
+- [rework/](rework/proposal.md): why and how v1 was rewritten, and the library research behind it.

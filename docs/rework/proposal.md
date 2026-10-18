@@ -1,6 +1,8 @@
 # Rework proposal
 
-Status: draft for discussion (2026-10-18). Library versions and sources are in [research.md](research.md). Problems in the current code are listed in each service doc under "Known issues".
+Status: accepted and implemented in v1 (2026-10). The current design is described in [architecture.md](../architecture.md); this page keeps the reasoning. Decisions taken: full rewrite; Facebook bridge and canteen menu dropped; Gmail app password kept; calendar exported as ICS for later publishing.
+
+Original draft (2026-10-18). Library versions and sources are in [research.md](research.md). Problems in the current code are listed in each service doc under "Known issues".
 
 ## 1. Why change
 
@@ -8,7 +10,7 @@ The current design (v0.5.x) works, but has structural problems:
 
 - **Dead Telegram library.** python-telegram-bot 13.14 is sync, targets Bot API 6.x and gets no updates. It imports `imghdr`, so it cannot run on Python 3.13+. The project is stuck on Python 3.12.
 - **Process model is heavier than the work.** Eight `multiprocessing` processes spin at 16 Hz and talk through blocking pipes. All the work is I/O-bound and small. Calls are synchronous: a 60 s `lp` call or a slow IMAP login blocks the bot. Two services that call each other can deadlock.
-- **Hand-made message DSL.** About 110 JSON `.gsm` files describe menus with stringly-typed actions (`["REQ", "service", "r_type", {...}]`), `str.format` templating and `$` indirection. Nothing checks them: today four files declare a `code` that doesn't match their path, and a group name typo (`socials_rep` vs `social_rep`) breaks a notification (see [bot/messages.md](../bot/messages.md)). User text that contains `{` breaks the templating.
+- **Hand-made message DSL.** About 110 JSON `.gsm` files describe menus with stringly-typed actions (`["REQ", "service", "r_type", {...}]`), `str.format` templating and `$` indirection. Nothing checks them: today four files declare a `code` that doesn't match their path, and a group name typo (`socials_rep` vs `social_rep`) breaks a notification (see [bot/messages.md](../legacy/bot/messages.md)). User text that contains `{` breaks the templating.
 - **Errors are invisible.** Exceptions become files in `data/errors/`. Nobody is notified. Several scheduled tasks lack `@task`, so one exception kills the process and the job is lost until the next run.
 - **Storage is scattered.** SQLite for students, then custom text formats for reservations (`.mr`), notifications backup, feedback, eduroam reports, Facebook post history, statistics. No locking, no schema, no migrations.
 - **Secrets and config are files with custom extensions.** Production versus debug is a `-d` flag. Forgetting `-d` on a dev machine runs the production bot.

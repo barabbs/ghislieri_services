@@ -1,33 +1,54 @@
-# Development setup
+# Development
 
-## Environment
+## Setup
 
-The project uses [uv](https://docs.astral.sh/uv/). It installs a uv-managed Python, so the virtual environment does not break when the system Python is upgraded.
+The project uses [uv](https://docs.astral.sh/uv/). `pyproject.toml` asks for a uv-managed Python 3.14, so `.venv` does not break when the system Python is upgraded.
 
 ```sh
-uv sync            # creates .venv with Python 3.12 and the locked dependencies
-uv run main.py -d student_databaser ghislieri_bot
+uv sync                     # installs Python 3.14 if needed, creates .venv
+cp deploy/ghislieri.env.example .env
+# edit .env: GS_ENV=dev, GS_BOT_TOKEN=<test bot token>, GS_DATA_DIR=var, GS_ALERT_CHAT_ID=<your id>
+uv run ghislieri            # runs the bot on the test token
 ```
 
-The legacy code needs Python 3.12: python-telegram-bot 13 imports `imghdr`, which Python 3.13 removed. `pyproject.toml` also pins a few old transitive dependencies (TatSu, urllib3, setuptools) that the legacy stack needs.
+WeasyPrint (meal recap PDF) needs Pango installed on the system (`pacman -S pango`, `apt install libpango-1.0-0 libpangoft2-1.0-0`).
 
-## Debug mode
+The bot refuses to start with the production token on a development machine (see [architecture.md](architecture.md#configuration)). In dev mode, email is only logged unless `GS_MAIL_DEV_REDIRECT` is set, and print jobs are only logged.
 
-Always pass `-d` when running locally. Without it the program uses `/var/opt/ghislieri_services` and the **production** bot token.
+To play with real data, import a copy of the v0.5 data into the dev database:
 
-With `-d`:
+```sh
+uv run tools/migrate_v05.py <copy of old data dir> var/ghislieri.sqlite3
+```
 
-- the data directory is `./data`;
-- the bot reads `data/ghislieri_bot/ghislieri_bot_token_test.gbtk` (the test bot);
-- session timeout and chat sync interval are shorter.
+The test bot can only message users who started it, so other users in the copy are not bothered; deliveries to them fail and they are marked `blocked`.
 
-`--no_sync` disables the periodic chat sync and switches `student_databaser` to `database_all_users.gsdb`.
+## Checks
 
-## Which services are safe to run locally
+```sh
+uv run pytest -q
+uv run ruff check src tests tools
+uv run ruff format src tests tools
+```
 
-- `student_databaser`, `ghislieri_bot`, `calendar_manager`: safe with the test token. The bot will message the users in the local database who also started the test bot.
-- `email_service`, `meals_management`: log into the real Gmail account and mark menu emails as read. Avoid.
-- `channels_manager`: scrapes Facebook with stored cookies and posts to the configured channel. Avoid.
-- `printer_service`: prints on the default CUPS printer.
+CI (`.github/workflows/ci.yml`) runs the same checks and builds the container image.
 
-For experiments, copy the repository and `data/` to a scratch directory and run there, so the local data copy stays untouched.
+Tests run offline. Dialog flows use `aiogram_dialog.test_tools` (`BotClient` + `MockMessageManager`), with a recording fake bot for everything else (`tests/conftest.py`). See `tests/test_signup.py` for a complete flow.
+
+## Conventions
+
+- Domain logic and SQL in `src/ghislieri/<domain>.py`, menus in `src/ghislieri/bot/dialogs/<area>.py`.
+- Italian for user-facing text, English for code, comments and logs.
+- Escape every user- or website-provided string with `bot.common.esc` before putting it in a message (messages use HTML).
+- Protect privileged buttons with `when=perm(group)`; it is enforced on presses too. A data-based `when=` is not an access check.
+- Blocking work goes to `asyncio.to_thread` or `asyncio.create_subprocess_exec`, always with a timeout; never `shell=True`.
+- Keep Telegram file ids instead of files on disk.
+- Schema changes: add `src/ghislieri/migrations/NNNN_<name>.sql`; never edit an applied migration.
+- Notifications: give each a `kind` and, when it is about something specific, a `ref`, so it can be replaced or retracted.
+- Scheduled jobs: `CronTrigger(..., timezone=clock.TZ)` (a hand-built trigger otherwise uses the host's time zone) and make them idempotent.
+
+## Releasing
+
+1. Update `version` in `pyproject.toml` (the bot reads it from the package metadata), run `uv lock`, and add the user-facing notes to `src/ghislieri/changelog.md`.
+2. Merge to `main`, then deploy (see [deployment.md](deployment.md)).
+3. Optionally announce it from the bot: Admin → Notifiche → Annuncia aggiornamento.
