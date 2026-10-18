@@ -13,13 +13,11 @@ from aiogram_dialog.widgets.kbd import Button, Group, Row, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
 from ... import printing
-from ..common import BACK, HOME, app_of, esc, tidy_input
+from ..common import BACK, ERROR, HOME, app_of, esc, input_error, tidy_input
 
 log = logging.getLogger(__name__)
 
 ACCESS = "student"
-
-_printing: set[int] = set()  # users with a job being sent
 
 
 class PrintingSG(StatesGroup):
@@ -54,11 +52,6 @@ async def on_document(message: Message, widget: MessageInput, manager: DialogMan
         await manager.switch_to(PrintingSG.options)
 
 
-async def on_other(message: Message, widget: MessageInput, manager: DialogManager) -> None:
-    await tidy_input(message, manager)
-    manager.dialog_data["error"] = "⚠️ Invia il file come <b>documento</b> .pdf."
-
-
 async def on_copies(event: Message | CallbackQuery, widget, manager: DialogManager, value: int) -> None:
     """From a number button or typed in."""
     if isinstance(event, Message):
@@ -74,20 +67,10 @@ def _copies(text: str) -> int:
     return value
 
 
-async def on_bad_copies(message: Message, widget: ManagedTextInput, manager: DialogManager, error) -> None:
-    await tidy_input(message, manager)
-    manager.dialog_data["error"] = f"⚠️ Scrivi un numero da 1 a {printing.MAX_COPIES}."
-
-
 async def on_pages(message: Message, widget: ManagedTextInput, manager: DialogManager, value: str) -> None:
     await tidy_input(message, manager)
     _set(manager, pages=value)
     await manager.switch_to(PrintingSG.options)
-
-
-async def on_bad_pages(message: Message, widget: ManagedTextInput, manager: DialogManager, error) -> None:
-    await tidy_input(message, manager)
-    manager.dialog_data["error"] = "⚠️ Formato non valido. Usa numeri, virgole e trattini, es. <i>1,3-5,16</i>."
 
 
 async def on_all_pages(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
@@ -107,11 +90,6 @@ async def on_number_up(query: CallbackQuery, widget, manager: DialogManager, ite
 
 async def on_print(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
     app, data = app_of(manager), manager.dialog_data
-    # Dialog data is saved only when the handler ends, so it cannot stop a double tap.
-    if query.from_user.id in _printing:
-        await query.answer("Stampa già in corso")
-        return
-    _printing.add(query.from_user.id)
     await query.answer("🖨 Stampa in corso…")
     try:
         with tempfile.TemporaryDirectory(prefix="ghislieri-print-") as tmp:
@@ -128,8 +106,6 @@ async def on_print(query: CallbackQuery, button: Button, manager: DialogManager)
         data["result"] = "❌    Errore nella stampa del file. Riprova più tardi."
     else:
         data["result"] = "✅    File stampato con <b>successo</b>!"
-    finally:
-        _printing.discard(query.from_user.id)
     await manager.switch_to(PrintingSG.done)
 
 
@@ -148,7 +124,6 @@ async def getter(dialog_manager: DialogManager, **kwargs) -> dict:
     }
 
 
-ERROR = Format("\n{error}", when="error")
 TO_OPTIONS = SwitchTo(Const("↩️ Indietro"), id="to_options", state=PrintingSG.options)
 
 dialog = Dialog(
@@ -156,7 +131,7 @@ dialog = Dialog(
         Const("📑    Invia il <b>file</b> in formato <u>.pdf</u>"),
         ERROR,
         MessageInput(on_document, content_types=ContentType.DOCUMENT),
-        MessageInput(on_other),
+        MessageInput(input_error("⚠️ Invia il file come <b>documento</b> .pdf.")),
         BACK,
         state=PrintingSG.main,
         getter=getter,
@@ -187,7 +162,12 @@ dialog = Dialog(
                 on_click=on_copies,
             )
         ),
-        TextInput(id="copies_in", type_factory=_copies, on_success=on_copies, on_error=on_bad_copies),
+        TextInput(
+            id="copies_in",
+            type_factory=_copies,
+            on_success=on_copies,
+            on_error=input_error(f"⚠️ Scrivi un numero da 1 a {printing.MAX_COPIES}."),
+        ),
         TO_OPTIONS,
         state=PrintingSG.copies,
         getter=getter,
@@ -200,7 +180,12 @@ dialog = Dialog(
         ),
         ERROR,
         Button(Const("Tutte le pagine"), id="all_pages", on_click=on_all_pages),
-        TextInput(id="pages_in", type_factory=printing.parse_page_list, on_success=on_pages, on_error=on_bad_pages),
+        TextInput(
+            id="pages_in",
+            type_factory=printing.parse_page_list,
+            on_success=on_pages,
+            on_error=input_error("⚠️ Formato non valido. Usa numeri, virgole e trattini, es. <i>1,3-5,16</i>."),
+        ),
         TO_OPTIONS,
         state=PrintingSG.pages,
         getter=getter,

@@ -5,7 +5,7 @@ import logging
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-from aiogram import BaseMiddleware, Dispatcher, Router
+from aiogram import BaseMiddleware, Dispatcher, F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, ExceptionTypeFilter
 from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
@@ -16,7 +16,7 @@ from aiogram_dialog.api.exceptions import OutdatedIntent, UnknownIntent, Unknown
 from .. import users
 from ..app import App
 from ..notify import OpenCallback
-from .common import enforce_access_on_press, go_home
+from .common import HomeSG, enforce_access_on_press, go_home
 from .dialogs import (
     admin,
     calendar,
@@ -87,6 +87,9 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
     isolation = SimpleEventIsolation()
     dp = Dispatcher(storage=MemoryStorage(), events_isolation=isolation, app=app)
     dp.update.outer_middleware(UserMiddleware())
+    # The bot works in private chats only; anything from groups and channels is ignored.
+    dp.message.filter(F.chat.type == "private")
+    dp.callback_query.filter(F.message.chat.type == "private")
     states = _state_index()
 
     entry = Router(name="entry")
@@ -111,6 +114,8 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
     ):
         """A button on a notification: delete the notification, open the dialog in a new message.
 
+        The dialog opens on top of the home menu, so its "back" button leads there.
+
         Only buttons of a notification actually delivered to this user open anything, so crafted
         callback data cannot reach a dialog the user was not invited to.
         """
@@ -130,7 +135,11 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
             or (access and not user.has(access))
         ):
             return
-        await dialog_manager.start(state, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND)
+        if state is HomeSG.main:
+            await go_home(dialog_manager, ShowMode.SEND)
+        else:
+            await go_home(dialog_manager, ShowMode.NO_UPDATE)
+            await dialog_manager.start(state, show_mode=ShowMode.SEND)
 
     fallback = Router(name="fallback")
 

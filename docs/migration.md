@@ -12,6 +12,7 @@ uv run tools/migrate_v05.py /path/to/old/data /path/to/ghislieri.sqlite3
 | `student_databaser/database.gsdb` | `users`, `user_groups` |
 | group `signup` | status `pending` (shows up in the admin registrations queue) |
 | group `inactive` | status `blocked` (reactivated when the user writes to the bot) |
+| group `admin` (calendar admins) | group `calendar.admin` |
 | groups that look like a year (`2019`, `year.2019`, ...) | `users.enrollment_year` |
 | rows without name or surname (broken signups) | skipped, listed in the report |
 | gender other than M/F | empty |

@@ -155,3 +155,23 @@ def test_recap_grouping(conn):
     html = meals.recap_html(recap)
     assert "SABATO 05 GENNAIO 2030" in html and "O&#39;Brien &amp; Co" in html
     assert meals.recap_pdf(recap).startswith(b"%PDF")
+
+
+async def test_reminder_button_opens_over_home(dp, app, message_manager, friday_noon):
+    from aiogram.types import Message
+
+    make_user(app.conn, 3, users.STUDENT)
+    meals.add_day(app.conn, SAT)
+    await meals.remind(app)
+    await app.notifier.drain()
+    [sent] = app.bot.sent(3)
+    note = Message.model_validate(
+        {"message_id": 1000, "date": 0, "chat": {"id": 3, "type": "private"}, "text": sent.text,
+         "reply_markup": sent.reply_markup.model_dump()}
+    )  # fmt: skip
+    c = client(dp, app, 3)
+    await c.click(note, Btn(".*Prenota ora.*"))
+    [menu] = message_manager.sent_messages  # one live menu: the home one is not drawn
+    assert "Prenota il Pasto" in menu.text
+    await c.click(message_manager.last_message(), Btn(".*Indietro"))  # back leads to the home menu
+    assert "Collegio Ghislieri" in message_manager.last_message().text

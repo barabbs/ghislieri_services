@@ -13,7 +13,8 @@ PROD_MARKER = Path("/etc/ghislieri/production")
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="GS_", env_file=".env", extra="ignore")
+    # env_ignore_empty: "GS_SMTP_USER=" (as in the example file) means unset, not "".
+    model_config = SettingsConfigDict(env_prefix="GS_", env_file=".env", extra="ignore", env_ignore_empty=True)
 
     env: Literal["dev", "prod"] = "dev"
     bot_token: SecretStr

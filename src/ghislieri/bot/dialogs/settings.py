@@ -11,7 +11,7 @@ from aiogram_dialog.widgets.kbd import Button, Row, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
 from ... import __version__, submissions, users
-from ..common import BACK, HOME, app_of, esc, person_name, tidy_input, user_of
+from ..common import BACK, ERROR, HOME, NAME_ERROR, app_of, esc, input_error, person_name, text_of, tidy_input, user_of
 
 ACCESS = None
 
@@ -47,8 +47,8 @@ def email_address(text: str) -> str:
 
 # Editable profile fields: label, prompt, validator, error.
 FIELDS = {
-    "name": ("Nome", "il nuovo <b>Nome</b>", person_name, "⚠️ Usa solo lettere, massimo 60 caratteri."),
-    "surname": ("Cognome", "il nuovo <b>Cognome</b>", person_name, "⚠️ Usa solo lettere, massimo 60 caratteri."),
+    "name": ("Nome", "il nuovo <b>Nome</b>", person_name, NAME_ERROR),
+    "surname": ("Cognome", "il nuovo <b>Cognome</b>", person_name, NAME_ERROR),
     "email": ("Email", "la nuova <b>Email</b>", email_address, "⚠️ Indirizzo email non valido."),
 }
 
@@ -79,28 +79,16 @@ async def on_feedback(message: Message, widget: ManagedTextInput, manager: Dialo
     await manager.switch_to(SettingsSG.feedback_done)
 
 
-async def on_bad_feedback(message: Message, widget: ManagedTextInput, manager: DialogManager, error) -> None:
-    await tidy_input(message, manager)
-    manager.dialog_data["error"] = "⚠️ Testo vuoto o troppo lungo (massimo 3000 caratteri)."
-
-
-def _feedback_text(text: str) -> str:
-    value = text.strip()
-    if not 0 < len(value) <= 3000:  # the admin notification must fit in one message
-        raise ValueError(text)
-    return value
-
-
 async def profile_getter(dialog_manager: DialogManager, **kwargs) -> dict:
+    # Fresh from the database: a handler may have just changed it in this same update.
     user = users.get(app_of(dialog_manager).conn, dialog_manager.middleware_data["event_from_user"].id)
     assert user is not None
-    year = user.enrollment_year
     return {
         "name": esc(user.name),
         "surname": esc(user.surname),
         "email": esc(user.email or "non indicata"),
-        "gender": {"M": "Maschile", "F": "Femminile"}.get(user.gender or "", "non indicato"),
-        "year": f"{year}/{(year + 1) % 100:02}" if year else "non indicato",
+        "gender": users.GENDERS.get(user.gender or "", "non indicato"),
+        "year": users.year_label(user.enrollment_year),
     }
 
 
@@ -115,7 +103,6 @@ async def getter(dialog_manager: DialogManager, **kwargs) -> dict:
     }
 
 
-ERROR = Format("\n{error}", when="error")
 TO_MAIN = SwitchTo(Const("↩️ Indietro"), id="to_main", state=SettingsSG.main)
 
 dialog = Dialog(
@@ -156,7 +143,12 @@ dialog = Dialog(
     Window(
         Const("Scrivi il <b>problema</b> riscontrato o il <b>suggerimento</b> per il bot"),
         ERROR,
-        TextInput(id="feedback_in", type_factory=_feedback_text, on_success=on_feedback, on_error=on_bad_feedback),
+        TextInput(
+            id="feedback_in",
+            type_factory=text_of(3000),  # the admin notification must fit in one message
+            on_success=on_feedback,
+            on_error=input_error("⚠️ Testo vuoto o troppo lungo (massimo 3000 caratteri)."),
+        ),
         TO_MAIN,
         state=SettingsSG.feedback,
         getter=getter,

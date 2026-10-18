@@ -54,3 +54,23 @@ def test_production_guard(tmp_path):
     with pytest.raises(ProductionGuardError):
         check_production_guard(test_in_prod, marker)
     check_production_guard(Settings(bot_token="2142935745:x", _env_file=None), marker)  # type: ignore[call-arg]
+
+
+def test_blank_env_values_are_unset(monkeypatch):
+    monkeypatch.setenv("GS_ALERT_CHAT_ID", "")
+    monkeypatch.setenv("GS_SMTP_USER", "")
+    s = Settings(bot_token="2142935745:x", _env_file=None)  # type: ignore[call-arg]
+    assert s.alert_chat_id is None and s.smtp_user is None
+
+
+async def test_rollover_summary_fits(app):
+    from ghislieri import jobs
+
+    for uid in range(1, 81):
+        make_user(app.conn, uid, users.STUDENT, surname="&" * 50)
+        users.update_profile(app.conn, uid, enrollment_year=2000)
+    make_user(app.conn, 99, users.ADMIN)
+    await jobs.academic_year_rollover(app)
+    await app.notifier.drain()
+    [m] = app.bot.sent(99)
+    assert len(m.text) < 4096 and "&amp;" in m.text and "… e altri" in m.text

@@ -1,6 +1,6 @@
 # Features
 
-Who sees what depends on the user's groups (`users.KNOWN_GROUPS`): `student`, `alumnus`, `master` (admins), `tester` (developers), `representative`, `socials_rep`, `calendar.*` (who may add events of a class), and the four academic areas (`sci_tech`, `biomed`, `social_sci`, `human_sci`).
+Who sees what depends on the user's groups (`users.KNOWN_GROUPS`): `student`, `alumnus`, `master` (admins), `tester` (developers), `representative`, `socials_rep`, `calendar.*` (who may add events of a class; `calendar.admin` manages every event), and the four academic areas (`sci_tech`, `biomed`, `social_sci`, `human_sci`).
 
 ## Signup and accounts
 
@@ -30,8 +30,8 @@ Who sees what depends on the user's groups (`users.KNOWN_GROUPS`): `student`, `a
 ## Calendar
 
 - Day view with previous/next day and a date picker; event details with a link when there is one.
-- Users with a `calendar.<class>` group can add events of that class; admins and the event's creator can edit (including marking it cancelled) and delete.
-- Every night at 03:00 events are imported from the college website (the feed gives the posts; dates come from each event page). Events created or edited in the bot are never overwritten. Admins can trigger the sync from Admin → Calendario.
+- Users with a `calendar.<class>` group can add events of that class; admins, `calendar.admin` holders and the event's creator can edit (including marking it cancelled) and delete. `calendar.admin` holders can add events of every class.
+- Every night at 03:00 events are imported from the college website (the feed gives the posts; dates come from each event page). Events created or edited in the bot are never overwritten. Admins can trigger the sync from Admin → Calendario (not while one is already running).
 - The calendar is exported to `calendar.ics` in the data directory after every change, ready to be published.
 
 ## Other menus
@@ -40,7 +40,7 @@ Who sees what depends on the user's groups (`users.KNOWN_GROUPS`): `student`, `a
 - **Canali e Gruppi**: links to the college's Telegram channels and groups.
 - **Invia Contenuti**: eduroam problem reports (stored, admins notified) and photos for the college's social media (emailed to `master` and `socials_rep`).
 - **Impostazioni**: profile (name, surname, email), feedback to the admins, about, changelog.
-- **Admin**: registrations, students (filters, search, groups, year, gender, disable, delete), notifications composer (text, target groups, silent or not, expiry, optional button), update announcement, canteen and calendar management.
+- **Admin**: registrations, students (filters, search, groups, year, gender, disable, delete), notifications composer (text, target groups, silent or not, expiry of at most 48 h, optional button), update announcement, canteen and calendar management.
 - **Sviluppo** (`tester` only): recent errors with tracebacks, runtime info, and the unreleased "Prenota servizi" menus and the old Supersega text kept for reference.
 
 ## Removed in v1

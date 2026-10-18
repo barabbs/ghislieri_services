@@ -23,12 +23,11 @@ from aiogram_dialog.widgets.text import Const, Format
 
 from ... import clock, users
 from ...notify import Button as NotifButton
-from ..common import BACK, HomeSG, app_of, esc, perm, tidy_input, user_of
+from ..common import BACK, ERROR, HomeSG, admin_filter, app_of, esc, tidy_input
 from . import calendar, meals, settings
 from .registrations import RegistrationsSG
 
 ACCESS = users.ADMIN
-ADMIN_ONLY = perm(users.ADMIN)
 
 MAX_TEXT = 3500  # leaves room for the preview footer within Telegram's 4096 characters
 
@@ -39,8 +38,8 @@ STATUS_LABELS = {
     "disabled": "disabilitato",
     "pending": "in attesa",
 }
-GENDERS = {"M": "Maschile", "F": "Femminile"}
-EXPIRIES = (("0", "mai"), ("12", "12 h"), ("24", "24 h"), ("72", "3 g"), ("168", "7 g"))
+# At most 48 h: older messages cannot be deleted by the bot.
+EXPIRIES = (("0", "mai"), ("12", "12 h"), ("24", "24 h"), ("48", "48 h"))
 
 
 class AdminSG(StatesGroup):
@@ -56,20 +55,6 @@ class AdminSG(StatesGroup):
     notify_groups = State()
     notify_preview = State()
     update = State()
-
-
-def _is_admin(event, user: users.User | None = None) -> bool:
-    return user is not None and user.is_active and user.is_admin
-
-
-async def on_start(start_data, manager: DialogManager) -> None:
-    # `when=` only hides widgets: a crafted callback can still press a hidden Start button.
-    if not _is_admin(None, user_of(manager)):
-        await manager.done()
-
-
-def _year(year: int | None) -> str:
-    return f"{year}/{(year + 1) % 100:02}" if year else "non indicato"
 
 
 # Main
@@ -143,14 +128,14 @@ def _student(manager: DialogManager) -> users.User | None:
 async def student_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     u = _student(dialog_manager)
     if u is None:
-        return {"found": False, "disabled": False}
+        return {"found": False}
     return {
         "found": True,
-        "disabled": u.status == "disabled",
+        "toggle": "✅ Riabilita" if u.status == "disabled" else "🚫 Disabilita",
         "name": esc(u.name),
         "surname": esc(u.surname),
-        "gender": GENDERS.get(u.gender or "", "non indicato"),
-        "year": _year(u.enrollment_year),
+        "gender": users.GENDERS.get(u.gender or "", "non indicato"),
+        "year": users.year_label(u.enrollment_year),
         "status": STATUS_LABELS.get(u.status, u.status),
         "groups": esc(", ".join(sorted(u.groups)) or "nessuno"),
     }
@@ -340,19 +325,14 @@ TO_NOTIFY = SwitchTo(Const("↩️ Indietro"), id="to_notify", state=AdminSG.not
 dialog = Dialog(
     Window(
         Const("🔓    <b>Admin</b>"),
-        Start(
-            Format("📝 Registrazioni ({pending})"),
-            id="registrations",
-            state=RegistrationsSG.list,
-            when=ADMIN_ONLY,
+        Start(Format("📝 Registrazioni ({pending})"), id="registrations", state=RegistrationsSG.list),
+        Row(
+            SwitchTo(Const("👥 Studenti"), id="students", state=AdminSG.students),
+            SwitchTo(Const("📣 Notifiche"), id="notify", state=AdminSG.notify),
         ),
         Row(
-            SwitchTo(Const("👥 Studenti"), id="students", state=AdminSG.students, when=ADMIN_ONLY),
-            SwitchTo(Const("📣 Notifiche"), id="notify", state=AdminSG.notify, when=ADMIN_ONLY),
-        ),
-        Row(
-            Start(Const("🍽️ Mensa"), id="meals", state=meals.MealsSG.admin, when=ADMIN_ONLY),
-            Start(Const("🗓 Calendario"), id="calendar", state=calendar.CalendarSG.admin, when=ADMIN_ONLY),
+            Start(Const("🍽️ Mensa"), id="meals", state=meals.MealsSG.admin),
+            Start(Const("🗓 Calendario"), id="calendar", state=calendar.CalendarSG.admin),
         ),
         BACK,
         state=AdminSG.main,
@@ -421,18 +401,7 @@ dialog = Dialog(
                 Button(Const("⚧ genere"), id="gender", on_click=on_gender),
             ),
             SwitchTo(Const("👥 Gruppi"), id="to_groups", state=AdminSG.student_groups),
-            Button(
-                Const("✅ Riabilita"),
-                id="enable",
-                on_click=on_toggle_status,
-                when="disabled",
-            ),
-            Button(
-                Const("🚫 Disabilita"),
-                id="disable",
-                on_click=on_toggle_status,
-                when=lambda d, w, m: not d["disabled"],
-            ),
+            Button(Format("{toggle}"), id="toggle_status", on_click=on_toggle_status),
             SwitchTo(Const("❌ Elimina"), id="to_delete", state=AdminSG.student_delete),
             when="found",
         ),
@@ -476,7 +445,7 @@ dialog = Dialog(
     ),
     Window(
         Const("✏️ Scrivi il testo della notifica. La formattazione viene mantenuta."),
-        Format("{error}", when="error"),
+        ERROR,
         MessageInput(on_notification_text, content_types=ContentType.TEXT),
         TO_NOTIFY,
         state=AdminSG.notify_text,
@@ -536,8 +505,6 @@ dialog = Dialog(
         state=AdminSG.update,
         getter=update_getter,
     ),
-    on_start=on_start,
 )
-# Refuse every press and message in this dialog from non-admins (e.g. demoted while the menu is open).
-dialog.callback_query.filter(_is_admin)
-dialog.message.filter(_is_admin)
+dialog.callback_query.filter(admin_filter)
+dialog.message.filter(admin_filter)

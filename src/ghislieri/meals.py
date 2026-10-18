@@ -2,9 +2,6 @@
 
 import asyncio
 import datetime as dt
-import html
-import io
-import json
 import logging
 import sqlite3
 from dataclasses import dataclass
@@ -12,10 +9,10 @@ from dataclasses import dataclass
 import jinja2
 from apscheduler.triggers.cron import CronTrigger
 
-from . import clock, mail, users
+from . import clock, mail, submissions, users
 from .app import App
 from .db import transaction
-from .notify import DISMISS, Button
+from .notify import DISMISS, Button, esc
 
 log = logging.getLogger(__name__)
 
@@ -34,20 +31,6 @@ REPRESENTATIVE = "representative"
 MAX_REPORT_PHOTOS = 10
 # State opened by the reminder button (bot.dialogs.meals.MealsSG.main; imported there would be circular).
 BOOKING_STATE = "MealsSG:main"
-
-WEEKDAYS = ("lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica")
-MONTHS = (
-    "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
-    "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre",
-)  # fmt: skip
-
-
-def day_label(day: dt.date, short: bool = False) -> str:
-    """ "SAB 05 gen" (short) or "sabato 05 gennaio 2030"."""
-    if short:
-        return f"{WEEKDAYS[day.weekday()][:3].upper()} {day:%d} {MONTHS[day.month - 1][:3]}"
-    return f"{WEEKDAYS[day.weekday()]} {day:%d} {MONTHS[day.month - 1]} {day.year}"
-
 
 # Calendar
 
@@ -241,7 +224,7 @@ def recap_html(recap: Recap) -> str:
         half = (len(rows) + 1) // 2
         columns += [(label, c) for c in (rows[:half], rows[half:]) if c]
     return _templates.get_template("meals_recap.html").render(
-        title=day_label(recap.day).upper(), columns=columns, recap=recap, meals=MEALS, meal_names=MEAL_NAMES
+        title=clock.day_label(recap.day).upper(), columns=columns, recap=recap, meals=MEALS, meal_names=MEAL_NAMES
     )
 
 
@@ -259,18 +242,14 @@ async def render_recap(app: App, day: dt.date) -> tuple[str, bytes]:
     return f"Prenotazioni_{day.isoformat()}.pdf", pdf
 
 
-def _emails(conn: sqlite3.Connection, groups: tuple[str, ...]) -> list[str]:
-    return [u.email for u in users.list_users(conn) if u.email and any(u.has(g) for g in groups)]
-
-
 async def send_recap(app: App, day: dt.date) -> None:
     """Email the recap of `day` to the porter's lodge and the admins. Raises on failure."""
     filename, pdf = await render_recap(app, day)
     await mail.send(
         app.settings,
-        to=[*app.settings.meals_recap_to, *_emails(app.conn, (users.ADMIN,))],
-        subject=f"Prenotazione pasti {day_label(day).upper()}",
-        body=f"In allegato le prenotazioni dei pasti di {day_label(day)}.",
+        to=[*app.settings.meals_recap_to, *users.emails(app.conn, (users.ADMIN,))],
+        subject=f"Prenotazione pasti {clock.day_label(day).upper()}",
+        body=f"In allegato le prenotazioni dei pasti di {clock.day_label(day)}.",
         attachments=[(filename, pdf, "application/pdf")],
     )
 
@@ -284,27 +263,20 @@ async def submit_report(app: App, user: users.User, text: str, photos: list[str]
     The report is saved and notified before the email, so an email failure (raised) loses nothing.
     """
     now = clock.now()
-    cur = app.conn.execute(
-        "INSERT INTO submissions (kind, user_id, payload, created_at) VALUES ('meal_report', ?, ?, ?)",
-        (user.id, json.dumps({"text": text, "photos": photos}), clock.iso(now)),
-    )
-    name, report = html.escape(user.full_name, quote=False), html.escape(text, quote=False)
+    sid = submissions.add(app.conn, "meal_report", user.id, {"text": text, "photos": photos})
     app.notifier.send_to_groups(
         (users.ADMIN, REPRESENTATIVE),
         "‼️    <b>Nuova Segnalazione Mensa</b>\n\n"
-        f"<code>Data     </code>{now:%d/%m/%Y %H:%M}\n<code>Studente </code>{name}\n\n"
-        f"<code>Report   </code><b>{report}</b>\n\n<code>N° Foto  </code><i>{len(photos)}</i>",
+        f"<code>Data     </code>{now:%d/%m/%Y %H:%M}\n<code>Studente </code>{esc(user.full_name)}\n\n"
+        f"<code>Report   </code><b>{esc(text)}</b>\n\n<code>N° Foto  </code><i>{len(photos)}</i>",
         kind="meal_report",
-        ref=str(cur.lastrowid),
+        ref=str(sid),
         buttons=[DISMISS],
     )
-    attachments = []
-    for i, file_id in enumerate(photos, start=1):
-        data = await asyncio.wait_for(app.bot.download(file_id, destination=io.BytesIO()), timeout=60)
-        attachments.append((f"foto_{i}.jpg", data.getvalue(), "image/jpeg"))
+    attachments = await submissions.download_photos(app.bot, photos)
     await mail.send(
         app.settings,
-        to=_emails(app.conn, (users.ADMIN, REPRESENTATIVE)),
+        to=users.emails(app.conn, (users.ADMIN, REPRESENTATIVE)),
         subject=f"Segnalazione Mensa di {user.full_name}",
         body=f"Nuova segnalazione mensa di {user.full_name} in data {now:%d/%m/%Y}\n\n{text}\n\n"
         f"n° {len(photos)} foto allegate",
@@ -323,7 +295,7 @@ async def remind(app: App) -> None:
         return
     app.notifier.send(
         recipients,
-        f"🍽❗️ <b>Prenotazione Pasti</b>\n\nHai prenotato per <i>{day_label(day)}</i>?",
+        f"🍽❗️ <b>Prenotazione Pasti</b>\n\nHai prenotato per <i>{clock.day_label(day)}</i>?",
         kind="meal_reminder",
         ref=day.isoformat(),
         buttons=[Button("📆    Prenota ora!", BOOKING_STATE), DISMISS],
@@ -344,7 +316,9 @@ async def yearly_calendar(app: App) -> None:
     year = clock.academic_year(today)
     added = create_academic_year(app.conn, year, today)
     log.info("Meal calendar %d/%d: %d days added", year, year + 1, len(added))
-    summary = f"dal {day_label(added[0])} al {day_label(added[-1])}" if added else "erano già tutti presenti"
+    summary = (
+        f"dal {clock.day_label(added[0])} al {clock.day_label(added[-1])}" if added else "erano già tutti presenti"
+    )
     app.notifier.send_to_groups(
         (users.ADMIN,),
         f"🍽 Calendario mensa {year}/{year + 1}: {len(added)} giorni aggiunti ({summary}).",

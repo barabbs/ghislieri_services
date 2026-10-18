@@ -47,3 +47,39 @@ async def test_blocked_user(app):
     app.notifier.send([1], "hi", kind="x")
     await app.notifier.drain()
     assert users.get(app.conn, 1).status == "blocked"
+
+
+async def test_retries_and_utc_expiry(app, monkeypatch):
+    from aiogram.exceptions import TelegramNetworkError
+    from aiogram.methods import SendMessage
+    from conftest import RecordingBot
+
+    from ghislieri import notify
+
+    class FlakyBot(RecordingBot):
+        attempts, down = 0, False
+
+        async def __call__(self, method, request_timeout=None):
+            self.attempts += 1
+            if self.down or self.attempts % 2:  # every other request fails as if the network dropped
+                raise TelegramNetworkError(method=method, message="timeout")
+            return await super().__call__(method, request_timeout)
+
+    monkeypatch.setattr(notify, "RETRY_DELAYS", (0,))
+    app.notifier.bot = bot = FlakyBot()
+    make_user(app.conn, 1, users.STUDENT)
+    now = clock.now()
+    app.notifier.send([1], "hi", kind="x", expires_at=now + dt.timedelta(hours=1))
+    await app.notifier.drain()
+    row = app.conn.execute("SELECT d.state, n.expires_at FROM deliveries d JOIN notifications n").fetchone()
+    assert row["state"] == "sent" and row["expires_at"].endswith("+00:00")
+    # Expiry compares UTC instants; the deletion goes through the worker and is retried too.
+    monkeypatch.setattr(clock, "now", lambda: now + dt.timedelta(hours=2))
+    app.notifier.expire()
+    await app.notifier.drain()
+    assert [type(c) for c in bot.calls] == [SendMessage, DeleteMessage]
+    # A request that keeps failing marks the delivery as failed after the last retry.
+    bot.down = True
+    app.notifier.send([1], "down", kind="y")
+    await app.notifier.drain()
+    assert app.conn.execute("SELECT state FROM deliveries WHERE notification_id = 2").fetchone()[0] == "failed"

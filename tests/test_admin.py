@@ -114,3 +114,22 @@ async def test_non_admin_cannot_open(dp, app, message_manager):
     intent = home.reply_markup.inline_keyboard[0][0].callback_data.split("\x1d")[0]
     await c.click(home, Crafted(f"{intent}\x1dadmin"))
     assert "Admin" not in last(message_manager).text
+
+
+async def test_demoted_admin_cannot_approve(dp, app, message_manager):
+    make_user(app.conn, 99, users.ADMIN, name="Ada", surname="Admin")
+    make_user(app.conn, 7, name="Luca", surname="Bianchi", status="pending")
+    c = await open_admin(dp, app, message_manager)
+    await c.click(last(message_manager), Btn(r"📝 Registrazioni \(1\)"))
+    await c.click(last(message_manager), Btn("Bianchi Luca"))
+    users.remove_group(app.conn, 99, users.ADMIN)  # demoted while the menu is open
+    await c.click(last(message_manager), Btn("✅ Approva come studente"))
+    assert users.get(app.conn, 7).status == "pending"
+
+
+async def test_group_chats_ignored(dp, app, message_manager):
+    from aiogram_dialog.test_tools import BotClient
+
+    make_user(app.conn, 5, users.STUDENT)
+    await BotClient(dp, user_id=5, chat_id=-100, chat_type="group", bot=app.bot).send("/start")
+    assert message_manager.sent_messages == []

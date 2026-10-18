@@ -39,7 +39,7 @@ Tests run offline. Dialog flows use `aiogram_dialog.test_tools` (`BotClient` + `
 
 - Domain logic and SQL in `src/ghislieri/<domain>.py`, menus in `src/ghislieri/bot/dialogs/<area>.py`.
 - Italian for user-facing text, English for code, comments and logs.
-- Escape every user- or website-provided string with `bot.common.esc` before putting it in a message (messages use HTML).
+- Escape every user- or website-provided string with `esc` (`notify.esc`, re-exported by `bot.common`) before putting it in a message (messages use HTML).
 - Protect privileged buttons with `when=perm(group)`; it is enforced on presses too. A data-based `when=` is not an access check.
 - Blocking work goes to `asyncio.to_thread` or `asyncio.create_subprocess_exec`, always with a timeout; never `shell=True`.
 - Keep Telegram file ids instead of files on disk.

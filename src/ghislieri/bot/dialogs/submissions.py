@@ -11,17 +11,23 @@ from aiogram_dialog.widgets.kbd import Button, Group, Row, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
 from ... import submissions
-from ..common import BACK, HOME, app_of, esc, tidy_input, user_of
+from ..common import (
+    BACK,
+    ERROR,
+    HOME,
+    app_of,
+    clear_photos,
+    collect_photo,
+    esc,
+    input_error,
+    text_of,
+    tidy_input,
+    user_of,
+)
 
 log = logging.getLogger(__name__)
 
 ACCESS = "student"
-
-# Per-user state kept outside dialog_data: updates of one user run concurrently (an album is
-# several messages at once) and dialog_data is saved only when each handler ends, so updates
-# would overwrite each other's changes.
-_photos: dict[int, list[str]] = {}  # Telegram file_ids of the photos being collected
-_sending: set[int] = set()  # users whose photos are being emailed
 
 
 class SubmissionsSG(StatesGroup):
@@ -34,23 +40,6 @@ class SubmissionsSG(StatesGroup):
     description = State()
     social_recap = State()
     done = State()
-
-
-def text_of(limit: int):
-    """TextInput type_factory: trimmed, non-empty, at most `limit` characters."""
-
-    def factory(text: str) -> str:
-        value = text.strip()
-        if not 0 < len(value) <= limit:
-            raise ValueError(text)
-        return value
-
-    return factory
-
-
-async def on_bad_text(message: Message, widget: ManagedTextInput, manager: DialogManager, error) -> None:
-    await tidy_input(message, manager)
-    manager.dialog_data["error"] = "⚠️ Testo vuoto o troppo lungo."
 
 
 async def on_text(message: Message, widget: ManagedTextInput, manager: DialogManager, value: str) -> None:
@@ -84,48 +73,19 @@ async def on_send_report(query: CallbackQuery, button: Button, manager: DialogMa
 # Socials
 
 
-async def on_photo(message: Message, widget: MessageInput, manager: DialogManager) -> None:
-    photos = _photos.setdefault(message.chat.id, [])
-    if len(photos) >= submissions.MAX_PHOTOS:
-        manager.dialog_data["error"] = f"⚠️ Massimo {submissions.MAX_PHOTOS} foto."
-    else:
-        photos.append(message.photo[-1].file_id)  # type: ignore[index]  # largest size
-    await tidy_input(message, manager)
-
-
-async def on_not_photo(message: Message, widget: MessageInput, manager: DialogManager) -> None:
-    await tidy_input(message, manager)
-    manager.dialog_data["error"] = "⚠️ Invia una <b>foto</b> (non come file)."
-
-
-async def on_clear_photos(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
-    _photos.pop(query.from_user.id, None)
-
-
 async def on_send_social(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
     data, user = manager.dialog_data, user_of(manager)
     assert user is not None
-    # Dialog data is saved only when the handler ends, so it cannot stop a double tap.
-    if user.id in _sending:
-        await query.answer("Invio già in corso")
-        return
-    _sending.add(user.id)
     await query.answer("📤 Invio in corso…")
     try:
-        await submissions.social_submission(app_of(manager), user, data["description"], _photos.get(user.id, []))
+        await submissions.social_submission(app_of(manager), user, data["description"], data.get("photos", []))
     except Exception:
         log.exception("Social submission by %s failed", user.id)
         data["error"] = "⚠️ Invio non riuscito, riprova più tardi."
         return
-    finally:
-        _sending.discard(user.id)
-    _photos.pop(user.id, None)
+    data.pop("photos", None)
     data["thanks"] = "Grazie per il materiale! 😄"
     await manager.switch_to(SubmissionsSG.done)
-
-
-async def on_start_photos(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
-    _photos.pop(query.from_user.id, None)
 
 
 async def getter(dialog_manager: DialogManager, **kwargs) -> dict:
@@ -136,13 +96,13 @@ async def getter(dialog_manager: DialogManager, **kwargs) -> dict:
         "report": esc(data.get("report", "")),
         "place": esc(data.get("place", "")),
         "note": esc(data.get("note", "")),
-        "n_photos": len(_photos.get(dialog_manager.middleware_data["event_from_user"].id, [])),
+        "n_photos": len(data.get("photos", [])),
         "description": esc(data.get("description", "")),
         "thanks": data.get("thanks", ""),
     }
 
 
-ERROR = Format("\n{error}", when="error")
+BAD_TEXT = input_error("⚠️ Testo vuoto o troppo lungo.")
 
 
 def _back(state: State) -> SwitchTo:
@@ -152,7 +112,7 @@ def _back(state: State) -> SwitchTo:
 dialog = Dialog(
     Window(
         Const("📩    <b>Invia segnalazioni e materiali</b>"),
-        SwitchTo(Const("📣    Foto per Socials"), id="socials", state=SubmissionsSG.photos, on_click=on_start_photos),
+        SwitchTo(Const("📣    Foto per Socials"), id="socials", state=SubmissionsSG.photos, on_click=clear_photos),
         SwitchTo(Const("📶    Segnalazione Eduroam"), id="eduroam", state=SubmissionsSG.report),
         BACK,
         state=SubmissionsSG.main,
@@ -171,7 +131,7 @@ dialog = Dialog(
             ),
             width=1,
         ),
-        TextInput(id="report", type_factory=text_of(500), on_success=on_text, on_error=on_bad_text),
+        TextInput(id="report", type_factory=text_of(500), on_success=on_text, on_error=BAD_TEXT),
         _back(SubmissionsSG.main),
         state=SubmissionsSG.report,
         getter=getter,
@@ -179,7 +139,7 @@ dialog = Dialog(
     Window(
         Const("In che stanza o zona del Collegio?"),
         ERROR,
-        TextInput(id="place", type_factory=text_of(200), on_success=on_text, on_error=on_bad_text),
+        TextInput(id="place", type_factory=text_of(200), on_success=on_text, on_error=BAD_TEXT),
         _back(SubmissionsSG.report),
         state=SubmissionsSG.place,
         getter=getter,
@@ -188,7 +148,7 @@ dialog = Dialog(
         Const("Note eventuali"),
         ERROR,
         Button(Const("Nessuna nota"), id="no_note", on_click=on_no_note),
-        TextInput(id="note", type_factory=text_of(1000), on_success=on_text, on_error=on_bad_text),
+        TextInput(id="note", type_factory=text_of(1000), on_success=on_text, on_error=BAD_TEXT),
         _back(SubmissionsSG.place),
         state=SubmissionsSG.note,
         getter=getter,
@@ -209,10 +169,10 @@ dialog = Dialog(
             when="n_photos",
         ),
         ERROR,
-        MessageInput(on_photo, content_types=ContentType.PHOTO),
-        MessageInput(on_not_photo),
+        MessageInput(collect_photo(submissions.MAX_PHOTOS), content_types=ContentType.PHOTO),
+        MessageInput(input_error("⚠️ Invia una <b>foto</b> (non come file).")),
         SwitchTo(Const("Termina"), id="photos_done", state=SubmissionsSG.description, when="n_photos"),
-        Button(Const("🗑    Elimina le foto"), id="clear", on_click=on_clear_photos, when="n_photos"),
+        Button(Const("🗑    Elimina le foto"), id="clear", on_click=clear_photos, when="n_photos"),
         _back(SubmissionsSG.main),
         state=SubmissionsSG.photos,
         getter=getter,
@@ -220,7 +180,7 @@ dialog = Dialog(
     Window(
         Const("<u>Invia</u> una <b>descrizione</b> delle foto"),
         ERROR,
-        TextInput(id="description", type_factory=text_of(1000), on_success=on_text, on_error=on_bad_text),
+        TextInput(id="description", type_factory=text_of(1000), on_success=on_text, on_error=BAD_TEXT),
         _back(SubmissionsSG.photos),
         state=SubmissionsSG.description,
         getter=getter,

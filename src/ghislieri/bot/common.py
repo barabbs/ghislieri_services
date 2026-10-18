@@ -1,17 +1,18 @@
 """Helpers shared by all dialogs."""
 
 import contextlib
-import html
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message
+from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, ShowMode, StartMode
-from aiogram_dialog.widgets.kbd import Cancel, Keyboard, Start
-from aiogram_dialog.widgets.text import Const
+from aiogram_dialog.widgets.kbd import Calendar, CalendarConfig, CalendarScope, Cancel, Keyboard, Start
+from aiogram_dialog.widgets.kbd.calendar_kbd import CalendarDaysView, CalendarMonthView, CalendarYearsView
+from aiogram_dialog.widgets.text import Const, Format, Text
 
-from .. import users
+from .. import clock, users
 from ..app import App
+from ..notify import esc as esc  # re-exported for the dialogs
 
 
 class HomeSG(StatesGroup):
@@ -23,18 +24,8 @@ def app_of(manager: DialogManager) -> App:
 
 
 def user_of(manager: DialogManager) -> users.User | None:
-    """The user behind the current update (loaded once per update by UserMiddleware)."""
-    if "user" in manager.middleware_data:
-        return manager.middleware_data["user"]
-    tg_user = manager.middleware_data.get("event_from_user")
-    if tg_user is None:
-        return None
-    return users.get(app_of(manager).conn, tg_user.id)
-
-
-def esc(value: object) -> str:
-    """Escape any user- or feed-provided value before putting it into an HTML message."""
-    return html.escape(str(value), quote=False)
+    """The user behind the current update, as loaded by UserMiddleware when the update arrived."""
+    return manager.middleware_data.get("user")
 
 
 def perm(group: str | None):
@@ -52,6 +43,11 @@ def perm(group: str | None):
 
 
 perm_active = perm(None)
+
+
+def admin_filter(event, user: users.User | None = None) -> bool:
+    """Router filter for admin-only dialogs: refuses non-admins, e.g. demoted while the menu is open."""
+    return user is not None and user.is_active and user.is_admin
 
 
 def enforce_access_on_press() -> None:
@@ -89,9 +85,91 @@ async def tidy_input(message: Message, manager: DialogManager) -> None:
     manager.show_mode = ShowMode.EDIT
 
 
+ERROR = Format("\n{error}", when="error")  # shows dialog_data["error"], popped by the window's getter
+
+
+def input_error(text: str):
+    """on_error/MessageInput handler: delete the user's message and show `text` in the menu."""
+
+    async def handler(message: Message, widget, manager: DialogManager, *error) -> None:
+        await tidy_input(message, manager)
+        manager.dialog_data["error"] = text
+
+    return handler
+
+
+def text_of(limit: int):
+    """TextInput type_factory: trimmed, non-empty, at most `limit` characters."""
+
+    def factory(text: str) -> str:
+        value = text.strip()
+        if not 0 < len(value) <= limit:
+            raise ValueError(text)
+        return value
+
+    return factory
+
+
+def collect_photo(limit: int):
+    """MessageInput handler adding the photo to dialog_data["photos"] (Telegram file_ids)."""
+
+    async def handler(message: Message, widget, manager: DialogManager) -> None:
+        photos = manager.dialog_data.setdefault("photos", [])
+        if len(photos) < limit:
+            photos.append(message.photo[-1].file_id)  # type: ignore[index]  # largest size
+        else:
+            manager.dialog_data["error"] = f"⚠️ Puoi allegare al massimo {limit} foto."
+        await tidy_input(message, manager)
+
+    return handler
+
+
+async def clear_photos(query: CallbackQuery, widget, manager: DialogManager) -> None:
+    manager.dialog_data.pop("photos", None)
+
+
+NAME_ERROR = "⚠️ Usa solo lettere, massimo 60 caratteri."
+
+
 def person_name(text: str) -> str:
     """TextInput type_factory for names: trimmed, 1-60 characters, letters and a few separators."""
     value = " ".join(text.split())
     if not 0 < len(value) <= 60 or not all(c.isalpha() or c in " '-." for c in value):
         raise ValueError(text)
     return value
+
+
+class _DateText(Text):
+    def __init__(self, render):
+        super().__init__()
+        self.render = render
+
+    async def _render_text(self, data, manager: DialogManager) -> str:
+        return self.render(data["date"])
+
+
+def _month(d) -> str:
+    return clock.MONTHS[d.month - 1]
+
+
+class ItalianCalendar(Calendar):
+    """Calendar in Rome time, with Italian month and weekday names (the stock one follows the host locale)."""
+
+    def __init__(self, id: str, on_click, when=None):
+        super().__init__(id, on_click=on_click, config=CalendarConfig(timezone=clock.TZ), when=when)  # type: ignore[arg-type]
+
+    def _init_views(self):
+        cb = self._item_callback_data
+        return {
+            CalendarScope.DAYS: CalendarDaysView(
+                cb,
+                weekday_text=_DateText(lambda d: clock.WEEKDAYS[d.weekday()][:3]),
+                header_text=_DateText(lambda d: f"🗓 {_month(d)} {d.year}"),
+                next_month_text=_DateText(lambda d: f"{_month(d)} {d.year} >>"),
+                prev_month_text=_DateText(lambda d: f"<< {_month(d)} {d.year}"),
+            ),
+            CalendarScope.MONTHS: CalendarMonthView(
+                cb, month_text=_DateText(_month), this_month_text=_DateText(lambda d: f"[ {_month(d)} ]")
+            ),
+            CalendarScope.YEARS: CalendarYearsView(cb),
+        }

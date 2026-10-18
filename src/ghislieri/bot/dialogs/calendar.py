@@ -8,13 +8,12 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.input import ManagedTextInput, TextInput
-from aiogram_dialog.widgets.kbd import Button, Calendar, CalendarConfig, CalendarScope, Row, Select, SwitchTo, Url
-from aiogram_dialog.widgets.kbd.calendar_kbd import CalendarDaysView, CalendarMonthView
-from aiogram_dialog.widgets.text import Const, Format, Text
+from aiogram_dialog.widgets.kbd import Button, Row, Select, SwitchTo, Url
+from aiogram_dialog.widgets.text import Const, Format
 
 from ... import clock, events, users
-from ...meals import MONTHS, WEEKDAYS, day_label
-from ..common import BACK, app_of, esc, perm, tidy_input, user_of
+from ...clock import MONTHS, WEEKDAYS, day_label
+from ..common import BACK, ERROR, ItalianCalendar, app_of, esc, input_error, perm, tidy_input, user_of
 
 ACCESS = None
 
@@ -56,42 +55,6 @@ def _categories(keys) -> str:
     )
 
 
-class _Italian(Text):
-    """Calendar widget label in Italian (the widget's defaults follow the process locale)."""
-
-    def __init__(self, render):
-        super().__init__()
-        self.render = render
-
-    async def _render_text(self, data, manager: DialogManager) -> str:
-        return self.render(data["date"])
-
-
-def _month(d: dt.date) -> str:
-    return f"{MONTHS[d.month - 1]} {d.year}"
-
-
-class ItalianCalendar(Calendar):
-    def _init_views(self):
-        views = super()._init_views()
-        views[CalendarScope.DAYS] = CalendarDaysView(
-            self._item_callback_data,
-            weekday_text=_Italian(lambda d: WEEKDAYS[d.weekday()][:3]),
-            header_text=_Italian(lambda d: f"🗓 {_month(d)}"),
-            prev_month_text=_Italian(lambda d: f"<< {_month(d)}"),
-            next_month_text=_Italian(lambda d: f"{_month(d)} >>"),
-        )
-        views[CalendarScope.MONTHS] = CalendarMonthView(
-            self._item_callback_data,
-            month_text=_Italian(lambda d: MONTHS[d.month - 1]),
-            this_month_text=_Italian(lambda d: f"[ {MONTHS[d.month - 1]} ]"),
-        )
-        return views
-
-
-CALENDAR_CONFIG = CalendarConfig(timezone=clock.TZ)  # type: ignore[arg-type]
-
-
 # Day view and details
 
 
@@ -100,7 +63,9 @@ def _day(manager: DialogManager) -> dt.date:
 
 
 def _event(manager: DialogManager) -> events.Event | None:
-    return events.get(app_of(manager).conn, manager.dialog_data.get("event", 0))
+    """The selected event, if the user may see it (the id may come from crafted callback data)."""
+    e, user = events.get(app_of(manager).conn, manager.dialog_data.get("event", 0)), user_of(manager)
+    return e if e and user and events.can_see(user, e.cls) else None
 
 
 async def day_getter(dialog_manager: DialogManager, **kwargs) -> dict:
@@ -295,12 +260,6 @@ def _time(text: str) -> dt.time:
     return dt.time(int(match[1]), int(match[2] or 0))  # raises ValueError if out of range
 
 
-ERRORS = {
-    "title": f"⚠️ Il titolo deve avere da 1 a {events.MAX_TITLE} caratteri.",
-    "description": f"⚠️ La descrizione può avere al massimo {events.MAX_DESCRIPTION} caratteri.",
-    "url": "⚠️ Inserisci un link valido che inizi con https://",
-    "time": "⚠️ Scrivi l'orario come 21:00.",
-}
 NEXT = {"title": CalendarSG.description, "description": CalendarSG.date, "url": CalendarSG.recap}
 
 
@@ -308,11 +267,6 @@ async def on_text(message: Message, widget: ManagedTextInput, manager: DialogMan
     await tidy_input(message, manager)
     _form(manager)[widget.widget.widget_id] = value
     await _advance(manager, NEXT[widget.widget.widget_id])
-
-
-async def on_bad_text(message: Message, widget: ManagedTextInput, manager: DialogManager, error: ValueError) -> None:
-    await tidy_input(message, manager)
-    manager.dialog_data["error"] = ERRORS[widget.widget.widget_id]
 
 
 async def on_clear(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
@@ -403,14 +357,16 @@ async def on_cancel_form(query: CallbackQuery, button: Button, manager: DialogMa
 
 # Admin
 
+SYNC_NOW = "calendar_sync_now"  # job id
+
 
 async def on_sync(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
-    user = user_of(manager)
-    if user is None or not user.is_admin:
-        return
     app = app_of(manager)
+    if events.syncing or app.scheduler.get_job(SYNC_NOW):
+        await query.answer("⏳ Aggiornamento già in corso.")
+        return
     # Run in the scheduler: the sync takes a while, and failures get logged and alerted like the nightly run.
-    app.scheduler.add_job(events.sync_job, args=[app, user.id], id="calendar_sync_now", replace_existing=True)
+    app.scheduler.add_job(events.sync_job, args=[app, query.from_user.id], id=SYNC_NOW)
     await query.answer("🔄 Aggiornamento avviato: riceverai un messaggio al termine.")
 
 
@@ -456,7 +412,7 @@ dialog = Dialog(
     ),
     Window(
         Const("📅️    Scegli la <b>data</b> da visualizzare"),
-        ItalianCalendar(id="day_picker", on_click=on_pick_day, config=CALENDAR_CONFIG),
+        ItalianCalendar(id="day_picker", on_click=on_pick_day),
         SwitchTo(Const("↩️ Indietro"), id="pick_back", state=CalendarSG.main),
         state=CalendarSG.pick_day,
     ),
@@ -497,39 +453,56 @@ dialog = Dialog(
     ),
     Window(
         Const("✏️    Inserisci il <b>titolo</b> dell'evento"),
-        Format("{error}", when="error"),
-        TextInput(id="title", type_factory=_title, on_success=on_text, on_error=on_bad_text),
+        ERROR,
+        TextInput(
+            id="title",
+            type_factory=_title,
+            on_success=on_text,
+            on_error=input_error(f"⚠️ Il titolo deve avere da 1 a {events.MAX_TITLE} caratteri."),
+        ),
         FORM_BACK,
         state=CalendarSG.title,
         getter=form_getter,
     ),
     Window(
         Const("✏️    Inserisci la <b>descrizione</b> dell'evento"),
-        Format("{error}", when="error"),
-        TextInput(id="description", type_factory=_description, on_success=on_text, on_error=on_bad_text),
+        ERROR,
+        TextInput(
+            id="description",
+            type_factory=_description,
+            on_success=on_text,
+            on_error=input_error(f"⚠️ La descrizione può avere al massimo {events.MAX_DESCRIPTION} caratteri."),
+        ),
         Row(FORM_BACK, Button(Const("⏭ Nessuna descrizione"), id="no_description", on_click=on_clear)),
         state=CalendarSG.description,
         getter=form_getter,
     ),
     Window(
         Const("🔗    Inserisci il <b>link</b> dell'evento"),
-        Format("{error}", when="error"),
-        TextInput(id="url", type_factory=_url, on_success=on_text, on_error=on_bad_text),
+        ERROR,
+        TextInput(
+            id="url",
+            type_factory=_url,
+            on_success=on_text,
+            on_error=input_error("⚠️ Inserisci un link valido che inizi con https://"),
+        ),
         Row(FORM_BACK, Button(Const("🗑 Nessun link"), id="no_url", on_click=on_clear)),
         state=CalendarSG.url,
         getter=form_getter,
     ),
     Window(
         Format("📅    Scegli la <b>data di {field}</b> dell'evento"),
-        ItalianCalendar(id="date_picker", on_click=on_pick_date, config=CALENDAR_CONFIG),
+        ItalianCalendar(id="date_picker", on_click=on_pick_date),
         FORM_BACK,
         state=CalendarSG.date,
         getter=form_getter,
     ),
     Window(
         Format("🕓️    Scrivi l'<b>orario di {field}</b> dell'evento (es. 21:00)"),
-        Format("{error}", when="error"),
-        TextInput(id="time", type_factory=_time, on_success=on_time, on_error=on_bad_text),
+        ERROR,
+        TextInput(
+            id="time", type_factory=_time, on_success=on_time, on_error=input_error("⚠️ Scrivi l'orario come 21:00.")
+        ),
         SwitchTo(Const("📅 Cambia data"), id="time_back", state=CalendarSG.date),
         state=CalendarSG.time,
         getter=form_getter,
@@ -543,7 +516,7 @@ dialog = Dialog(
             "<i>{description}</i>\n\n<b>Link</b>      {url}"
         ),
         Format("<b>Stato</b>     {status}", when="editing"),
-        Format("\n{error}", when="error"),
+        ERROR,
         Row(
             SwitchTo(Const("✏️ Titolo"), id="edit_title", state=CalendarSG.title),
             SwitchTo(Const("✏️ Descrizione"), id="edit_description", state=CalendarSG.description),

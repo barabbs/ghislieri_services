@@ -17,6 +17,8 @@ from ghislieri import clock, db, events, meals, users
 
 # v0.5 groups that are states, not memberships.
 LEGACY_STATE_GROUPS = {"signup", "inactive"}
+# v0.5 groups renamed in v1.
+RENAMED_GROUPS = {"admin": "calendar.admin"}
 YEAR_GROUP = re.compile(r"^\D*((?:19|20)\d\d)$")  # "2019", "year.2019", "anno_2019", ...
 
 
@@ -26,7 +28,7 @@ def import_users(conn: sqlite3.Connection, old_db: Path) -> list[str]:
     old.row_factory = sqlite3.Row
     for row in old.execute("SELECT * FROM students"):
         uid = row["user_id"]
-        groups = {g for g in (row["groups"] or "").split(",") if g}
+        groups = {RENAMED_GROUPS.get(g, g) for g in (row["groups"] or "").split(",") if g}
         if not (row["name"] or "").strip() or not (row["surname"] or "").strip():
             report.append(f"skipped {uid}: incomplete signup (no name/surname)")
             continue

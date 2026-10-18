@@ -11,7 +11,7 @@ from aiogram_dialog.widgets.text import Const, Format
 
 from ... import users
 from ...notify import Button as NotifButton
-from ..common import app_of, esc, go_home, person_name, tidy_input, user_of
+from ..common import ERROR, NAME_ERROR, app_of, esc, go_home, input_error, person_name, tidy_input
 from .registrations import RegistrationsSG
 
 ACCESS = None
@@ -34,11 +34,6 @@ async def on_text(message: Message, widget: ManagedTextInput, manager: DialogMan
         await manager.next()
 
 
-async def on_bad_name(message: Message, widget: ManagedTextInput, manager: DialogManager, error: ValueError) -> None:
-    await tidy_input(message, manager)
-    manager.dialog_data["error"] = "⚠️ Usa solo lettere, massimo 60 caratteri."
-
-
 async def on_gender(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
     manager.dialog_data["gender"] = button.widget_id
     await manager.switch_to(SignupSG.confirm)
@@ -48,7 +43,7 @@ async def on_confirm(query: CallbackQuery, button: Button, manager: DialogManage
     app, data = app_of(manager), manager.dialog_data
     try:
         user = users.create_pending(app.conn, query.from_user.id, data["name"], data["surname"], data["gender"])
-    except sqlite3.IntegrityError:  # already registered (e.g. double tap)
+    except sqlite3.IntegrityError:  # already registered (e.g. from an older signup menu)
         await manager.switch_to(SignupSG.waiting)
         return
     app.notifier.send_to_groups(
@@ -75,27 +70,28 @@ async def getter(dialog_manager: DialogManager, **kwargs) -> dict:
         "error": data.pop("error", ""),
         "name": esc(data.get("name", "")),
         "surname": esc(data.get("surname", "")),
-        "gender": {"M": "Maschile", "F": "Femminile"}.get(data.get("gender", ""), ""),
+        "gender": users.GENDERS.get(data.get("gender", ""), ""),
     }
 
 
 async def waiting_getter(dialog_manager: DialogManager, **kwargs) -> dict:
-    user = user_of(dialog_manager)
+    # Fresh from the database: the account may have been created in this same update.
+    user = users.get(app_of(dialog_manager).conn, dialog_manager.middleware_data["event_from_user"].id)
     return {"name": esc(user.name) if user else ""}
 
 
 dialog = Dialog(
     Window(
         Const("👋 Benvenuto/a nel bot del <b>Collegio Ghislieri</b>!\n\nPer iscriverti scrivi il tuo <b>cognome</b>."),
-        Format("{error}", when="error"),
-        TextInput(id="surname", type_factory=person_name, on_success=on_text, on_error=on_bad_name),
+        ERROR,
+        TextInput(id="surname", type_factory=person_name, on_success=on_text, on_error=input_error(NAME_ERROR)),
         state=SignupSG.surname,
         getter=getter,
     ),
     Window(
         Const("Ora scrivi il tuo <b>nome</b>."),
-        Format("{error}", when="error"),
-        TextInput(id="name", type_factory=person_name, on_success=on_text, on_error=on_bad_name),
+        ERROR,
+        TextInput(id="name", type_factory=person_name, on_success=on_text, on_error=input_error(NAME_ERROR)),
         state=SignupSG.name,
         getter=getter,
     ),

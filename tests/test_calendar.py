@@ -187,3 +187,52 @@ async def test_create_event_flow(dp, app, message_manager):
     await c.click(message_manager.last_message(), Btn("🗑️    Elimina"))
     await c.click(message_manager.last_message(), Btn("✔️"))
     assert events.get(app.conn, e.id) is None
+
+
+def test_calendar_admin_group(conn):
+    manager = make_user(conn, 1, "calendar.admin")  # v0.5 group "admin"
+    other = events.get(conn, add(conn, cls="sport", categories=("football",)))
+    assert events.classes_for(manager) == list(events.CLASSES)
+    assert events.categories_for(manager, "sport") == ["football", "basketball", "volleyball", "othersport"]
+    assert events.can_edit(manager, other)
+
+
+async def test_sync_stops_past_last_page(conn, monkeypatch):
+    import aiohttp
+
+    async def get(session, url):
+        if "paged=" in url:
+            raise aiohttp.ClientResponseError(None, (), status=404)  # type: ignore[arg-type]
+        return FEED if url == events.FEED_URL else PAGE.encode()
+
+    monkeypatch.setattr(events, "_get", get)
+    assert await events.sync(conn) == (1, 0)
+
+
+async def test_crafted_restricted_event_and_double_sync(dp, app, message_manager):
+    from test_access import Crafted
+
+    eid = add(app.conn, "Festa segreta", cls="college", categories=("party",))
+    make_user(app.conn, 7, users.ALUMNUS)
+    c = client(dp, app, 7)
+    await c.send("/start")
+    await c.click(message_manager.last_message(), Btn(".*Calendario"))
+    msg = message_manager.last_message()
+    intent = next(b for row in msg.reply_markup.inline_keyboard for b in row).callback_data.split("\x1d")[0]
+    await c.click(msg, Crafted(f"{intent}\x1dev:{eid}"))  # a college event: students only
+    assert "segreta" not in message_manager.last_message().text.lower()
+
+    from aiogram.methods import AnswerCallbackQuery
+
+    make_user(app.conn, 9, users.ADMIN)
+    a = client(dp, app, 9)
+    await a.send("/start")
+    await a.click(message_manager.last_message(), Btn(".*Admin"))
+    await a.click(message_manager.last_message(), Btn("🗓 Calendario"))
+    for _ in range(2):
+        await a.click(message_manager.last_message(), Btn("🔄 Aggiorna dal sito"))
+    answers = [m.text for m in app.bot.calls if isinstance(m, AnswerCallbackQuery) and m.text]
+    assert answers[-2:] == [
+        "🔄 Aggiornamento avviato: riceverai un messaggio al termine.",
+        "⏳ Aggiornamento già in corso.",
+    ]

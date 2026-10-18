@@ -22,6 +22,7 @@ def test_import_users_and_meals(conn, tmp_path):
             (1, "Anna", "Verdi", "F", "student,calendar.sport,year.2021"),
             (2, None, None, None, "signup"),  # broken signup: skipped
             (3, "Carlo", "Neri", "X", "student,inactive"),
+            (4, "Dora", "Blu", "F", "student,admin"),  # v0.5 calendar admin
         ],
     )
     old.commit()
@@ -30,6 +31,7 @@ def test_import_users_and_meals(conn, tmp_path):
     assert (a.status, a.enrollment_year, a.groups) == ("active", 2021, {"student", "calendar.sport"})
     assert (c.status, c.gender, c.groups) == ("blocked", None, {"student"})
     assert users.get(conn, 2) is None and any("skipped 2" in line for line in report)
+    assert users.get(conn, 4).groups == {"student", "calendar.admin"}
 
     res = tmp_path / "reservations"
     res.mkdir()

@@ -146,3 +146,24 @@ async def test_print_flow(dp, app, message_manager, caplog, monkeypatch):
     await c.click(message_manager.last_message(), Btn("✔️"))
     assert "successo" in message_manager.last_message().text
     assert "'-n', '3'" in caplog.text and "'-P', '2-4'" in caplog.text
+
+
+async def test_photo_album_collected(dp, app, message_manager):
+    """An album is several updates at once: event isolation must let every photo reach dialog_data."""
+    import asyncio
+
+    from aiogram.types import Message, PhotoSize, Update
+
+    make_user(app.conn, 7, users.STUDENT)
+    c = client(dp, app, 7)
+    await c.send("/start")
+    await c.click(message_manager.last_message(), Btn("📩    Invia Contenuti"))
+    await c.click(message_manager.last_message(), Btn("📣    Foto per Socials"))
+
+    def photo(i: int) -> Update:
+        size = PhotoSize(file_id=f"F{i}", file_unique_id=f"U{i}", width=1, height=1)
+        message = Message(message_id=c._new_message_id(), date=0, chat=c.chat, from_user=c.user, photo=[size])
+        return Update(update_id=c._new_update_id(), message=message)
+
+    await asyncio.gather(*(dp.feed_update(app.bot, photo(i)) for i in range(3)))
+    assert "(3 ricevute)" in message_manager.last_message().text

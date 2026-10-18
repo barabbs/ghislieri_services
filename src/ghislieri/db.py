@@ -1,7 +1,9 @@
 """SQLite access. Schema changes are numbered SQL files in migrations/, applied in order."""
 
+import contextlib
 import logging
 import sqlite3
+from collections.abc import Iterator
 from importlib import resources
 from pathlib import Path
 
@@ -43,15 +45,13 @@ def migrate(conn: sqlite3.Connection) -> None:
             raise
 
 
-class transaction:
+@contextlib.contextmanager
+def transaction(conn: sqlite3.Connection) -> Iterator[sqlite3.Connection]:
     """`with transaction(conn): ...` groups several statements atomically."""
-
-    def __init__(self, conn: sqlite3.Connection):
-        self.conn = conn
-
-    def __enter__(self) -> sqlite3.Connection:
-        self.conn.execute("BEGIN IMMEDIATE")
-        return self.conn
-
-    def __exit__(self, exc_type, exc, tb) -> None:
-        self.conn.execute("ROLLBACK" if exc_type else "COMMIT")
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        yield conn
+    except BaseException:
+        conn.execute("ROLLBACK")
+        raise
+    conn.execute("COMMIT")

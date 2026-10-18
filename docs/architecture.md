@@ -35,13 +35,14 @@ Built on [aiogram 3](https://docs.aiogram.dev) and [aiogram-dialog](https://aiog
 - **Dialog state** is in memory (`MemoryStorage`). After a restart old buttons raise `UnknownIntent`; the error handler answers with a fresh home menu. This is deliberate: nothing in a menu is worth persisting.
 - **Isolation.** `SimpleEventIsolation` handles one user's updates one at a time (photo albums, double taps), while different users are served concurrently.
 - **User middleware** loads the sender's DB record into `user` for every update. Users who had blocked the bot become active again; `disabled` users are ignored.
-- **Entry points** (`bot/__init__.py`): `/start` (signup, waiting screen, or home), notification buttons, and a fallback that treats stray messages as `/start`.
+- **Entry points** (`bot/__init__.py`): `/start` (signup, waiting screen, or home), notification buttons (the dialog opens on top of the home menu, so its back button leads there), and a fallback that treats stray messages as `/start`. The bot answers in private chats only; group and channel updates are ignored.
 
 ### Access control
 
 - `users.User.has(group)` with dotted groups: holding `calendar.cultural.gs` grants `calendar.cultural` and `calendar`.
 - `when=perm(group)` hides a widget **and** refuses its presses. aiogram-dialog itself only evaluates `when` while drawing the keyboard, so `common.enforce_access_on_press` patches `Keyboard.process_callback` to re-check `perm()` conditions on every press. Data-based `when=` conditions are not access checks: never use them to protect a privileged action.
 - Notification buttons (`open|<state>`) only open a state that the notification behind that very message offered to that user, and only if the user holds the dialog's `ACCESS`.
+- Admin-only dialogs (admin, registrations) also filter every press and message at router level (`common.admin_filter`), so a user demoted while the menu is open cannot act.
 
 ## Database
 
@@ -63,9 +64,9 @@ The connection is used only from the event-loop thread. Queries touch at most a 
 A notification is a separate bot message, never the menu itself, so it cannot overwrite what the user is doing.
 
 - `notifier.send(user_ids, text, kind=..., ref=..., buttons=..., silent=..., expires_at=...)` stores the notification and one `deliveries` row per user, then queues them.
-- One background worker sends everything, about 20 messages per second, handling Telegram's `RetryAfter` and users who blocked the bot. Handlers never wait for a broadcast, so the bot stays responsive at reminder time. Pending deliveries are resumed after a restart.
+- One background worker sends and deletes everything, about 20 messages per second, handling Telegram's `RetryAfter`, retrying network and server errors (after 5 s, 30 s, 2 min) and skipping users who blocked the bot. Handlers never wait for a broadcast, so the bot stays responsive at reminder time. Pending deliveries are resumed after a restart.
 - `kind` + `ref` identify what a notification is about (e.g. `meal_reminder` + a date). Sending again with the same pair replaces the earlier message (`replace=True`), and `retract(kind, ref, user_id)` deletes it, e.g. when a student has booked.
-- A job retracts expired notifications every 5 minutes.
+- A job retracts expired notifications every 5 minutes (`expires_at` is stored in UTC). Telegram lets bots delete messages only within 48 h, so expiries are at most that.
 
 ## Scheduled jobs
 

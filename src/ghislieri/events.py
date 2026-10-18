@@ -47,6 +47,8 @@ CATEGORIES = {
     "maintenance": ("Manutenzione", "🧰", "misc"),
     "other": ("Altro", "📌", "misc"),
 }
+# Holders may create events of every class and edit or delete any event (v0.5 group "admin").
+CALENDAR_ADMIN = "calendar.admin"
 # Classes only some groups may see (the others are visible to every active user).
 RESTRICTED = {"college": (users.ADMIN, users.STUDENT)}
 DEFAULT_SYMBOL, CANCELLED_SYMBOL = "📌", "❌"
@@ -88,11 +90,6 @@ class Event:
         return next((CATEGORIES[c][1] for c in self.categories if c in CATEGORIES), DEFAULT_SYMBOL)
 
 
-def _utc(moment: dt.datetime) -> str:
-    """Stored form: UTC, so that text comparison is time comparison."""
-    return moment.astimezone(dt.UTC).isoformat(timespec="seconds")
-
-
 def _from_row(row: sqlite3.Row) -> Event:
     return Event(
         id=row["id"],
@@ -117,22 +114,26 @@ def can_see(user: users.User, cls: str) -> bool:
     return cls not in RESTRICTED or any(user.has(g) for g in RESTRICTED[cls])
 
 
+def _manages_calendar(user: users.User) -> bool:
+    return user.is_admin or user.has(CALENDAR_ADMIN)
+
+
 def classes_for(user: users.User) -> list[str]:
     """Classes the user may create events in."""
-    return [c for c in CLASSES if user.is_admin or user.has(f"calendar.{c}")]
+    return [c for c in CLASSES if _manages_calendar(user) or user.has(f"calendar.{c}")]
 
 
 def categories_for(user: users.User, cls: str) -> list[str]:
     return [
         key
         for key, (_, _, scope) in CATEGORIES.items()
-        if scope.split(".")[0] == cls and (user.is_admin or user.has(f"calendar.{scope}"))
+        if scope.split(".")[0] == cls and (_manages_calendar(user) or user.has(f"calendar.{scope}"))
     ]
 
 
 def can_edit(user: users.User, event: Event) -> bool:
     """Admins edit every event; others only the ones they created, while they hold the class."""
-    return user.is_admin or (event.creator_id == user.id and event.cls in classes_for(user))
+    return _manages_calendar(user) or (event.creator_id == user.id and event.cls in classes_for(user))
 
 
 # Queries and changes
@@ -148,7 +149,8 @@ def day_events(conn: sqlite3.Connection, day: dt.date, user: users.User) -> list
     begin = dt.datetime.combine(day, dt.time(), clock.TZ)
     end = dt.datetime.combine(day + dt.timedelta(days=1), dt.time(), clock.TZ)
     rows = conn.execute(
-        "SELECT * FROM events WHERE starts_at < ? AND ends_at > ? ORDER BY starts_at, id", (_utc(end), _utc(begin))
+        "SELECT * FROM events WHERE starts_at < ? AND ends_at > ? ORDER BY starts_at, id",
+        (clock.utc_iso(end), clock.utc_iso(begin)),
     )
     return [e for e in map(_from_row, rows) if can_see(user, e.cls)]
 
@@ -187,8 +189,8 @@ def create(
             title.strip(),
             description.strip(),
             url,
-            _utc(start),
-            _utc(end),
+            clock.utc_iso(start),
+            clock.utc_iso(end),
             cls,
             ",".join(categories),
             creator_id,
@@ -220,8 +222,8 @@ def update(
             title.strip(),
             description.strip(),
             url,
-            _utc(start),
-            _utc(end),
+            clock.utc_iso(start),
+            clock.utc_iso(end),
             ",".join(categories),
             status,
             clock.iso(clock.now()),
@@ -307,8 +309,8 @@ def store_feed_event(conn: sqlite3.Connection, item: FeedItem, start: dt.datetim
         "title": item.title[:MAX_TITLE],
         "description": item.description[:MAX_DESCRIPTION],
         "url": item.url,
-        "starts_at": _utc(start),
-        "ends_at": _utc(end),
+        "starts_at": clock.utc_iso(start),
+        "ends_at": clock.utc_iso(end),
         "class": "cultural",
         "categories": "conference",
         "status": status,
@@ -327,8 +329,12 @@ async def sync(conn: sqlite3.Connection, pages: int = FEED_PAGES) -> tuple[int, 
     changed = failed = 0
     async with aiohttp.ClientSession(headers={"User-Agent": "GhislieriBot/1.0"}) as session:
         for page in range(1, pages + 1):
-            # WordPress answers 404 past the last page.
-            data = await _get(session, FEED_URL if page == 1 else f"{FEED_URL}&paged={page}")
+            try:
+                data = await _get(session, FEED_URL if page == 1 else f"{FEED_URL}&paged={page}")
+            except aiohttp.ClientResponseError as err:
+                if page > 1 and err.status == 404:  # WordPress answers 404 past the last page
+                    break
+                raise
             items = await asyncio.to_thread(parse_feed, data)
             if not items:
                 break
@@ -346,13 +352,20 @@ async def sync(conn: sqlite3.Connection, pages: int = FEED_PAGES) -> tuple[int, 
     return changed, failed
 
 
+syncing = False  # a sync is running (the admin's "update now" must not start a second one)
+
+
 async def sync_job(app: App, notify_user: int | None = None) -> None:
+    global syncing
+    syncing = True
     try:
         changed, failed = await sync(app.conn)
     except Exception:
         if notify_user:
             app.notifier.send([notify_user], "⚠️ Aggiornamento del calendario dal sito non riuscito.", kind="calendar")
         raise
+    finally:
+        syncing = False
     write_ics(app.conn, app.settings.data_dir)
     if notify_user:
         text = f"🔄 Calendario aggiornato dal sito: {changed} eventi nuovi o modificati"
@@ -430,8 +443,8 @@ def import_ical(conn: sqlite3.Connection, path: Path | str) -> int:
             "title": str(ev.get("summary", "")).strip()[:MAX_TITLE] or "Evento",
             "description": str(ev.get("description", "")).strip()[:MAX_DESCRIPTION],
             "url": str(ev["url"]) if ev.get("url") else None,
-            "starts_at": _utc(start),
-            "ends_at": _utc(end),
+            "starts_at": clock.utc_iso(start),
+            "ends_at": clock.utc_iso(end),
             "class": cls if cls in CLASSES else "cultural",  # v0.5 website events had no valid class
             "categories": ",".join(cats),
             "status": "cancelled" if str(ev.get("status", "")).upper() == "CANCELLED" else "confirmed",

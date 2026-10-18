@@ -14,6 +14,7 @@ KNOWN_GROUPS = (
     "tester",
     "representative",
     "socials_rep",
+    "calendar.admin",
     "calendar.sport",
     "calendar.cultural",
     "calendar.cultural.gs",
@@ -29,6 +30,12 @@ STUDENT, ALUMNUS = "student", "alumnus"
 YEARS_AS_STUDENT = 6
 
 PROFILE_FIELDS = ("name", "surname", "email", "gender", "enrollment_year")
+GENDERS = {"M": "Maschile", "F": "Femminile"}
+
+
+def year_label(year: int | None) -> str:
+    """Academic year of enrollment, "2025/26"."""
+    return f"{year}/{(year + 1) % 100:02}" if year else "non indicato"
 
 
 def group_matches(held: str, required: str) -> bool:
@@ -147,6 +154,11 @@ def list_users(conn: sqlite3.Connection, group: str | None = None, status: str |
 def user_ids(conn: sqlite3.Connection, groups: tuple[str, ...]) -> list[int]:
     """Ids of active users holding any of `groups`, without duplicates."""
     return [u.id for u in list_users(conn) if any(u.has(g) for g in groups)]
+
+
+def emails(conn: sqlite3.Connection, groups: tuple[str, ...]) -> list[str]:
+    """Email addresses of active users holding any of `groups`."""
+    return [u.email for u in list_users(conn) if u.email and any(u.has(g) for g in groups)]
 
 
 def promote_alumni(conn: sqlite3.Connection, today=None) -> list[User]:

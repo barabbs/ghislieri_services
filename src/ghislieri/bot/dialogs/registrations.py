@@ -8,7 +8,7 @@ from aiogram_dialog.widgets.text import Const, Format
 
 from ... import users
 from ...notify import Button as NotifButton
-from ..common import BACK, HomeSG, app_of, esc
+from ..common import BACK, HomeSG, admin_filter, app_of, esc
 
 ACCESS = users.ADMIN
 
@@ -33,12 +33,11 @@ async def detail_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     user = _pending(dialog_manager)
     if user is None:
         return {"found": False, "name": "", "gender": "", "year": ""}
-    year = user.enrollment_year
     return {
         "found": True,
         "name": esc(user.full_name),
-        "gender": {"M": "Maschile", "F": "Femminile"}.get(user.gender or "", "non indicato"),
-        "year": f"{year}/{(year + 1) % 100:02}" if year else "non indicato",
+        "gender": users.GENDERS.get(user.gender or "", "non indicato"),
+        "year": users.year_label(user.enrollment_year),
     }
 
 
@@ -60,7 +59,9 @@ async def on_gender(query: CallbackQuery, button: Button, manager: DialogManager
         users.update_profile(app_of(manager).conn, user.id, gender="F" if user.gender == "M" else "M")
 
 
-async def _decide(query: CallbackQuery, manager: DialogManager, groups: tuple[str, ...] | None) -> None:
+async def on_decide(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
+    """Approve as student or alumnus, or reject (the account is deleted)."""
+    groups = {"approve_student": (users.STUDENT,), "approve_alumnus": (users.ALUMNUS,)}.get(button.widget_id)
     app, user = app_of(manager), _pending(manager)
     if user is None:
         await query.answer("Registrazione già gestita")
@@ -84,14 +85,6 @@ async def _decide(query: CallbackQuery, manager: DialogManager, groups: tuple[st
     if user:
         app.notifier.retract("registration", str(user.id))
     await manager.switch_to(RegistrationsSG.list)
-
-
-async def on_approve(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
-    await _decide(query, manager, (users.ALUMNUS,) if button.widget_id == "approve_alumnus" else (users.STUDENT,))
-
-
-async def on_reject(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
-    await _decide(query, manager, None)
 
 
 dialog = Dialog(
@@ -125,8 +118,8 @@ dialog = Dialog(
             Button(Const("⚧ genere"), id="gender", on_click=on_gender),
             when="found",
         ),
-        Button(Const("✅ Approva come studente"), id="approve_student", on_click=on_approve, when="found"),
-        Button(Const("🎓 Approva come alumnus"), id="approve_alumnus", on_click=on_approve, when="found"),
+        Button(Const("✅ Approva come studente"), id="approve_student", on_click=on_decide, when="found"),
+        Button(Const("🎓 Approva come alumnus"), id="approve_alumnus", on_click=on_decide, when="found"),
         SwitchTo(Const("❌ Rifiuta"), id="to_reject", state=RegistrationsSG.reject, when="found"),
         SwitchTo(Const("↩️ Elenco"), id="to_list", state=RegistrationsSG.list),
         state=RegistrationsSG.detail,
@@ -134,9 +127,11 @@ dialog = Dialog(
     ),
     Window(
         Format("Rifiutare ed eliminare la registrazione di <b>{name}</b>?"),
-        Button(Const("❌ Sì, rifiuta"), id="reject", on_click=on_reject),
+        Button(Const("❌ Sì, rifiuta"), id="reject", on_click=on_decide),
         Back(Const("↩️ No")),
         state=RegistrationsSG.reject,
         getter=detail_getter,
     ),
 )
+dialog.callback_query.filter(admin_filter)
+dialog.message.filter(admin_filter)
