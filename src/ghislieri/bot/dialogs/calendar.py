@@ -11,8 +11,10 @@ ACCESS = None
 
 class CalendarSG(StatesGroup):
     main = State()
+    admin = State()  # entry point linked from the admin menu
 
 
 dialog = Dialog(
     Window(Const("🚧 In costruzione"), BACK, state=CalendarSG.main),
+    Window(Const("🚧 In costruzione"), BACK, state=CalendarSG.admin),
 )

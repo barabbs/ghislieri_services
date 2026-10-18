@@ -8,7 +8,11 @@ dependencies = [
     "aiogram>=3.31,<4",
     "aiogram-dialog>=2.6,<3",
     "apscheduler>=3.11,<4",
+    "feedparser>=6.0.14",
+    "icalendar>=7.3.0",
+    "jinja2>=3.1.6",
     "pydantic-settings>=2.16",
+    "weasyprint>=70.0",
 ]
 
 [project.scripts]

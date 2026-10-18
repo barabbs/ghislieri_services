@@ -11,8 +11,10 @@ ACCESS = "student"
 
 class MealsSG(StatesGroup):
     main = State()
+    admin = State()  # entry point linked from the admin menu
 
 
 dialog = Dialog(
     Window(Const("🚧 In costruzione"), BACK, state=MealsSG.main),
+    Window(Const("🚧 In costruzione"), BACK, state=MealsSG.admin),
 )
