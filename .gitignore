@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Runtime data and secrets (never commit)
+data/
+reservations/
+temp/
+credentials.json
+token.json
+*.gbtk
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
