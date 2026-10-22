@@ -1,0 +1,46 @@
+[project]
+name = "ghislieri"
+version = "1.0.0.dev0"
+description = "Telegram bot and services for the students of Collegio Ghislieri"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "aiogram>=3.31,<4",
+    "aiogram-dialog>=2.6,<3",
+    "apscheduler>=3.11,<4",
+    "feedparser>=6.0.14",
+    "icalendar>=7.3.0",
+    "jinja2>=3.1.6",
+    "pydantic-settings>=2.16",
+    "weasyprint>=70.0",
+]
+
+[project.scripts]
+ghislieri = "ghislieri.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1",
+    "pytest-asyncio>=1.2",
+    "ruff>=0.17",
+]
+
+[build-system]
+requires = ["uv_build>=0.13,<0.14"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "RUF"]
+ignore = ["RUF001"]  # Italian UI strings contain look-alike characters on purpose
+
+[tool.uv]
+# A uv-managed interpreter keeps .venv working across system Python upgrades.
+python-preference = "only-managed"
