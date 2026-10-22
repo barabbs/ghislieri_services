@@ -147,6 +147,10 @@ class Notifier:
         else:
             self._retract("n.kind = ? AND n.ref IS ? AND d.user_id = ?", (kind, ref, user_id))
 
+    def retract_notification(self, nid: int) -> None:
+        """Withdraw one notification for everyone. Sent messages are deleted."""
+        self._retract("n.id = ?", (nid,))
+
     def retract_delivery(self, user_id: int, message_id: int) -> None:
         """Mark the delivery behind a notification message as handled (the user opened or closed it)."""
         self.conn.execute(
@@ -264,3 +268,16 @@ class Notifier:
         # Like a new menu, the notification replaces an idle menu (a user busy in it keeps it).
         if old_menu := menus.forget(self.conn, uid, idle=menus.IDLE):
             self._queue.put_nowait(("delete", uid, old_menu))
+
+
+def active(conn: sqlite3.Connection) -> list[sqlite3.Row]:
+    """Notifications with deliveries still pending or sent, newest first."""
+    return conn.execute(
+        "SELECT * FROM notifications n WHERE EXISTS (SELECT 1 FROM deliveries d"
+        " WHERE d.notification_id = n.id AND d.state IN ('pending', 'sent')) ORDER BY n.id DESC"
+    ).fetchall()
+
+
+def delivery_counts(conn: sqlite3.Connection, nid: int) -> dict[str, int]:
+    rows = conn.execute("SELECT state, count(*) FROM deliveries WHERE notification_id = ? GROUP BY state", (nid,))
+    return dict(rows.fetchall())

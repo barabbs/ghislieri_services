@@ -21,7 +21,9 @@ Secret=ghislieri-bot-token,type=env,target=GS_BOT_TOKEN
 Secret=ghislieri-smtp-password,type=env,target=GS_SMTP_PASSWORD
 
 [Service]
-Restart=always
+# The bot exits 75 to restart (Admin → Sistema → Riavvia) and 0 when stopped on purpose
+# (Arresta, or SIGTERM from systemctl stop): crashes and 75 restart, a clean 0 stays stopped.
+Restart=on-failure
 RestartSec=10
 
 [Install]

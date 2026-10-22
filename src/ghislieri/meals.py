@@ -266,7 +266,7 @@ async def submit_report(app: App, user: users.User, text: str, photos: list[str]
     sid = submissions.add(app.conn, "meal_report", user.id, {"text": text, "photos": photos})
     app.notifier.send_to_groups(
         (users.ADMIN, REPRESENTATIVE),
-        "‼️    <b>Nuova Segnalazione Mensa</b>\n\n"
+        "‼️ <b>Nuova Segnalazione Mensa</b>\n\n"
         f"<code>Data     </code>{now:%d/%m/%Y %H:%M}\n<code>Studente </code>{esc(user.full_name)}\n\n"
         f"<code>Report   </code><b>{esc(text)}</b>\n\n<code>N° Foto  </code><i>{len(photos)}</i>",
         kind="meal_report",
@@ -295,10 +295,10 @@ async def remind(app: App) -> None:
         return
     app.notifier.send(
         recipients,
-        f"🍽❗️ <b>Prenotazione Pasti</b>\n\nHai prenotato per <i>{clock.day_label(day)}</i>?",
+        f"🍽️ <b>Prenotazione Pasti</b>\n\nNon hai ancora indicato tutti i pasti di <i>{clock.day_label(day)}</i>.",
         kind="meal_reminder",
         ref=day.isoformat(),
-        buttons=[Button("📆    Prenota ora!", BOOKING_STATE), MENU],
+        buttons=[Button("🍽️ Prenota ora", BOOKING_STATE), MENU],
         expires_at=closes_at(day),
         replace=True,
     )

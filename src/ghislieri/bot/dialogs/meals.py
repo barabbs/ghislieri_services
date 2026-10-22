@@ -57,7 +57,7 @@ async def main_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     for day in meals.open_days(app.conn):
         answers = meals.answers(app.conn, user.id, day) if user else {}
         for meal in meals.MEALS:
-            label = f"{day_label(day, short=True)}  -  {meals.MEAL_NAMES[meal]}    {ICONS[answers.get(meal)]}"
+            label = f"{ICONS[answers.get(meal)]} {day_label(day, short=True)} · {meals.MEAL_NAMES[meal]}"
             items.append((f"{day.isoformat()}_{meal}", label))
     return {"meals": items, "any_open": bool(items)}
 
@@ -101,12 +101,10 @@ async def on_send_report(query: CallbackQuery, button: Button, manager: DialogMa
     text, photos = data.pop("report"), data.pop("photos", [])
     try:
         await meals.submit_report(app, user, text, photos)
-        data["result"] = "Grazie per la segnalazione! 😄"
+        data["result"] = "✅ Segnalazione inviata. Grazie!"
     except Exception:
         log.exception("Sending the meal report of %s failed", user.id)
-        data["result"] = (
-            "⚠️ La segnalazione è stata registrata e inoltrata ai responsabili, ma l'invio dell'email non è riuscito."
-        )
+        data["result"] = "⚠️ Segnalazione inoltrata ai responsabili, ma l'email non è stata inviata."
     await manager.switch_to(MealsSG.report_done)
 
 
@@ -127,7 +125,7 @@ async def admin_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     items = [
         (
             s.day.isoformat(),
-            f"{day_label(s.day, short=True)}  ·  P {s.booked['lunch']}  ·  C {s.booked['dinner']}",
+            f"{day_label(s.day, short=True)} · pranzo {s.booked['lunch']} · cena {s.booked['dinner']}",
         )
         for s in days
     ]
@@ -143,18 +141,18 @@ async def on_generate(query: CallbackQuery, button: Button, manager: DialogManag
     today = clock.today()
     year = clock.academic_year(today)
     added = meals.create_academic_year(app_of(manager).conn, year, today)
-    await query.answer(f"Anno {year}/{year + 1}: {len(added)} giorni aggiunti.", show_alert=True)
+    await query.answer(f"✅ Anno {year}/{year + 1}: {len(added)} giorni aggiunti.", show_alert=True)
 
 
 async def on_add_date(query: CallbackQuery, widget, manager: DialogManager, day: dt.date) -> None:
     if day <= clock.today():
-        await query.answer("Scegli un giorno futuro.", show_alert=True)
+        await query.answer("⚠️ Scegli un giorno futuro.", show_alert=True)
         return
     if meals.add_day(app_of(manager).conn, day):
         opens = meals.opening_date(day)
-        await query.answer(f"Aggiunto {day_label(day)}: prenotazioni aperte dal {day_label(opens)}.")
+        await query.answer(f"✅ Aggiunto {day_label(day)}: prenotazioni aperte dal {day_label(opens)}.")
     else:
-        await query.answer("Giorno già presente.")
+        await query.answer("⚠️ Giorno già presente.")
     await manager.switch_to(MealsSG.admin)
 
 
@@ -192,7 +190,7 @@ async def on_email(query: CallbackQuery, button: Button, manager: DialogManager)
         log.exception("Re-sending the meal recap of %s failed", day)
         await query.answer("⚠️ Invio dell'email non riuscito.", show_alert=True)
         return
-    await query.answer("✉️ Email del recap inviata.")
+    await query.answer("✅ Email del recap inviata.")
 
 
 async def on_remove(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
@@ -200,7 +198,7 @@ async def on_remove(query: CallbackQuery, button: Button, manager: DialogManager
     if day:
         meals.remove_day(app.conn, day)
         app.notifier.retract("meal_reminder", day.isoformat())
-        await query.answer(f"{day_label(day)} eliminato.")
+        await query.answer(f"✅ {day_label(day)} eliminato.")
     await manager.switch_to(MealsSG.admin)
 
 
@@ -208,11 +206,8 @@ BACK_TO_ADMIN = SwitchTo(Const("↩️ Elenco"), id="to_admin", state=MealsSG.ad
 
 dialog = Dialog(
     Window(
-        Const("🍽    <b>Prenota il Pasto</b>\n"),
-        Const(
-            "Tocca un pasto per prenotarlo o disdirlo.\n🟢 prenotato   🔴 non prenotato   ❔ da indicare",
-            when="any_open",
-        ),
+        Const("🍽️ <b>Mensa</b>\n"),
+        Const("Tocca un pasto per indicare se ci sarai:\n🟢 sì · 🔴 no · ❔ da indicare", when="any_open"),
         Const("Al momento non ci sono prenotazioni aperte.", when=lambda d, w, m: not d["any_open"]),
         Column(
             Select(
@@ -224,14 +219,14 @@ dialog = Dialog(
             ),
             when=perm(ACCESS),
         ),
-        SwitchTo(Const("📝    Segnalazione"), id="report", state=MealsSG.report_text, when=perm(ACCESS)),
+        SwitchTo(Const("📝 Segnalazione"), id="report", state=MealsSG.report_text, when=perm(ACCESS)),
         Start(Const("⚙️ Gestione"), id="manage", state=MealsSG.admin, when=ADMIN_ONLY),
         BACK,
         state=MealsSG.main,
         getter=main_getter,
     ),
     Window(
-        Const("Scrivi la <b>segnalazione</b>"),
+        Const("📝 <b>Segnalazione mensa</b>\n\nScrivi cosa vuoi segnalare."),
         ERROR,
         TextInput(
             id="report_text",
@@ -244,33 +239,33 @@ dialog = Dialog(
         getter=report_getter,
     ),
     Window(
-        Const("📸    Invia una o più <b>immagini</b> della segnalazione (facoltativo).\n"),
+        Const("📸 Se vuoi, invia una o più <b>foto</b>, poi premi Avanti.\n"),
         Format("Foto allegate: {photos}"),
         ERROR,
         MessageInput(collect_photo(meals.MAX_REPORT_PHOTOS), content_types=ContentType.PHOTO),
         MessageInput(input_error("⚠️ Invia una foto, oppure premi Avanti.")),
         SwitchTo(Const("➡️ Avanti"), id="photos_done", state=MealsSG.report_confirm),
-        Button(Const("🗑    Elimina le foto"), id="clear_photos", on_click=clear_photos, when="photos"),
+        Button(Const("🗑 Elimina le foto"), id="clear_photos", on_click=clear_photos, when="photos"),
         SwitchTo(Const("↩️ Indietro"), id="photos_back", state=MealsSG.report_text),
         state=MealsSG.report_photos,
         getter=report_getter,
     ),
     Window(
-        Format("{report}\n\n📸 Foto allegate: {photos}\n\n✉️  Inviare la segnalazione?"),
-        Button(Const("✔️ Invia"), id="send_report", on_click=on_send_report),
-        SwitchTo(Const("❌ Annulla"), id="cancel_report", state=MealsSG.main, on_click=on_cancel_report),
+        Format("📝 <b>Segnalazione mensa</b>\n\n{report}\n\n📸 Foto allegate: {photos}\n\nInviare la segnalazione?"),
+        Button(Const("📤 Invia"), id="send_report", on_click=on_send_report),
+        SwitchTo(Const("✖️ Annulla"), id="cancel_report", state=MealsSG.main, on_click=on_cancel_report),
         SwitchTo(Const("↩️ Indietro"), id="confirm_back", state=MealsSG.report_photos),
         state=MealsSG.report_confirm,
         getter=report_getter,
     ),
     Window(
         Format("{result}"),
-        SwitchTo(Const("OK"), id="report_ok", state=MealsSG.main, on_click=on_cancel_report),
+        SwitchTo(Const("↩️ Indietro"), id="report_ok", state=MealsSG.main, on_click=on_cancel_report),
         state=MealsSG.report_done,
         getter=report_getter,
     ),
     Window(
-        Const("⚙️    <b>Gestione Mensa</b>\n"),
+        Const("⚙️ <b>Gestione Mensa</b>\n"),
         Format("Giorni prenotabili in programma: {count}\nTocca un giorno per il recap o per eliminarlo."),
         ScrollingGroup(
             Select(
@@ -293,17 +288,17 @@ dialog = Dialog(
         getter=admin_getter,
     ),
     Window(
-        Const("Scegli il giorno da rendere prenotabile."),
+        Const("➕ <b>Aggiungi giorno</b>\n\nScegli il giorno da rendere prenotabile."),
         ItalianCalendar(id="calendar", on_click=on_add_date, when=ADMIN_ONLY),
         BACK_TO_ADMIN,
         state=MealsSG.admin_add,
     ),
     Window(
         Format(
-            "🍽 <b>{label}</b>\n\nPrenotazioni aperte dal {opens} (ore 7:00)\nPranzo: {lunch}\nCena: {dinner}",
+            "🍽️ <b>{label}</b>\n\nPrenotazioni aperte dal {opens} alle 07:00\nPranzo: {lunch}\nCena: {dinner}",
             when="found",
         ),
-        Const("Giorno non trovato.", when=lambda d, w, m: not d["found"]),
+        Const("⚠️ Giorno non trovato.", when=lambda d, w, m: not d["found"]),
         Button(Const("📄 Recap PDF"), id="pdf", on_click=on_pdf, when=ADMIN_ONLY),
         Button(Const("✉️ Reinvia email recap"), id="email", on_click=on_email, when=ADMIN_ONLY),
         SwitchTo(Const("🗑 Elimina giorno"), id="to_remove", state=MealsSG.admin_remove, when=ADMIN_ONLY),
@@ -312,7 +307,7 @@ dialog = Dialog(
         getter=day_getter,
     ),
     Window(
-        Format("Eliminare <b>{label}</b>?"),
+        Format("🗑 Eliminare <b>{label}</b>?"),
         Format("\nVerranno cancellate anche le {total} prenotazioni.", when="total"),
         Button(Const("🗑 Sì, elimina"), id="remove", on_click=on_remove, when=ADMIN_ONLY),
         SwitchTo(Const("↩️ No"), id="keep", state=MealsSG.admin_day),

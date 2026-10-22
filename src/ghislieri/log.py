@@ -10,13 +10,20 @@ from aiogram import Bot
 
 FORMAT = "%(asctime)s %(levelname)-7s %(name)s: %(message)s"
 
-# Last errors, shown in the bot's developer menu.
+# Shown in Admin → Sistema: the last errors (with tracebacks) and the last log lines at INFO and above.
 recent_errors: collections.deque[logging.LogRecord] = collections.deque(maxlen=50)
+recent_lines: collections.deque[str] = collections.deque(maxlen=300)
 
 
-class _RecentErrors(logging.Handler):
+class _Recent(logging.Handler):
+    def __init__(self):
+        super().__init__(logging.INFO)
+        self.setFormatter(logging.Formatter(FORMAT))
+
     def emit(self, record: logging.LogRecord) -> None:
-        recent_errors.append(record)
+        recent_lines.append(self.format(record).split("\n", 1)[0][:500])  # tracebacks: see recent_errors
+        if record.levelno >= logging.ERROR:
+            recent_errors.append(record)
 
 
 class TelegramAlertHandler(logging.Handler):
@@ -52,8 +59,7 @@ class TelegramAlertHandler(logging.Handler):
 
 def setup(level: str = "INFO") -> None:
     logging.basicConfig(level=level, format=FORMAT, force=True)
-    handler = _RecentErrors(logging.ERROR)
-    logging.getLogger().addHandler(handler)
+    logging.getLogger().addHandler(_Recent())
     logging.getLogger("aiogram.event").setLevel(logging.WARNING)  # one line per update otherwise
     logging.getLogger("apscheduler").setLevel(logging.WARNING)
 

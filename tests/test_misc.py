@@ -7,7 +7,7 @@ from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator as Btn
 from conftest import client, make_user
 
 from ghislieri import printing, submissions, users
-from ghislieri.bot.dialogs import dev, settings
+from ghislieri.bot.dialogs import admin, settings
 
 
 def test_lp_args():
@@ -47,13 +47,13 @@ async def test_eduroam_flow(dp, app, message_manager):
     make_user(app.conn, 7, users.STUDENT, name="Luca", surname="Bianchi")
     c = client(dp, app, 7)
     await c.send("/start")
-    await c.click(message_manager.last_message(), Btn("📩    Invia Contenuti"))
-    await c.click(message_manager.last_message(), Btn("📶    Segnalazione Eduroam"))
+    await c.click(message_manager.last_message(), Btn("📩 Invia Contenuti"))
+    await c.click(message_manager.last_message(), Btn("📶 Segnalazione Eduroam"))
     await c.click(message_manager.last_message(), Btn(submissions.DEFAULT_EDUROAM_REPORTS[0]))
     await c.send("Stanza <42>")
-    await c.click(message_manager.last_message(), Btn("Nessuna nota"))
+    await c.click(message_manager.last_message(), Btn("⏭ Nessuna nota"))
     assert "Stanza &lt;42&gt;" in message_manager.last_message().text
-    await c.click(message_manager.last_message(), Btn("✔️"))
+    await c.click(message_manager.last_message(), Btn("📤 Invia"))
     assert "Grazie" in message_manager.last_message().text
 
     row = app.conn.execute("SELECT * FROM submissions").fetchone()
@@ -83,8 +83,8 @@ async def test_profile_edit(dp, app, message_manager):
     make_user(app.conn, 7)
     c = client(dp, app, 7)
     await c.send("/start")
-    await c.click(message_manager.last_message(), Btn("🔧    Impostazioni"))
-    await c.click(message_manager.last_message(), Btn("👤    Profilo"))
+    await c.click(message_manager.last_message(), Btn("🔧 Impostazioni"))
+    await c.click(message_manager.last_message(), Btn("👤 Profilo"))
     await c.click(message_manager.last_message(), Btn("✏️ Email"))
     await c.send("not-an-email")
     assert "non valido" in message_manager.last_message().text
@@ -108,21 +108,31 @@ def test_error_detail_fits():
     except RuntimeError:
         record = logging.makeLogRecord({"name": "x", "msg": "boom", "levelno": logging.ERROR})
         record.exc_info = sys.exc_info()
-    text = dev.error_detail(record)
+    text = admin.error_detail(record)
     assert len(text) < 4096 and "<<" not in text
 
 
 async def test_print_flow(dp, app, message_manager, caplog, monkeypatch):
     from aiogram.types import Document, Message, Update
 
+    from ghislieri.bot.dialogs.printing import PrintingSG
+    from ghislieri.notify import Button
+
     async def download(file_id, destination, **kwargs):
         destination.write_bytes(b"%PDF-1.7 fake")
 
     monkeypatch.setattr(app.bot, "download", download, raising=False)
-    make_user(app.conn, 7, users.STUDENT)
+    make_user(app.conn, 7, users.ADMIN)  # Stampa is legacy: admins only
+    # Printing is not on the home menu any more: open it through a button linking its state.
+    app.notifier.send([7], "stampa", kind="test", buttons=[Button("🖨 Stampa", PrintingSG.main.state)])
+    await app.notifier.drain()
+    [sent] = app.bot.sent(7)
+    note = Message.model_validate(
+        {"message_id": 1000, "date": 0, "chat": {"id": 7, "type": "private"}, "text": sent.text,
+         "reply_markup": sent.reply_markup.model_dump()}
+    )  # fmt: skip
     c = client(dp, app, 7)
-    await c.send("/start")
-    await c.click(message_manager.last_message(), Btn("🖨    Stampa"))
+    await c.click(note, Btn("🖨 Stampa"))
 
     def doc(mime: str) -> Update:
         message = Message(
@@ -134,17 +144,17 @@ async def test_print_flow(dp, app, message_manager, caplog, monkeypatch):
     await dp.feed_update(app.bot, doc("image/png"))
     assert "formato" in message_manager.last_message().text
     await dp.feed_update(app.bot, doc("application/pdf"))
-    await c.click(message_manager.last_message(), Btn("COPIE    1"))
+    await c.click(message_manager.last_message(), Btn("Copie: 1"))
     await c.click(message_manager.last_message(), Btn("3"))
-    await c.click(message_manager.last_message(), Btn("PAGINE    Tutte"))
+    await c.click(message_manager.last_message(), Btn("Pagine: Tutte"))
     await c.send("1;reboot")
     assert "non valido" in message_manager.last_message().text
     await c.send("2-4")
-    await c.click(message_manager.last_message(), Btn("📑 Stampa"))
+    await c.click(message_manager.last_message(), Btn("🖨 Stampa"))
     assert "Pagine: <b>2-4</b>" in message_manager.last_message().text
     caplog.set_level(logging.INFO)
-    await c.click(message_manager.last_message(), Btn("✔️"))
-    assert "successo" in message_manager.last_message().text
+    await c.click(message_manager.last_message(), Btn("✅ Conferma"))
+    assert "inviato alla stampante" in message_manager.last_message().text
     assert "'-n', '3'" in caplog.text and "'-P', '2-4'" in caplog.text
 
 
@@ -157,8 +167,8 @@ async def test_photo_album_collected(dp, app, message_manager):
     make_user(app.conn, 7, users.STUDENT)
     c = client(dp, app, 7)
     await c.send("/start")
-    await c.click(message_manager.last_message(), Btn("📩    Invia Contenuti"))
-    await c.click(message_manager.last_message(), Btn("📣    Foto per Socials"))
+    await c.click(message_manager.last_message(), Btn("📩 Invia Contenuti"))
+    await c.click(message_manager.last_message(), Btn("📣 Foto per Socials"))
 
     def photo(i: int) -> Update:
         size = PhotoSize(file_id=f"F{i}", file_unique_id=f"U{i}", width=1, height=1)
@@ -166,4 +176,4 @@ async def test_photo_album_collected(dp, app, message_manager):
         return Update(update_id=c._new_update_id(), message=message)
 
     await asyncio.gather(*(dp.feed_update(app.bot, photo(i)) for i in range(3)))
-    assert "(3 ricevute)" in message_manager.last_message().text
+    assert "Foto ricevute: 3." in message_manager.last_message().text

@@ -61,7 +61,7 @@ async def on_refresh(query: CallbackQuery, button: Button, manager: DialogManage
     if user and user.is_active:
         await go_home(manager)
     else:
-        await query.answer("Registrazione ancora in attesa di approvazione")
+        await query.answer("⏳ Registrazione ancora in attesa di approvazione.")
 
 
 async def getter(dialog_manager: DialogManager, **kwargs) -> dict:
@@ -96,7 +96,7 @@ dialog = Dialog(
         getter=getter,
     ),
     Window(
-        Const("Seleziona il <b>genere</b> (serve per le liste della mensa)."),
+        Const("Scegli il tuo <b>genere</b> (serve per le liste della mensa)."),
         Row(
             Button(Const("Maschile"), id="M", on_click=on_gender),
             Button(Const("Femminile"), id="F", on_click=on_gender),
@@ -104,7 +104,7 @@ dialog = Dialog(
         state=SignupSG.gender,
     ),
     Window(
-        Format("Controlla i tuoi dati:\n\n<b>Cognome</b>: {surname}\n<b>Nome</b>: {name}\n<b>Genere</b>: {gender}"),
+        Format("📝 Controlla i tuoi dati:\n\n<b>Cognome</b>: {surname}\n<b>Nome</b>: {name}\n<b>Genere</b>: {gender}"),
         Button(Const("✅ Conferma"), id="confirm", on_click=on_confirm),
         Row(
             SwitchTo(Const("✏️ Cognome"), id="edit_surname", state=SignupSG.surname),

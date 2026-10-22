@@ -81,12 +81,12 @@ async def test_reminder_and_booking_dialog(dp, app, message_manager, friday_noon
     c = client(dp, app, 3)
     await c.send("/start")
     await c.click(message_manager.last_message(), Btn(".*Mensa"))
-    assert "SAB 05 gen  -  Pranzo    ❔" in str(message_manager.last_message().reply_markup)
+    assert "❔ SAB 05 gen · Pranzo" in str(message_manager.last_message().reply_markup)
     await c.click(message_manager.last_message(), Btn(".*Pranzo.*"))
     await c.click(message_manager.last_message(), Btn(".*Cena.*"))
     await c.click(message_manager.last_message(), Btn(".*Cena.*"))
     assert meals.answers(app.conn, 3, SAT) == {"lunch": True, "dinner": False}
-    assert "Cena    🔴" in str(message_manager.last_message().reply_markup)
+    assert "🔴 SAB 05 gen · Cena" in str(message_manager.last_message().reply_markup)
     states = dict(
         app.conn.execute(
             "SELECT d.user_id, d.state FROM deliveries d JOIN notifications n ON n.id = d.notification_id"
@@ -124,7 +124,7 @@ async def test_admin_remove_day(dp, app, message_manager, friday_noon):
     await c.send("/start")
     await c.click(message_manager.last_message(), Btn(".*Mensa"))
     await c.click(message_manager.last_message(), Btn(".*Gestione"))
-    await c.click(message_manager.last_message(), Btn("SAB 05 gen.*P 1.*"))
+    await c.click(message_manager.last_message(), Btn("SAB 05 gen · pranzo 1.*"))
     await c.click(message_manager.last_message(), Btn(".*Elimina giorno"))
     assert "1 prenotazioni" in message_manager.last_message().text
     await c.click(message_manager.last_message(), Btn(".*Sì, elimina"))
@@ -172,6 +172,6 @@ async def test_reminder_button_opens_over_home(dp, app, message_manager, friday_
     c = client(dp, app, 3)
     await c.click(note, Btn(".*Prenota ora.*"))
     [menu] = message_manager.sent_messages  # one live menu: the home one is not drawn
-    assert "Prenota il Pasto" in menu.text
+    assert "Tocca un pasto" in menu.text
     await c.click(message_manager.last_message(), Btn(".*Indietro"))  # back leads to the home menu
     assert "Collegio Ghislieri" in message_manager.last_message().text

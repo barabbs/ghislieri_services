@@ -6,10 +6,10 @@ One Python process runs the Telegram bot and every scheduled job on a single asy
 src/ghislieri/
   __main__.py     entry point: settings → guard → DB → bot → scheduler → polling
   settings.py     GS_* env vars / .env (pydantic-settings), production guard
-  app.py          App: settings, conn, bot, notifier, scheduler (handed to every handler)
+  app.py          App: settings, conn, bot, notifier, scheduler, stop request (handed to every handler)
   db.py           SQLite connection + numbered migrations (migrations/*.sql)
   clock.py        Europe/Rome time, academic year
-  log.py          logging to stderr, error alerts to Telegram, recent-errors buffer
+  log.py          logging to stderr, error alerts to Telegram, recent errors and log lines in memory
   notify.py       notification engine
   mail.py         SMTP sending
   jobs.py         scheduler setup, core jobs (alumni rollover, notification expiry)
@@ -66,11 +66,12 @@ A notification is a separate bot message, never the menu itself, so it cannot ov
 - `notifier.send(user_ids, text, kind=..., ref=..., buttons=..., silent=..., expires_at=...)` stores the notification and one `deliveries` row per user, then queues them.
 - One background worker sends and deletes everything, about 20 messages per second, handling Telegram's `RetryAfter`, retrying network and server errors (after 5 s, 30 s, 2 min) and skipping users who blocked the bot. Handlers never wait for a broadcast, so the bot stays responsive at reminder time. Pending deliveries are resumed after a restart.
 - `kind` + `ref` identify what a notification is about (e.g. `meal_reminder` + a date). Sending again with the same pair replaces the earlier message (`replace=True`), and `retract(kind, ref, user_id)` deletes it, e.g. when a student has booked.
+- Admins can list the notifications still pending or shown (Admin → Notifiche → Notifiche attive) and retract one for everyone (`retract_notification`).
 - A job retracts expired notifications every 5 minutes (`expires_at` is stored in UTC). Telegram lets bots delete messages only within 48 h, so expiries are at most that.
 
 ## Scheduled jobs
 
-APScheduler `AsyncIOScheduler` in Europe/Rome. A failing job is logged at ERROR (and so alerted); the process keeps running. Jobs are idempotent.
+APScheduler `AsyncIOScheduler` in Europe/Rome. A failing job is logged at ERROR (and so alerted); the process keeps running. Jobs are idempotent. Admin → Sistema → Job pianificati lists them with their next run and can run one now (its next run time is set to now; the trigger then resumes the regular schedule).
 
 | When | Job |
 |---|---|
@@ -84,8 +85,12 @@ APScheduler `AsyncIOScheduler` in Europe/Rome. A failing job is logged at ERROR 
 ## Logging and errors
 
 - Everything goes to stderr in one format; in production that is journald (`journalctl -u ghislieri`).
-- Records at ERROR and above are also sent to `GS_ALERT_CHAT_ID` (repeats muted for 10 minutes) and kept in memory for the developer menu.
+- Records at ERROR and above are also sent to `GS_ALERT_CHAT_ID` (repeats muted for 10 minutes). The last 50 errors (with tracebacks) and the last 300 lines at INFO and above are kept in memory for Admin → Sistema.
 - Unhandled exceptions in handlers are logged, the user sees "Qualcosa è andato storto" and the home menu.
+
+## Restart and stop
+
+Admin → Sistema can restart or stop the bot. `App.request_stop(code)` sets the exit code and an event; `__main__` then calls `Dispatcher.stop_polling()`, shuts down the scheduler and the notifier (pending deliveries resume at the next start), and the process exits with that code: 75 to restart, 0 to stop. systemd (`Restart=on-failure`) restarts after 75 or a crash and leaves a clean 0 stopped. SIGTERM also stops cleanly with 0.
 
 ## Configuration
 

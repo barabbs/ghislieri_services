@@ -142,22 +142,22 @@ async def test_create_event_flow(dp, app, message_manager):
     make_user(app.conn, 5, users.STUDENT, name="Lia", surname="Neri")
     plain = client(dp, app, 5)
     await plain.send("/start")
-    await plain.click(message_manager.last_message(), Btn("🗓   Calendario"))
+    await plain.click(message_manager.last_message(), Btn("🗓 Calendario"))
     assert "Nessun evento" in message_manager.last_message().text
-    assert Btn("🆕    Nuovo evento").find_button(message_manager.last_message()) is None
+    assert Btn("🆕 Nuovo evento").find_button(message_manager.last_message()) is None
 
     make_user(app.conn, 7, "calendar.sport")
     c = client(dp, app, 7)
     await c.send("/start")
-    await c.click(message_manager.last_message(), Btn("🗓   Calendario"))
-    await c.click(message_manager.last_message(), Btn("🆕    Nuovo evento"))
+    await c.click(message_manager.last_message(), Btn("🗓 Calendario"))
+    await c.click(message_manager.last_message(), Btn("🆕 Nuovo evento"))
     keyboard = message_manager.last_message().reply_markup.inline_keyboard
     assert [row[0].text for row in keyboard] == [events.CLASSES["sport"], "↩️ Indietro"]  # only their class
     await c.click(message_manager.last_message(), Btn(events.CLASSES["sport"]))
-    await c.click(message_manager.last_message(), Btn("✔️ Avanti"))  # no category yet: refused
+    await c.click(message_manager.last_message(), Btn("➡️ Avanti"))  # no category yet: refused
     assert "categorie" in message_manager.last_message().text
     await c.click(message_manager.last_message(), Btn(".*Calcio.*"))
-    await c.click(message_manager.last_message(), Btn("✔️ Avanti"))
+    await c.click(message_manager.last_message(), Btn("➡️ Avanti"))
     await c.send("Torneo <di> calcio")
     await c.click(message_manager.last_message(), Btn("⏭ Nessuna descrizione"))
     today = clock.today()
@@ -176,16 +176,16 @@ async def test_create_event_flow(dp, app, message_manager):
     )  # fmt: skip
     assert (e.start, e.end) == (at(day.isoformat(), 21, 30), at(day.isoformat(), 23, 30))
     assert "Torneo &lt;di&gt; calcio" in message_manager.last_message().text  # the event's page
-    assert Btn("✏️    Modifica").find_button(message_manager.last_message())
+    assert Btn("✏️ Modifica").find_button(message_manager.last_message())
     assert b"Torneo <di> calcio" in (app.settings.data_dir / events.ICS_FILE).read_bytes()
 
     # The creator cancels the event, then deletes it.
-    await c.click(message_manager.last_message(), Btn("✏️    Modifica"))
+    await c.click(message_manager.last_message(), Btn("✏️ Modifica"))
     await c.click(message_manager.last_message(), Btn("🚦 Stato: .*"))
     await c.click(message_manager.last_message(), Btn("✅ Salva"))
-    assert events.get(app.conn, e.id).cancelled and "CANCELLATO" in message_manager.last_message().text
-    await c.click(message_manager.last_message(), Btn("🗑️    Elimina"))
-    await c.click(message_manager.last_message(), Btn("✔️"))
+    assert events.get(app.conn, e.id).cancelled and "Evento cancellato" in message_manager.last_message().text
+    await c.click(message_manager.last_message(), Btn("🗑 Elimina"))
+    await c.click(message_manager.last_message(), Btn("🗑 Sì, elimina"))
     assert events.get(app.conn, e.id) is None
 
 

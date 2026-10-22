@@ -75,7 +75,7 @@ async def go_home(manager: DialogManager, show_mode: ShowMode = ShowMode.AUTO) -
 
 
 BACK = Cancel(Const("↩️ Indietro"))
-HOME = Start(Const("🏠 Home"), id="home", state=HomeSG.main, mode=StartMode.RESET_STACK)
+HOME = Start(Const("🏠 Menu"), id="home", state=HomeSG.main, mode=StartMode.RESET_STACK)
 
 
 async def tidy_input(message: Message, manager: DialogManager) -> None:

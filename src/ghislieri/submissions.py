@@ -45,7 +45,7 @@ def eduroam_report(app: App, user: users.User, report: str, place: str, note: st
     sid = add(app.conn, "eduroam_report", user.id, {"report": report, "place": place, "note": note})
     app.notifier.send_to_groups(
         (users.ADMIN,),
-        "📶    <b>Nuova Segnalazione Eduroam</b>\n\n"
+        "📶 <b>Nuova Segnalazione Eduroam</b>\n\n"
         f"<code>Studente </code>{esc(user.full_name)}\n\n"
         f"<code>Problema </code><b>{esc(report)}</b>\n"
         f"<code>Luogo    </code><b>{esc(place)}</b>\n"
@@ -72,7 +72,7 @@ async def social_submission(app: App, user: users.User, description: str, photo_
     sid = add(app.conn, "social", user.id, {"description": description, "photos": photo_ids})
     app.notifier.send_to_groups(
         groups,
-        "📣    <b>Nuove Foto per Socials</b>\n\n"
+        "📣 <b>Nuove Foto per Socials</b>\n\n"
         f"<code>Studente </code>{esc(user.full_name)}\n\n"
         f"<code>Descriz. </code><b>{esc(description)}</b>\n\n"
         f"<code>N° Foto  </code><i>{len(photos)}</i> (inviate per email)",
@@ -86,7 +86,7 @@ def feedback(app: App, user: users.User, text: str) -> int:
     sid = add(app.conn, "feedback", user.id, {"text": text})
     app.notifier.send_to_groups(
         (users.ADMIN,),
-        f"💬    <b>Feedback sul bot</b> da {esc(user.full_name)}\n\n{esc(text)}",
+        f"💬 <b>Feedback sul bot</b> da {esc(user.full_name)}\n\n{esc(text)}",
         kind="feedback",
         ref=str(sid),
         silent=True,

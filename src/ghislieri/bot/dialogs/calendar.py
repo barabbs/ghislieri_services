@@ -71,10 +71,7 @@ def _event(manager: DialogManager) -> events.Event | None:
 async def day_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     user, day = user_of(dialog_manager), _day(dialog_manager)
     found = events.day_events(app_of(dialog_manager).conn, day, user)  # type: ignore[arg-type]
-    rows = [
-        (e.id, f"{e.symbol}    {f'{e.start:%H:%M}' if e.start.date() == day else '   ➤   '}    {e.title.upper()}")
-        for e in found
-    ]
+    rows = [(e.id, f"{e.symbol} {f'{e.start:%H:%M}' if e.start.date() == day else '➤'} {e.title}") for e in found]
     return {"day": day_label(day).capitalize(), "events": rows, "empty": not rows}
 
 
@@ -101,11 +98,11 @@ def _can_create(data: dict, widget, manager: DialogManager) -> bool:
 async def event_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     e, user = _event(dialog_manager), user_of(dialog_manager)
     if e is None:
-        return {"found": False, "text": "Evento non trovato.", "url": "", "can_edit": False, "title": ""}
+        return {"found": False, "text": "⚠️ Evento non trovato.", "url": "", "can_edit": False, "title": ""}
     text = f"<b><u>{esc(e.title)}</u></b>\n\n"
     if e.cancelled:
-        text += f"{events.CANCELLED_SYMBOL}  <code>EVENTO CANCELLATO</code>  {events.CANCELLED_SYMBOL}\n\n"
-    text += f"📅    <code>{day_label(e.start.date()).capitalize()}</code>\n🕔    <code>{_hours(e)}</code>"
+        text += f"{events.CANCELLED_SYMBOL} <b>Evento cancellato</b>\n\n"
+    text += f"📅 <code>{day_label(e.start.date()).capitalize()}</code>\n🕔 <code>{_hours(e)}</code>"
     if e.categories:
         text += f"\n\n<i>{esc(_categories(e.categories))}</i>"
     if e.description:
@@ -124,7 +121,7 @@ async def on_delete(query: CallbackQuery, button: Button, manager: DialogManager
     if e and user and events.can_edit(user, e):
         events.delete(app.conn, e.id)
         events.write_ics(app.conn, app.settings.data_dir)
-        await query.answer(f"✅ Evento {e.title[:100]} rimosso!")
+        await query.answer(f"✅ Evento «{e.title[:100]}» eliminato.")
     await manager.switch_to(CalendarSG.main)
 
 
@@ -198,7 +195,7 @@ async def form_getter(dialog_manager: DialogManager, **kwargs) -> dict:
         "new": form["id"] is None,
         "cls": events.CLASSES.get(form["cls"], ""),
         "cats": [
-            (k, f"{events.CATEGORIES[k][1]}    {events.CATEGORIES[k][0]}   {'☑️' if k in picked else ''}")
+            (k, f"{'✅' if k in picked else '⬜'} {events.CATEGORIES[k][1]} {events.CATEGORIES[k][0]}")
             for k in form["options"]
         ],
         "symbols": "".join(events.CATEGORIES[k][1] for k in picked if k in events.CATEGORIES) or "---",
@@ -207,7 +204,7 @@ async def form_getter(dialog_manager: DialogManager, **kwargs) -> dict:
         "url": esc(form["url"] or "---"),
         "start": _short(start) if start else "--:--",
         "end": _short(end) if end else "--:--",
-        "status": "🔴  Cancellato" if form["status"] == "cancelled" else "🟢  Confermato",
+        "status": "🔴 Cancellato" if form["status"] == "cancelled" else "🟢 Confermato",
         "field": "inizio" if dialog_manager.dialog_data.get("field") == "start" else "fine",
         "error": dialog_manager.dialog_data.pop("error", ""),
     }
@@ -226,7 +223,7 @@ async def on_category(query: CallbackQuery, widget, manager: DialogManager, key:
 
 async def on_categories_done(query: CallbackQuery, button: Button, manager: DialogManager) -> None:
     if not _form(manager)["categories"]:
-        await query.answer("Aggiungi almeno una categoria")
+        await query.answer("⚠️ Scegli almeno una categoria.")
         return
     await _advance(manager, CalendarSG.title)
 
@@ -312,7 +309,7 @@ async def on_save(query: CallbackQuery, button: Button, manager: DialogManager) 
         e = events.get(app.conn, form["id"])
         allowed = e is not None and events.can_edit(user, e)
     if not allowed or not set(form["categories"]) <= set(form["options"]):
-        await query.answer("Non hai i permessi per questo evento", show_alert=True)
+        await query.answer("⚠️ Non hai i permessi per questo evento.", show_alert=True)
         await manager.switch_to(CalendarSG.main)
         return
     start = form["start"] and dt.datetime.fromisoformat(form["start"])
@@ -324,11 +321,11 @@ async def on_save(query: CallbackQuery, button: Button, manager: DialogManager) 
     fields = dict(title=form["title"], description=form["description"], url=form["url"], start=start, end=end)
     if form["id"] is None:
         event_id = events.create(app.conn, **fields, cls=form["cls"], categories=form["categories"], creator_id=user.id)
-        await query.answer("✅ Evento aggiunto!")
+        await query.answer("✅ Evento aggiunto.")
     else:
         event_id = form["id"]
         events.update(app.conn, event_id, **fields, categories=form["categories"], status=form["status"])
-        await query.answer("✅ Evento aggiornato!")
+        await query.answer("✅ Evento aggiornato.")
     events.write_ics(app.conn, app.settings.data_dir)
     manager.dialog_data.update(event=event_id, day=start.date().isoformat())  # type: ignore[union-attr]
     await manager.switch_to(CalendarSG.event)
@@ -382,8 +379,8 @@ async def admin_getter(dialog_manager: DialogManager, **kwargs) -> dict:
 
 dialog = Dialog(
     Window(
-        Format("📅    <b>{day}</b>"),
-        Const("\nNessun evento programmato", when="empty"),
+        Format("📅 <b>{day}</b>"),
+        Const("\nNessun evento in programma.", when="empty"),
         Select(
             Format("{item[1]}"),
             id="ev",
@@ -397,13 +394,13 @@ dialog = Dialog(
             SwitchTo(Const("📆 Vai alla data"), id="to_pick_day", state=CalendarSG.pick_day),
             Button(Const("▶"), id="next", on_click=on_shift),
         ),
-        Button(Const("🆕    Nuovo evento"), id="new", on_click=on_new, when=_can_create),
+        Button(Const("🆕 Nuovo evento"), id="new", on_click=on_new, when=_can_create),
         BACK,
         state=CalendarSG.main,
         getter=day_getter,
     ),
     Window(
-        Const("🗓️    <b>Admin Calendario</b>"),
+        Const("🗓 <b>Gestione Calendario</b>"),
         Format("\nEventi dal sito: {rss}\nUltima modifica dal sito: {last}"),
         Button(Const("🔄 Aggiorna dal sito"), id="sync", on_click=on_sync, when=perm(users.ADMIN)),
         BACK,
@@ -411,17 +408,17 @@ dialog = Dialog(
         getter=admin_getter,
     ),
     Window(
-        Const("📅️    Scegli la <b>data</b> da visualizzare"),
+        Const("📆 Scegli la <b>data</b> da vedere."),
         ItalianCalendar(id="day_picker", on_click=on_pick_day),
         SwitchTo(Const("↩️ Indietro"), id="pick_back", state=CalendarSG.main),
         state=CalendarSG.pick_day,
     ),
     Window(
         Format("{text}"),
-        Url(Const("🔗    Visita link"), Format("{url}"), when="url"),
+        Url(Const("🔗 Apri il link"), Format("{url}"), when="url"),
         Row(
-            Button(Const("✏️    Modifica"), id="edit", on_click=on_edit),
-            SwitchTo(Const("🗑️    Elimina"), id="to_delete", state=CalendarSG.delete),
+            Button(Const("✏️ Modifica"), id="edit", on_click=on_edit),
+            SwitchTo(Const("🗑 Elimina"), id="to_delete", state=CalendarSG.delete),
             when="can_edit",
         ),
         SwitchTo(Const("↩️ Indietro"), id="event_back", state=CalendarSG.main),
@@ -429,30 +426,30 @@ dialog = Dialog(
         getter=event_getter,
     ),
     Window(
-        Format("🗑❓    Vuoi davvero <b>eliminare</b> l'evento <b>{title}</b>?"),
+        Format("🗑 Eliminare l'evento <b>{title}</b>?"),
         Row(
-            Button(Const("✔️"), id="delete", on_click=on_delete, when="can_edit"),
-            SwitchTo(Const("❌"), id="delete_no", state=CalendarSG.event),
+            Button(Const("🗑 Sì, elimina"), id="delete", on_click=on_delete, when="can_edit"),
+            SwitchTo(Const("↩️ No"), id="delete_no", state=CalendarSG.event),
         ),
         state=CalendarSG.delete,
         getter=event_getter,
     ),
     Window(
-        Const("🆕    Seleziona la <b>classe</b> dell'evento"),
+        Const("🆕 Scegli la <b>classe</b> dell'evento."),
         Select(Format("{item[1]}"), id="cls", item_id_getter=lambda item: item[0], items="classes", on_click=on_class),
         SwitchTo(Const("↩️ Indietro"), id="cls_back", state=CalendarSG.main),
         state=CalendarSG.klass,
         getter=class_getter,
     ),
     Window(
-        Const("#️⃣    Seleziona le <b>categorie</b> dell'evento"),
+        Const("#️⃣ Scegli una o più <b>categorie</b> dell'evento."),
         Select(Format("{item[1]}"), id="cat", item_id_getter=lambda item: item[0], items="cats", on_click=on_category),
-        Row(FORM_BACK, Button(Const("✔️ Avanti"), id="cats_done", on_click=on_categories_done)),
+        Row(FORM_BACK, Button(Const("➡️ Avanti"), id="cats_done", on_click=on_categories_done)),
         state=CalendarSG.cats,
         getter=form_getter,
     ),
     Window(
-        Const("✏️    Inserisci il <b>titolo</b> dell'evento"),
+        Const("✏️ Scrivi il <b>titolo</b> dell'evento."),
         ERROR,
         TextInput(
             id="title",
@@ -465,7 +462,7 @@ dialog = Dialog(
         getter=form_getter,
     ),
     Window(
-        Const("✏️    Inserisci la <b>descrizione</b> dell'evento"),
+        Const("✏️ Scrivi la <b>descrizione</b> dell'evento."),
         ERROR,
         TextInput(
             id="description",
@@ -478,27 +475,27 @@ dialog = Dialog(
         getter=form_getter,
     ),
     Window(
-        Const("🔗    Inserisci il <b>link</b> dell'evento"),
+        Const("🔗 Scrivi il <b>link</b> dell'evento."),
         ERROR,
         TextInput(
             id="url",
             type_factory=_url,
             on_success=on_text,
-            on_error=input_error("⚠️ Inserisci un link valido che inizi con https://"),
+            on_error=input_error("⚠️ Scrivi un link valido, che inizi con https://"),
         ),
         Row(FORM_BACK, Button(Const("🗑 Nessun link"), id="no_url", on_click=on_clear)),
         state=CalendarSG.url,
         getter=form_getter,
     ),
     Window(
-        Format("📅    Scegli la <b>data di {field}</b> dell'evento"),
+        Format("📅 Scegli la <b>data di {field}</b> dell'evento."),
         ItalianCalendar(id="date_picker", on_click=on_pick_date),
         FORM_BACK,
         state=CalendarSG.date,
         getter=form_getter,
     ),
     Window(
-        Format("🕓️    Scrivi l'<b>orario di {field}</b> dell'evento (es. 21:00)"),
+        Format("🕓 Scrivi l'<b>orario di {field}</b> dell'evento, es. 21:00."),
         ERROR,
         TextInput(
             id="time", type_factory=_time, on_success=on_time, on_error=input_error("⚠️ Scrivi l'orario come 21:00.")
@@ -508,14 +505,14 @@ dialog = Dialog(
         getter=form_getter,
     ),
     Window(
-        Const("🆕    <b>Nuovo evento</b>", when="new"),
-        Const("✏️    <b>Modifica evento</b>", when="editing"),
+        Const("🆕 <b>Nuovo evento</b>", when="new"),
+        Const("✏️ <b>Modifica evento</b>", when="editing"),
         Format(
-            "\n<b>CLASSE</b>    {cls}\n\n{symbols}    <b>{title}</b>\n\n"
-            "<b>Inizio</b>    <code>{start}</code>\n<b>Fine</b>      <code>{end}</code>\n\n"
-            "<i>{description}</i>\n\n<b>Link</b>      {url}"
+            "\n<b>Classe</b>: {cls}\n\n{symbols} <b>{title}</b>\n\n"
+            "<b>Inizio</b>: <code>{start}</code>\n<b>Fine</b>: <code>{end}</code>\n\n"
+            "<i>{description}</i>\n\n<b>Link</b>: {url}"
         ),
-        Format("<b>Stato</b>     {status}", when="editing"),
+        Format("<b>Stato</b>: {status}", when="editing"),
         ERROR,
         Row(
             SwitchTo(Const("✏️ Titolo"), id="edit_title", state=CalendarSG.title),
@@ -531,7 +528,7 @@ dialog = Dialog(
         ),
         Button(Format("🚦 Stato: {status}"), id="status", on_click=on_status, when="editing"),
         Row(
-            Button(Const("❌ Annulla"), id="cancel", on_click=on_cancel_form),
+            Button(Const("✖️ Annulla"), id="cancel", on_click=on_cancel_form),
             Button(Const("➕ Aggiungi"), id="add", on_click=on_save, when="new"),
             Button(Const("✅ Salva"), id="save", on_click=on_save, when="editing"),
         ),

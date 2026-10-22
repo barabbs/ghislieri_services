@@ -66,7 +66,7 @@ async def on_send_report(query: CallbackQuery, button: Button, manager: DialogMa
     data, user = manager.dialog_data, user_of(manager)
     assert user is not None
     submissions.eduroam_report(app_of(manager), user, data["report"], data["place"], data["note"])
-    data["thanks"] = "Grazie per la segnalazione! 😄"
+    data["thanks"] = "✅ Segnalazione inviata. Grazie!"
     await manager.switch_to(SubmissionsSG.done)
 
 
@@ -84,7 +84,7 @@ async def on_send_social(query: CallbackQuery, button: Button, manager: DialogMa
         data["error"] = "⚠️ Invio non riuscito, riprova più tardi."
         return
     data.pop("photos", None)
-    data["thanks"] = "Grazie per il materiale! 😄"
+    data["thanks"] = "✅ Foto inviate. Grazie!"
     await manager.switch_to(SubmissionsSG.done)
 
 
@@ -111,14 +111,14 @@ def _back(state: State) -> SwitchTo:
 
 dialog = Dialog(
     Window(
-        Const("📩    <b>Invia segnalazioni e materiali</b>"),
-        SwitchTo(Const("📣    Foto per Socials"), id="socials", state=SubmissionsSG.photos, on_click=clear_photos),
-        SwitchTo(Const("📶    Segnalazione Eduroam"), id="eduroam", state=SubmissionsSG.report),
+        Const("📩 <b>Invia Contenuti</b>"),
+        SwitchTo(Const("📣 Foto per Socials"), id="socials", state=SubmissionsSG.photos, on_click=clear_photos),
+        SwitchTo(Const("📶 Segnalazione Eduroam"), id="eduroam", state=SubmissionsSG.report),
         BACK,
         state=SubmissionsSG.main,
     ),
     Window(
-        Const("Seleziona una <b>segnalazione</b> o <u>inviane una nuova</u>"),
+        Const("📶 <b>Segnalazione Eduroam</b>\n\nScegli il problema, o scrivilo tu."),
         ERROR,
         Group(
             Select(
@@ -137,7 +137,7 @@ dialog = Dialog(
         getter=getter,
     ),
     Window(
-        Const("In che stanza o zona del Collegio?"),
+        Const("📍 Scrivi la stanza o la zona del Collegio."),
         ERROR,
         TextInput(id="place", type_factory=text_of(200), on_success=on_text, on_error=BAD_TEXT),
         _back(SubmissionsSG.report),
@@ -145,40 +145,43 @@ dialog = Dialog(
         getter=getter,
     ),
     Window(
-        Const("Note eventuali"),
+        Const("📝 Aggiungi una nota, se vuoi."),
         ERROR,
-        Button(Const("Nessuna nota"), id="no_note", on_click=on_no_note),
+        Button(Const("⏭ Nessuna nota"), id="no_note", on_click=on_no_note),
         TextInput(id="note", type_factory=text_of(1000), on_success=on_text, on_error=BAD_TEXT),
         _back(SubmissionsSG.place),
         state=SubmissionsSG.note,
         getter=getter,
     ),
     Window(
-        Format("{report}\n\n<code>Luogo </code>{place}\n<code>Note  </code>{note}\n\n\n✉️  Inviare la segnalazione?"),
+        Format(
+            "📶 <b>Segnalazione Eduroam</b>\n\n"
+            "<b>Problema</b>: {report}\n<b>Luogo</b>: {place}\n<b>Note</b>: {note}\n\nInviare la segnalazione?"
+        ),
         Row(
-            Button(Const("✔️"), id="send_report", on_click=on_send_report),
-            SwitchTo(Const("❌"), id="cancel_report", state=SubmissionsSG.main),
+            Button(Const("📤 Invia"), id="send_report", on_click=on_send_report),
+            SwitchTo(Const("✖️ Annulla"), id="cancel_report", state=SubmissionsSG.main),
         ),
         state=SubmissionsSG.eduroam_recap,
         getter=getter,
     ),
     Window(
-        Const("📸    Invia la <b>foto</b>", when=lambda d, w, m: not d["n_photos"]),
+        Const("📣 <b>Foto per Socials</b>\n\nInvia una o più foto.", when=lambda d, w, m: not d["n_photos"]),
         Format(
-            "📸    Invia altre <b>foto</b>  ({n_photos} ricevute)\n\n<i>Premi <u>Termina</u> quando finito</i>.",
+            "📣 <b>Foto per Socials</b>\n\n📸 Foto ricevute: {n_photos}. Inviane altre o premi Avanti.",
             when="n_photos",
         ),
         ERROR,
         MessageInput(collect_photo(submissions.MAX_PHOTOS), content_types=ContentType.PHOTO),
-        MessageInput(input_error("⚠️ Invia una <b>foto</b> (non come file).")),
-        SwitchTo(Const("Termina"), id="photos_done", state=SubmissionsSG.description, when="n_photos"),
-        Button(Const("🗑    Elimina le foto"), id="clear", on_click=clear_photos, when="n_photos"),
+        MessageInput(input_error("⚠️ Invia una foto (non come file).")),
+        SwitchTo(Const("➡️ Avanti"), id="photos_done", state=SubmissionsSG.description, when="n_photos"),
+        Button(Const("🗑 Elimina le foto"), id="clear", on_click=clear_photos, when="n_photos"),
         _back(SubmissionsSG.main),
         state=SubmissionsSG.photos,
         getter=getter,
     ),
     Window(
-        Const("<u>Invia</u> una <b>descrizione</b> delle foto"),
+        Const("✏️ Scrivi una breve <b>descrizione</b> delle foto."),
         ERROR,
         TextInput(id="description", type_factory=text_of(1000), on_success=on_text, on_error=BAD_TEXT),
         _back(SubmissionsSG.photos),
@@ -186,11 +189,11 @@ dialog = Dialog(
         getter=getter,
     ),
     Window(
-        Format("{description}\n\n<i>{n_photos} foto</i>\n\n\n✉️  Inviare le foto?"),
+        Format("📣 <b>Foto per Socials</b>\n\n{description}\n\n📸 Foto: {n_photos}\n\nInviare le foto?"),
         ERROR,
         Row(
-            Button(Const("✔️"), id="send_social", on_click=on_send_social),
-            SwitchTo(Const("❌"), id="cancel_social", state=SubmissionsSG.main),
+            Button(Const("📤 Invia"), id="send_social", on_click=on_send_social),
+            SwitchTo(Const("✖️ Annulla"), id="cancel_social", state=SubmissionsSG.main),
         ),
         state=SubmissionsSG.social_recap,
         getter=getter,

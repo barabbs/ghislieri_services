@@ -31,6 +31,8 @@ systemctl restart ghislieri
 journalctl -u ghislieri -f        # or: podman logs -f systemd-ghislieri
 ```
 
+The unit restarts the bot after a crash or after **Admin → Sistema → Riavvia** (exit code 75), not after a clean stop (exit code 0: `systemctl stop`, or **Arresta** in the bot). After **Arresta** start it again with `systemctl start ghislieri`.
+
 Keep the previous image for rollback: `podman tag ghislieri:latest ghislieri:previous` before building.
 
 ## Data

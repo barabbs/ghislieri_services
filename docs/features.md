@@ -36,15 +36,16 @@ Who sees what depends on the user's groups (`users.KNOWN_GROUPS`): `student`, `a
 
 ## Other menus
 
-- **Stampa**: send a PDF, choose copies, pages, sides and pages per sheet, confirm; printed on the college printer through CUPS.
+- **Stampa** (no longer on the home menu: Admin → Sistema → Legacy): send a PDF, choose copies, pages, sides and pages per sheet, confirm; printed on the college printer through CUPS.
 - **Canali e Gruppi**: links to the college's Telegram channels and groups.
 - **Invia Contenuti**: eduroam problem reports (stored, admins notified) and photos for the college's social media (emailed to `master` and `socials_rep`).
 - **Impostazioni**: profile (name, surname, email), feedback to the admins, about, changelog.
-- **Admin**: registrations, students (filters, search, groups, year, gender, disable, delete), notifications composer (text, target groups, silent or not, expiry of at most 48 h, optional button), update announcement, canteen and calendar management.
-- **Sviluppo** (`tester` only): recent errors with tracebacks, runtime info, and the unreleased "Prenota servizi" menus and the old Supersega text kept for reference.
+- **Admin**: registrations, students (filters, search, groups, year, gender, disable, delete), notifications composer (text, target groups, silent or not, expiry of at most 48 h, optional button), update announcement, active notifications (detail, retract for everyone), canteen and calendar management.
+- **Admin → Sistema**: recent errors with tracebacks, recent log lines, runtime info (version, uptime, users, queue, database size), scheduled jobs with their next run (and "run now"), restart and stop of the bot, and **Legacy**: features kept but no longer in use (Stampa).
 
 ## Removed in v1
 
 - Today's canteen menu (the canteen no longer emails it).
 - The Facebook → Telegram channel bridge (Facebook removed the API it depended on).
-- Log browsing and service statistics in the bot (logs are in journald; errors are alerted and listed in Sviluppo).
+- Service statistics in the bot (the full logs are in journald; recent lines and errors are in Admin → Sistema).
+- The Sviluppo menu: errors and info are in Admin → Sistema, "Prenota Campetto" is back on the home menu, SuperSega Live is in Canali e Gruppi → Attività Sportive.

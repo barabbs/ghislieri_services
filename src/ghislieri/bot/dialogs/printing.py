@@ -12,12 +12,12 @@ from aiogram_dialog.widgets.input import ManagedTextInput, MessageInput, TextInp
 from aiogram_dialog.widgets.kbd import Button, Group, Row, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
-from ... import printing
+from ... import printing, users
 from ..common import BACK, ERROR, HOME, app_of, esc, input_error, tidy_input
 
 log = logging.getLogger(__name__)
 
-ACCESS = "student"
+ACCESS = users.ADMIN  # legacy: reachable only from Admin → Sistema → Legacy
 
 
 class PrintingSG(StatesGroup):
@@ -44,7 +44,7 @@ async def on_document(message: Message, widget: MessageInput, manager: DialogMan
     doc = message.document
     assert doc is not None
     if doc.mime_type != "application/pdf":
-        manager.dialog_data["error"] = "⚠️ Il file deve essere in formato <u>.pdf</u>."
+        manager.dialog_data["error"] = "⚠️ Il file deve essere in formato PDF."
     elif (doc.file_size or 0) > printing.MAX_FILE_SIZE:
         manager.dialog_data["error"] = "⚠️ Il file è troppo grande (massimo 20 MB)."
     else:
@@ -100,12 +100,12 @@ async def on_print(query: CallbackQuery, button: Button, manager: DialogManager)
             await printing.print_pdf(app.settings, path, _options(manager))
     except printing.PrintError as e:
         log.warning("Printing failed: %s", e)
-        data["result"] = f"❌    Errore nella stampa del file\n\n⚠️    <b>{esc(e)}</b>"
+        data["result"] = f"⚠️ Stampa non riuscita: <b>{esc(e)}</b>"
     except Exception:
         log.exception("Printing failed")
-        data["result"] = "❌    Errore nella stampa del file. Riprova più tardi."
+        data["result"] = "⚠️ Stampa non riuscita. Riprova più tardi."
     else:
-        data["result"] = "✅    File stampato con <b>successo</b>!"
+        data["result"] = "✅ File inviato alla stampante."
     await manager.switch_to(PrintingSG.done)
 
 
@@ -128,29 +128,29 @@ TO_OPTIONS = SwitchTo(Const("↩️ Indietro"), id="to_options", state=PrintingS
 
 dialog = Dialog(
     Window(
-        Const("📑    Invia il <b>file</b> in formato <u>.pdf</u>"),
+        Const("🖨 <b>Stampa</b>\n\nInvia il file da stampare, in formato PDF."),
         ERROR,
         MessageInput(on_document, content_types=ContentType.DOCUMENT),
-        MessageInput(input_error("⚠️ Invia il file come <b>documento</b> .pdf.")),
+        MessageInput(input_error("⚠️ Invia un file PDF.")),
         BACK,
         state=PrintingSG.main,
         getter=getter,
     ),
     Window(
-        Format("⚙️    <b>Opzioni</b> di stampa\n\n📄 {file_name}"),
-        SwitchTo(Format("COPIE    {copies}"), id="copies", state=PrintingSG.copies),
-        SwitchTo(Format("PAGINE    {pages}"), id="pages", state=PrintingSG.pages),
-        SwitchTo(Format("FRONTE RETRO    {sides}"), id="sides", state=PrintingSG.sides),
-        SwitchTo(Format("PAGINE PER FACCIATA    {number_up}"), id="number_up", state=PrintingSG.number_up),
+        Format("⚙️ <b>Opzioni di stampa</b>\n\n📄 {file_name}\n\nTocca un'opzione per cambiarla."),
+        SwitchTo(Format("Copie: {copies}"), id="copies", state=PrintingSG.copies),
+        SwitchTo(Format("Pagine: {pages}"), id="pages", state=PrintingSG.pages),
+        SwitchTo(Format("Fronte retro: {sides}"), id="sides", state=PrintingSG.sides),
+        SwitchTo(Format("Pagine per facciata: {number_up}"), id="number_up", state=PrintingSG.number_up),
         Row(
             SwitchTo(Const("↩️ Indietro"), id="to_main", state=PrintingSG.main),
-            SwitchTo(Const("📑 Stampa"), id="to_confirm", state=PrintingSG.confirm),
+            SwitchTo(Const("🖨 Stampa"), id="to_confirm", state=PrintingSG.confirm),
         ),
         state=PrintingSG.options,
         getter=getter,
     ),
     Window(
-        Const(f"🔢    Seleziona o scrivi il <b>numero di copie</b> (massimo {printing.MAX_COPIES})"),
+        Const(f"🔢 Scegli o scrivi il <b>numero di copie</b> (massimo {printing.MAX_COPIES})."),
         ERROR,
         Row(
             Select(
@@ -174,12 +174,11 @@ dialog = Dialog(
     ),
     Window(
         Const(
-            "📑    Inserisci le <b>pagine da stampare</b>\n\n<u>es.</u>    <i>1,3-5,16</i>\n\n"
-            "⚠️    In caso di <b>più pagine per facciata</b>, la selezione è sulle <b>facciate</b> "
-            "e <b><u>non</u></b> sulle <b>pagine</b>."
+            "📑 Scrivi le <b>pagine da stampare</b>, es. <i>1,3-5,16</i>.\n\n"
+            "ℹ️ Con più pagine per facciata, i numeri indicano le facciate, non le pagine del file."
         ),
         ERROR,
-        Button(Const("Tutte le pagine"), id="all_pages", on_click=on_all_pages),
+        Button(Const("📄 Tutte le pagine"), id="all_pages", on_click=on_all_pages),
         TextInput(
             id="pages_in",
             type_factory=printing.parse_page_list,
@@ -191,7 +190,7 @@ dialog = Dialog(
         getter=getter,
     ),
     Window(
-        Const("📑    Seleziona il <b>fronte retro</b>"),
+        Const("📑 Scegli <b>solo fronte</b> o <b>fronte retro</b>."),
         Group(
             Select(
                 Format("{item[1]}"),
@@ -207,7 +206,7 @@ dialog = Dialog(
         getter=getter,
     ),
     Window(
-        Const("📑    Seleziona il numero di <b>pagine per facciata</b>"),
+        Const("📑 Scegli quante <b>pagine per facciata</b>."),
         Group(
             Select(
                 Format("{item}"),
@@ -225,13 +224,13 @@ dialog = Dialog(
     ),
     Window(
         Format(
-            "🖨️❓    Vuoi davvero procedere con la <b>stampa</b>?\n\n"
+            "🖨 <b>Stampare il file?</b>\n\n"
             "📄 {file_name}\n\nCopie: <b>{copies}</b>\nPagine: <b>{pages}</b>\n"
             "Fronte retro: <b>{sides}</b>\nPagine per facciata: <b>{number_up}</b>\n\n"
-            "<i>L'operazione può richiedere <b>qualche momento</b></i>"
+            "<i>La stampa può richiedere qualche secondo.</i>"
         ),
         Row(
-            Button(Const("✔️"), id="print", on_click=on_print),
+            Button(Const("✅ Conferma"), id="print", on_click=on_print),
             TO_OPTIONS,
         ),
         state=PrintingSG.confirm,

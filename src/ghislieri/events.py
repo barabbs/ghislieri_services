@@ -21,7 +21,7 @@ from .app import App
 
 log = logging.getLogger(__name__)
 
-CLASSES = {"cultural": "🏛  Culturale", "sport": "⚽️  Sport", "college": "🔥  Collegiale", "misc": "🗄️  Altro"}
+CLASSES = {"cultural": "🏛 Culturale", "sport": "⚽️ Sport", "college": "🔥 Collegiale", "misc": "🗄️ Altro"}
 # key: (label, symbol, scope). Holders of "calendar.<scope>" may use the category; the scope's first
 # part is the class it belongs to ("cultural.gs" categories are for Ghislieri Scienza only).
 CATEGORIES = {
@@ -158,13 +158,13 @@ def day_events(conn: sqlite3.Connection, day: dt.date, user: users.User) -> list
 def validate(title: str, start: dt.datetime | None, end: dt.datetime | None, categories: list[str]) -> str | None:
     """Italian error message for an incomplete event, or None."""
     if not title.strip():
-        return "Titolo dell'evento mancante"
+        return "Scrivi il titolo dell'evento."
     if start is None or end is None:
-        return "Orario dell'evento mancante"
+        return "Scegli l'orario dell'evento."
     if end <= start:
-        return "L'orario di fine è precedente a quello di inizio"
+        return "La fine deve essere dopo l'inizio."
     if not categories:
-        return "Aggiungi almeno una categoria"
+        return "Scegli almeno una categoria."
     return None
 
 

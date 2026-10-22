@@ -47,9 +47,9 @@ def email_address(text: str) -> str:
 
 # Editable profile fields: label, prompt, validator, error.
 FIELDS = {
-    "name": ("Nome", "il nuovo <b>Nome</b>", person_name, NAME_ERROR),
-    "surname": ("Cognome", "il nuovo <b>Cognome</b>", person_name, NAME_ERROR),
-    "email": ("Email", "la nuova <b>Email</b>", email_address, "⚠️ Indirizzo email non valido."),
+    "name": ("Nome", "il nuovo <b>nome</b>", person_name, NAME_ERROR),
+    "surname": ("Cognome", "il nuovo <b>cognome</b>", person_name, NAME_ERROR),
+    "email": ("Email", "la nuova <b>email</b>", email_address, "⚠️ Indirizzo email non valido."),
 }
 
 
@@ -107,19 +107,19 @@ TO_MAIN = SwitchTo(Const("↩️ Indietro"), id="to_main", state=SettingsSG.main
 
 dialog = Dialog(
     Window(
-        Const("🔧    <b>Impostazioni</b>"),
-        SwitchTo(Const("👤    Profilo"), id="profile", state=SettingsSG.profile),
-        SwitchTo(Const("💬    Segnalazioni e Suggerimenti"), id="feedback", state=SettingsSG.feedback),
+        Const("🔧 <b>Impostazioni</b>"),
+        SwitchTo(Const("👤 Profilo"), id="profile", state=SettingsSG.profile),
+        SwitchTo(Const("💬 Segnalazioni e suggerimenti"), id="feedback", state=SettingsSG.feedback),
         Row(
-            SwitchTo(Const("🆕️    Changelog"), id="changelog", state=SettingsSG.changelog),
-            SwitchTo(Const("ℹ️    Info"), id="about", state=SettingsSG.about),
+            SwitchTo(Const("🆕 Novità"), id="changelog", state=SettingsSG.changelog),
+            SwitchTo(Const("ℹ️ Info"), id="about", state=SettingsSG.about),
         ),
         BACK,
         state=SettingsSG.main,
     ),
     Window(
         Format(
-            "👤    <b>Profilo</b>\n\n<b>Nome</b>: {name}\n<b>Cognome</b>: {surname}\n<b>Email</b>: {email}\n"
+            "👤 <b>Profilo</b>\n\n<b>Nome</b>: {name}\n<b>Cognome</b>: {surname}\n<b>Email</b>: {email}\n"
             "<b>Genere</b>: {gender}\n<b>Anno di ingresso</b>: {year}\n\n"
             "<i>Per correggere genere o anno di ingresso contatta un amministratore.</i>"
         ),
@@ -133,7 +133,7 @@ dialog = Dialog(
         getter=profile_getter,
     ),
     Window(
-        Format("✏️ Inserisci {prompt}"),
+        Format("✏️ Scrivi {prompt}."),
         ERROR,
         TextInput(id="value", on_success=on_value),
         SwitchTo(Const("↩️ Indietro"), id="to_profile", state=SettingsSG.profile),
@@ -141,7 +141,7 @@ dialog = Dialog(
         getter=getter,
     ),
     Window(
-        Const("Scrivi il <b>problema</b> riscontrato o il <b>suggerimento</b> per il bot"),
+        Const("💬 <b>Segnalazioni e suggerimenti</b>\n\nScrivi un problema o un suggerimento sul bot."),
         ERROR,
         TextInput(
             id="feedback_in",
@@ -153,10 +153,10 @@ dialog = Dialog(
         state=SettingsSG.feedback,
         getter=getter,
     ),
-    Window(Const("Grazie per la segnalazione! 😄"), HOME, state=SettingsSG.feedback_done),
+    Window(Const("✅ Messaggio inviato. Grazie!"), HOME, state=SettingsSG.feedback_done),
     Window(
         Format(
-            "<b>Ghislieri Bot</b> 🤖\nversione {version}\n\n<i>Developed by Barabba</i>\n\n"
+            "🤖 <b>Ghislieri Bot</b>\nVersione {version}\n\n<i>Sviluppato da Barabba</i>\n\n"
             "Codice sorgente: https://github.com/barabbs/ghislieri_services"
         ),
         TO_MAIN,
@@ -164,7 +164,7 @@ dialog = Dialog(
         getter=getter,
     ),
     Window(
-        Format("<b>Changelog</b>    -    versione {version}\n\n{changelog}"),
+        Format("🆕 <b>Novità della versione {version}</b>\n\n{changelog}"),
         TO_MAIN,
         state=SettingsSG.changelog,
         getter=getter,
