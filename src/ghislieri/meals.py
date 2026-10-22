@@ -12,7 +12,7 @@ from apscheduler.triggers.cron import CronTrigger
 from . import clock, mail, submissions, users
 from .app import App
 from .db import transaction
-from .notify import DISMISS, Button, esc
+from .notify import MENU, Button, esc
 
 log = logging.getLogger(__name__)
 
@@ -271,7 +271,7 @@ async def submit_report(app: App, user: users.User, text: str, photos: list[str]
         f"<code>Report   </code><b>{esc(text)}</b>\n\n<code>N° Foto  </code><i>{len(photos)}</i>",
         kind="meal_report",
         ref=str(sid),
-        buttons=[DISMISS],
+        buttons=[MENU],
     )
     attachments = await submissions.download_photos(app.bot, photos)
     await mail.send(
@@ -298,7 +298,7 @@ async def remind(app: App) -> None:
         f"🍽❗️ <b>Prenotazione Pasti</b>\n\nHai prenotato per <i>{clock.day_label(day)}</i>?",
         kind="meal_reminder",
         ref=day.isoformat(),
-        buttons=[Button("📆    Prenota ora!", BOOKING_STATE), DISMISS],
+        buttons=[Button("📆    Prenota ora!", BOOKING_STATE), MENU],
         expires_at=closes_at(day),
         replace=True,
     )
@@ -325,7 +325,7 @@ async def yearly_calendar(app: App) -> None:
         kind="meal_calendar",
         ref=str(year),
         silent=True,
-        buttons=[DISMISS],
+        buttons=[MENU],
     )
 
 

@@ -12,8 +12,9 @@ from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.types import CallbackQuery, ErrorEvent, Message, TelegramObject
 from aiogram_dialog import DialogManager, ShowMode, StartMode, setup_dialogs
 from aiogram_dialog.api.exceptions import OutdatedIntent, UnknownIntent, UnknownState
+from aiogram_dialog.manager.message_manager import MessageManager
 
-from .. import users
+from .. import menus, users
 from ..app import App
 from ..notify import OpenCallback
 from .common import HomeSG, enforce_access_on_press, go_home
@@ -21,7 +22,6 @@ from .dialogs import (
     admin,
     calendar,
     channels,
-    dev,
     home,
     meals,
     printing,
@@ -45,7 +45,6 @@ MODULES = (
     submissions,
     settings,
     channels,
-    dev,
 )
 
 
@@ -80,6 +79,21 @@ def _state_index() -> dict[str, tuple[Any, str | None]]:
     return index
 
 
+class TrackingMessageManager:
+    """aiogram-dialog's message manager, also remembering each chat's menu message in the DB."""
+
+    def __init__(self, conn, inner):
+        self.conn, self.inner = conn, inner
+
+    async def show_message(self, bot, new_message, old_message):
+        shown = await self.inner.show_message(bot, new_message, old_message)
+        menus.remember(self.conn, shown.chat.id, shown.message_id)
+        return shown
+
+    def __getattr__(self, name):
+        return getattr(self.inner, name)
+
+
 def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
     """`message_manager` is replaced only in tests (aiogram_dialog.test_tools.MockMessageManager)."""
     enforce_access_on_press()
@@ -94,16 +108,26 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
 
     entry = Router(name="entry")
 
+    async def drop_menu(chat_id: int) -> None:
+        """Delete the chat's previous menu (aiogram-dialog no longer knows it after a restart)."""
+        if old := menus.forget(app.conn, chat_id):
+            await app.notifier.delete_message(chat_id, old)
+
     @entry.message(CommandStart())
     async def on_start(message: Message, dialog_manager: DialogManager, user: users.User | None):
         with contextlib.suppress(TelegramBadRequest):
             await message.delete()
+        await drop_menu(message.chat.id)
         if user is None:
-            await dialog_manager.start(signup.SignupSG.surname, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND)
+            await dialog_manager.start(
+                signup.SignupSG.surname, mode=StartMode.RESET_STACK, show_mode=ShowMode.DELETE_AND_SEND
+            )
         elif user.status == "pending":
-            await dialog_manager.start(signup.SignupSG.waiting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND)
+            await dialog_manager.start(
+                signup.SignupSG.waiting, mode=StartMode.RESET_STACK, show_mode=ShowMode.DELETE_AND_SEND
+            )
         else:
-            await go_home(dialog_manager, ShowMode.SEND)
+            await go_home(dialog_manager, ShowMode.DELETE_AND_SEND)
 
     @entry.callback_query(OpenCallback.filter())
     async def on_open(
@@ -135,11 +159,12 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
             or (access and not user.has(access))
         ):
             return
+        await drop_menu(query.from_user.id)
         if state is HomeSG.main:
-            await go_home(dialog_manager, ShowMode.SEND)
+            await go_home(dialog_manager, ShowMode.DELETE_AND_SEND)
         else:
             await go_home(dialog_manager, ShowMode.NO_UPDATE)
-            await dialog_manager.start(state, show_mode=ShowMode.SEND)
+            await dialog_manager.start(state, show_mode=ShowMode.DELETE_AND_SEND)
 
     fallback = Router(name="fallback")
 
@@ -151,7 +176,8 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
     @fallback.callback_query()
     async def on_stray_callback(query: CallbackQuery, dialog_manager: DialogManager):
         await query.answer("Menu scaduto")
-        await go_home(dialog_manager, ShowMode.SEND)
+        await drop_menu(query.from_user.id)
+        await go_home(dialog_manager, ShowMode.DELETE_AND_SEND)
 
     @dp.errors(ExceptionTypeFilter(UnknownIntent, OutdatedIntent, UnknownState))
     async def on_stale_menu(event: ErrorEvent, dialog_manager: DialogManager):
@@ -159,7 +185,7 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
         if event.update.callback_query:
             with contextlib.suppress(TelegramBadRequest):
                 await event.update.callback_query.answer("Menu scaduto, ecco quello nuovo")
-        await go_home(dialog_manager, ShowMode.SEND)
+        await go_home(dialog_manager, ShowMode.DELETE_AND_SEND)
 
     @dp.errors()
     async def on_error(event: ErrorEvent, dialog_manager: DialogManager):
@@ -167,11 +193,15 @@ def build_dispatcher(app: App, message_manager=None) -> Dispatcher:
         with contextlib.suppress(Exception):
             if event.update.callback_query:
                 await event.update.callback_query.answer("⚠️ Qualcosa è andato storto", show_alert=True)
-            await go_home(dialog_manager, ShowMode.SEND)
+            await go_home(dialog_manager, ShowMode.DELETE_AND_SEND)
 
     dp.include_router(entry)
     for module in MODULES:
         dp.include_router(module.dialog)
     dp.include_router(fallback)
-    setup_dialogs(dp, message_manager=message_manager, events_isolation=isolation)
+    setup_dialogs(
+        dp,
+        message_manager=TrackingMessageManager(app.conn, message_manager or MessageManager()),
+        events_isolation=isolation,
+    )
     return dp

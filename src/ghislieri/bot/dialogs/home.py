@@ -6,7 +6,7 @@ from aiogram_dialog.widgets.text import Const
 
 from .. import common
 from ..common import HomeSG, perm
-from . import admin, calendar, channels, dev, meals, printing, settings, submissions
+from . import admin, calendar, channels, meals, printing, settings, submissions
 
 ACCESS = None
 
@@ -39,7 +39,6 @@ dialog = Dialog(
             ),
             Start(Const("🔓    Admin"), id="admin", state=admin.AdminSG.main, when=perm(admin.ACCESS)),
         ),
-        Start(Const("🧪    Sviluppo"), id="dev", state=dev.DevSG.main, when=perm(dev.ACCESS)),
         state=HomeSG.main,
     ),
 )

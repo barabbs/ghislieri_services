@@ -30,7 +30,7 @@ from aiogram.exceptions import (
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from . import clock, users
+from . import clock, menus, users
 
 log = logging.getLogger(__name__)
 
@@ -55,7 +55,8 @@ class Button:
     state: str = ""  # dialog state to open, e.g. MealsSG.days.state
 
 
-DISMISS = Button("✖️ Chiudi")
+# Default button: the notification may replace the user's menu, so it offers a way back to it.
+MENU = Button("🏠 Menu", "HomeSG:main")
 
 
 def _keyboard(buttons: list[Button]) -> InlineKeyboardMarkup | None:
@@ -119,7 +120,7 @@ class Notifier:
                 kind,
                 ref,
                 text,
-                json.dumps([asdict(b) for b in buttons or []]),
+                json.dumps([asdict(b) for b in (buttons if buttons is not None else [MENU])]),
                 int(silent),
                 clock.iso(clock.now()),
                 clock.utc_iso(expires_at) if expires_at else None,
@@ -198,16 +199,22 @@ class Notifier:
                 log.warning("Telegram request failed (%s), retrying in %s s", e, delay)
                 await asyncio.sleep(delay)
 
-    async def _delete(self, chat_id: int, message_id: int) -> None:
-        # Messages older than 48 h cannot be deleted; nothing to do about it.
-        with contextlib.suppress(TelegramBadRequest, TelegramForbiddenError):
+    async def delete_message(self, chat_id: int, message_id: int) -> None:
+        """Delete a bot message; one older than 48 h (which Telegram refuses to delete) loses its buttons."""
+        try:
             await self._call(lambda: self.bot.delete_message(chat_id=chat_id, message_id=message_id))
+        except TelegramForbiddenError:
+            pass
+        except TelegramBadRequest:
+            # Older than 48 h: Telegram refuses to delete it. At least remove its buttons.
+            with contextlib.suppress(TelegramBadRequest, TelegramForbiddenError):
+                await self.bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=None)
 
     async def _run(self) -> None:
         while True:
             action, a, b = await self._queue.get()
             try:
-                await (self._deliver(a, b) if action == "send" else self._delete(a, b))
+                await (self._deliver(a, b) if action == "send" else self.delete_message(a, b))
             except Exception:
                 log.exception("Notification worker: %s %s %s failed", action, a, b)
                 if action == "send":
@@ -251,6 +258,9 @@ class Notifier:
             "SELECT state FROM deliveries WHERE notification_id = ? AND user_id = ?", (nid, uid)
         ).fetchone()["state"]
         if state == "retracted":
-            await self._delete(uid, msg.message_id)
-        else:
-            self._set(nid, uid, "sent", msg.message_id)
+            await self.delete_message(uid, msg.message_id)
+            return
+        self._set(nid, uid, "sent", msg.message_id)
+        # Like a new menu, the notification replaces an idle menu (a user busy in it keeps it).
+        if old_menu := menus.forget(self.conn, uid, idle=menus.IDLE):
+            self._queue.put_nowait(("delete", uid, old_menu))
