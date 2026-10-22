@@ -83,3 +83,23 @@ async def test_retries_and_utc_expiry(app, monkeypatch):
     app.notifier.send([1], "down", kind="y")
     await app.notifier.drain()
     assert app.conn.execute("SELECT state FROM deliveries WHERE notification_id = 2").fetchone()[0] == "failed"
+
+
+async def test_undeletable_message_is_blanked(app):
+    from aiogram.exceptions import TelegramBadRequest
+    from aiogram.methods import EditMessageText
+    from conftest import RecordingBot
+
+    from ghislieri import notify
+
+    class OldMessageBot(RecordingBot):
+        async def __call__(self, method, request_timeout=None):
+            if isinstance(method, DeleteMessage):
+                self.calls.append(method)
+                raise TelegramBadRequest(method=method, message="Bad Request: message can't be deleted for everyone")
+            return await super().__call__(method, request_timeout)
+
+    app.notifier.bot = bot = OldMessageBot()
+    await app.notifier.delete_message(1, 42)
+    edits = [c for c in bot.calls if isinstance(c, EditMessageText)]
+    assert [(e.message_id, e.text) for e in edits] == [(42, notify.UNDELETABLE)]

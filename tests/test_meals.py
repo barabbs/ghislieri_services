@@ -81,12 +81,12 @@ async def test_reminder_and_booking_dialog(dp, app, message_manager, friday_noon
     c = client(dp, app, 3)
     await c.send("/start")
     await c.click(message_manager.last_message(), Btn(".*Mensa"))
-    assert "❔ SAB 05 gen · Pranzo" in str(message_manager.last_message().reply_markup)
+    assert "SAB 05 gen · Pranzo ❔" in str(message_manager.last_message().reply_markup)
     await c.click(message_manager.last_message(), Btn(".*Pranzo.*"))
     await c.click(message_manager.last_message(), Btn(".*Cena.*"))
     await c.click(message_manager.last_message(), Btn(".*Cena.*"))
     assert meals.answers(app.conn, 3, SAT) == {"lunch": True, "dinner": False}
-    assert "🔴 SAB 05 gen · Cena" in str(message_manager.last_message().reply_markup)
+    assert "SAB 05 gen · Cena 🔴" in str(message_manager.last_message().reply_markup)
     states = dict(
         app.conn.execute(
             "SELECT d.user_id, d.state FROM deliveries d JOIN notifications n ON n.id = d.notification_id"

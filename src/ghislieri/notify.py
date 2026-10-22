@@ -57,6 +57,8 @@ class Button:
 
 # Default button: the notification may replace the user's menu, so it offers a way back to it.
 MENU = Button("🏠 Menu", "HomeSG:main")
+# Shown instead of a message Telegram refuses to delete (older than 48 h), as in v0.5.
+UNDELETABLE = "Puoi <b>eliminare</b> questo <b>messaggio</b>"
 
 
 def _keyboard(buttons: list[Button]) -> InlineKeyboardMarkup | None:
@@ -204,15 +206,15 @@ class Notifier:
                 await asyncio.sleep(delay)
 
     async def delete_message(self, chat_id: int, message_id: int) -> None:
-        """Delete a bot message; one older than 48 h (which Telegram refuses to delete) loses its buttons."""
+        """Delete a bot message; one older than 48 h (which Telegram refuses to delete) is replaced by UNDELETABLE."""
         try:
             await self._call(lambda: self.bot.delete_message(chat_id=chat_id, message_id=message_id))
         except TelegramForbiddenError:
             pass
         except TelegramBadRequest:
-            # Older than 48 h: Telegram refuses to delete it. At least remove its buttons.
+            # Older than 48 h: Telegram refuses to delete it. Blank it out (this also drops its buttons).
             with contextlib.suppress(TelegramBadRequest, TelegramForbiddenError):
-                await self.bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=None)
+                await self.bot.edit_message_text(UNDELETABLE, chat_id=chat_id, message_id=message_id)
 
     async def _run(self) -> None:
         while True:

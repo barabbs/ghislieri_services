@@ -57,7 +57,7 @@ async def main_getter(dialog_manager: DialogManager, **kwargs) -> dict:
     for day in meals.open_days(app.conn):
         answers = meals.answers(app.conn, user.id, day) if user else {}
         for meal in meals.MEALS:
-            label = f"{ICONS[answers.get(meal)]} {day_label(day, short=True)} · {meals.MEAL_NAMES[meal]}"
+            label = f"{day_label(day, short=True)} · {meals.MEAL_NAMES[meal]} {ICONS[answers.get(meal)]}"
             items.append((f"{day.isoformat()}_{meal}", label))
     return {"meals": items, "any_open": bool(items)}
 
